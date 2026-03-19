@@ -1,3 +1,5 @@
+import { BASE_URL } from "../config";
+
 export const uploadService = {
   uploadImage: async (file: File, folder: string = 'mann-categories'): Promise<{ success: boolean; url?: string; message?: string }> => {
     try {
@@ -15,7 +17,7 @@ export const uploadService = {
       formData.append('image', file);
       formData.append('folder', folder);
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${BASE_URL}/api/upload`, {
         method: 'POST',
         body: formData
       });

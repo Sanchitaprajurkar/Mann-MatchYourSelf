@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { Check, X, Star, Clock } from "lucide-react";
-
-// Configure axios base URL
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 interface Review {
   _id: string;
@@ -31,9 +28,7 @@ const AdminReviews = () => {
   const fetchReviews = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.get(`${API_URL}/reviews/pending`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/reviews/pending`);
       setReviews(response.data.data);
       setLoading(false);
     } catch (err) {
@@ -49,11 +44,7 @@ const AdminReviews = () => {
   const handleStatusUpdate = async (id: string, status: "approved" | "rejected") => {
     try {
       const token = localStorage.getItem("adminToken");
-      await axios.put(
-        `${API_URL}/reviews/${id}`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/reviews/${id}`, { status });
       
       // Remove from list or update locally
       setReviews(reviews.filter(r => r._id !== id));

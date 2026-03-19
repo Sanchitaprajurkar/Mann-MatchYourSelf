@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axios";
 import { useCart } from "../context/CartContext";
 import { addressService, Address } from "../services/addressService";
 
@@ -165,16 +165,7 @@ const Checkout: React.FC = () => {
       await syncCartWithBackend();
       console.log("🛒 Cart synced, placing order...");
 
-      const response = await axios.post(
-        "/api/orders",
-        { shippingAddress },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const response = await api.post("/orders", { shippingAddress });
 
       if (response.data.success) {
         navigate(`/order-success/${response.data.data._id}`);

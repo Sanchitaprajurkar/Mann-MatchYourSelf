@@ -1,6 +1,7 @@
 import { Category } from "../types/category";
+import { BASE_URL } from "../config";
 
-const API_BASE = "/api";
+const API_BASE = `${BASE_URL}/api`;
 
 export const categoryService = {
   // Get all categories for admin

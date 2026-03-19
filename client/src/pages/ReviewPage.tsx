@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axios";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
-// Configure axios base URL if not already configured globally
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const ReviewPage = () => {
   const [searchParams] = useSearchParams();
@@ -36,7 +34,7 @@ const ReviewPage = () => {
     setError("");
 
     try {
-      await axios.post(`${API_URL}/reviews/submit`, {
+      await api.post(`/reviews/submit`, {
         token,
         rating,
         comment,

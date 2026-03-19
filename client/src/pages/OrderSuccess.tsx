@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axios";
 
 const COLORS = {
   gold: "#C5A059",
@@ -55,11 +55,7 @@ const OrderSuccess: React.FC = () => {
           return;
         }
 
-        const response = await axios.get(`/api/orders/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get(`/orders/${id}`);
 
         if (response.data.success) {
           setOrder(response.data.data);

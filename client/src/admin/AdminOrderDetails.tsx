@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useParams } from "react-router-dom";
 
 export default function AdminOrderDetails() {
   const { id } = useParams();
-  const [order, setOrder] = useState(null);
+  const [order, setOrder] = useState<any>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get("/api/admin/orders", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.get("/admin/orders");
 
       const found = data.data.find(o => o._id === id);
       setOrder(found);

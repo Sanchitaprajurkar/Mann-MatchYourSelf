@@ -1,7 +1,7 @@
 import axios from "axios";
+import { BASE_URL } from "../config";
 
-// Use relative URL since Vite proxy handles the routing to localhost:5000
-const API_BASE_URL = "/api";
+const API_BASE_URL = `${BASE_URL}/api`;
 
 // Create axios instance with timeout and better error handling
 const api = axios.create({
