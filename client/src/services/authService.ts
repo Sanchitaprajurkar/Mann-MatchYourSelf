@@ -1,0 +1,34 @@
+import api from "../api/axios";
+
+export const loginUser = async (email: string, password: string) => {
+  try {
+    console.log("Login request:", { email, password: "***" });
+    const res = await api.post("/auth/login", { email, password });
+    console.log("Login response:", res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error("Login service error:", error);
+    console.error("Error response:", error.response?.data);
+    throw error;
+  }
+};
+
+export const signupUser = async (
+  name: string,
+  email: string,
+  password: string
+) => {
+  try {
+    console.log("Signup request:", { name, email, password: "***" });
+    const res = await api.post("/auth/signup", {
+      name,
+      email,
+      password,
+    });
+    console.log("Signup response:", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Signup service error:", error);
+    throw error;
+  }
+};

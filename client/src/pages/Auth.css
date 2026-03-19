@@ -1,0 +1,205 @@
+/* ===============================
+   AUTH PAGE – MANN (WITH NAVBAR)
+================================ */
+
+/* Page wrapper */
+.auth-container {
+  min-height: calc(100vh - 120px);
+  background: #FAF9F6; /* Ivory */
+  display: flex;
+  justify-content: center;
+  padding-top: 120px; /* pushes content below navbar */
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Content column */
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--mann-surface);
+  border: 1px solid var(--mann-border);
+  padding: 48px 42px;
+  border-radius: 4px; /* sharp, couture feel */
+}
+
+.auth-card h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--mann-black);
+  margin-bottom: 56px;
+}
+
+/* Inputs */
+.auth-card input {
+  width: 100%;
+  padding: 18px 14px;
+  margin-bottom: 22px;
+  border: 1px solid var(--mann-border);
+  background: transparent;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--mann-black);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Placeholder */
+.auth-card input::placeholder {
+  color: var(--mann-text);
+}
+
+/* Focus = Gilded */
+.auth-card input:focus {
+  outline: none;
+  border-color: var(--mann-gold);
+  box-shadow: 0 1px 0 var(--mann-gold);
+}
+
+
+/* Links row */
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.auth-links a {
+  color: var(--mann-muted);
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  color: var(--mann-black);
+  text-decoration: underline;
+}
+
+
+/* Checkbox */
+.auth-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 32px;
+  color: #1A1A1A;
+}
+
+.auth-checkbox input {
+  width: 14px;
+  height: 14px;
+}
+
+/* Primary button */
+.auth-card button {
+  width: 100%;
+  padding: 18px;
+  background: var(--mann-wine);
+  color: var(--mann-bg);
+  border: none;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.3s ease;
+}
+
+.auth-card button:hover {
+  background: var(--mann-black);
+}
+
+
+/* Secondary CTA */
+.auth-secondary-btn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  border: 1px solid var(--mann-black);
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  color: var(--mann-black);
+  transition: all 0.3s ease;
+}
+
+.auth-secondary-btn:hover {
+  border-color: var(--mann-gold);
+  color: var(--mann-gold);
+}
+
+
+.error-message {
+  border: 1px solid var(--mann-wine);
+  color: var(--mann-wine);
+  padding: 14px;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.success-message {
+  border: 1px solid #2D5A27;
+  color: #2D5A27;
+  background: #F0F8F0;
+  padding: 14px;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.footer-admin-link {
+  font-size: 11px;
+  color: #8C8273;
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+.footer-admin-link:hover {
+  opacity: 1;
+}
+/* ===============================
+   MOBILE REFINEMENTS
+================================ */
+@media (max-width: 768px) {
+  .auth-container {
+    padding-top: 80px;
+  }
+
+  .auth-card h2 {
+    font-size: 26px;
+    letter-spacing: 0.14em;
+    margin-bottom: 40px;
+  }
+
+  .auth-card input,
+  .auth-card button,
+  .auth-secondary-btn,
+  .google-auth-btn {
+    padding: 16px;
+    font-size: 13px;
+  }
+
+  .auth-links {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding-top: 60px;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .auth-card h2 {
+    font-size: 22px;
+  }
+}
