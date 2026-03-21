@@ -1,77 +1,82 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import API from "../utils/api";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
-const FALLBACK_VIDEO = "/mann-heritage.mp4"; // Local public video fallback
-const POSTER_IMAGE = "/women-hero.png"; // Fallback poster image
+const FALLBACK_VIDEO = "/mann-heritage.mp4";
+const POSTER_IMAGE = "/Hero/slide1.png";
 
 const WhyMannVideo = () => {
-  // Start with fallback video immediately - no loading state
   const [videoUrl, setVideoUrl] = useState<string>(FALLBACK_VIDEO);
+  const [showVideo, setShowVideo] = useState(false);
+
+  // Get optimized poster image
+  const optimizedPosterImage = CLOUDINARY_PRESETS.hero(POSTER_IMAGE, 1920);
 
   useEffect(() => {
     const controller = new AbortController();
 
+    // Let poster + text paint first, then enable video
+    const timer = window.setTimeout(() => {
+      setShowVideo(true);
+    }, 300);
+
     const fetchHeroVideo = async () => {
       try {
         const response = await API.get("/api/settings/hero-video", {
-          timeout: 3000, // Reduced timeout to 3s
+          timeout: 3000,
           signal: controller.signal,
         });
 
-        // Only update if we got a valid video URL
         if (response.data.success && response.data.heroVideo) {
           setVideoUrl(response.data.heroVideo);
-
-          if (import.meta.env.DEV) {
-            console.log(
-              "✅ Hero video loaded from database:",
-              response.data.heroVideo,
-            );
-          }
         }
-      } catch (error) {
-        // Silently fail - already using fallback
-        if (import.meta.env.DEV) {
-          console.log("ℹ️ Using fallback video");
-        }
+      } catch {
+        // stay on fallback silently
       }
     };
 
-    // Fetch in background - don't block rendering
     fetchHeroVideo();
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const handleVideoError = () => {
-    // If current video fails to load, fall back to local video
     if (videoUrl !== FALLBACK_VIDEO) {
-      console.warn("⚠️ Video failed to load, switching to fallback");
       setVideoUrl(FALLBACK_VIDEO);
     }
   };
 
   return (
     <section className="relative w-full min-h-[100svh] overflow-hidden">
-      {/* BACKGROUND VIDEO - Lazy loaded with metadata preload only */}
-      <video
-        key={videoUrl}
-        className="absolute top-0 left-0 w-full h-full object-cover"
-        src={videoUrl}
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster={POSTER_IMAGE}
-        onError={handleVideoError}
-        preload="metadata"
+      <img
+        src={optimizedPosterImage}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchPriority="high"
       />
 
-      {/* DARK OVERLAY - High contrast for text readability */}
+      {showVideo && (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="none"
+          poster={optimizedPosterImage}
+          onError={handleVideoError}
+        />
+      )}
+
       <div className="absolute inset-0 bg-black/50 md:bg-black/40" />
 
-      {/* CONTENT - Responsive layout */}
       <div className="relative z-10 h-full min-h-[100svh] flex items-center">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Heading - Responsive typography */}

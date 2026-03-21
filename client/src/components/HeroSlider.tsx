@@ -5,6 +5,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import API from "../utils/api";
 import { BASE_URL } from "../config";
 import { useUI } from "../context/UIContext";
+import {
+  CLOUDINARY_PRESETS,
+  getImageLoadingProps,
+  isCloudinaryUrl,
+} from "../utils/cloudinary";
 
 // Brand colors for consistency
 const COLORS = {
@@ -13,14 +18,20 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
-// Helper for bulletproof image resolution
+// Helper for bulletproof image resolution with Cloudinary optimization
 const resolveImageUrl = (image: string) => {
   if (!image) return "";
-  if (image.startsWith("http")) return image;
+  if (image.startsWith("http")) {
+    // Optimize Cloudinary URLs
+    if (isCloudinaryUrl(image)) {
+      return CLOUDINARY_PRESETS.hero(image, 1920);
+    }
+    return image;
+  }
   return `${BASE_URL}${image.startsWith("/") ? image : "/" + image}`;
 };
 
-// Fallback slides constant
+// Fallback slides constant with optimized images
 const FALLBACK_SLIDES = [
   {
     id: 1,
@@ -28,7 +39,7 @@ const FALLBACK_SLIDES = [
     subtitle: "Effortless grace in every thread.",
     image: "/images/hero/hero1.jpg",
     cta: "Explore Daily Wear",
-    link: "/shop"
+    link: "/shop",
   },
   {
     id: 2,
@@ -36,9 +47,12 @@ const FALLBACK_SLIDES = [
     subtitle: "Weddings • Festivals • Traditions.",
     image: "/images/hero/hero2.jpg",
     cta: "Explore Festive Wear",
-    link: "/shop"
-  }
-];
+    link: "/shop",
+  },
+].map((slide) => ({
+  ...slide,
+  optimizedImage: CLOUDINARY_PRESETS.hero(slide.image, 1920),
+}));
 
 const HeroSlider = () => {
   // Initialize with fallback to ensure no empty state
@@ -117,11 +131,19 @@ const HeroSlider = () => {
     const fetchSlides = async () => {
       try {
         const response = await API.get("/api/hero");
-        if (response.data && response.data.data && response.data.data.length > 0) {
+        if (
+          response.data &&
+          response.data.data &&
+          response.data.data.length > 0
+        ) {
           const slidesWithFullUrls = response.data.data.map((slide: any) => {
+            const optimizedImage = isCloudinaryUrl(slide.image)
+              ? CLOUDINARY_PRESETS.hero(slide.image, 1920)
+              : resolveImageUrl(slide.image);
             return {
               ...slide,
               image: resolveImageUrl(slide.image),
+              optimizedImage,
             };
           });
           setSlides(slidesWithFullUrls);
@@ -174,13 +196,13 @@ const HeroSlider = () => {
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-gray-900 text-xl">
-             {loading ? (
-                <div className="animate-pulse flex flex-col items-center">
-                   <div className="h-12 w-12 border-2 border-[#C5A059] border-t-transparent rounded-full animate-spin mb-4"></div>
-                </div>
-             ) : (
-                "No slides available"
-             )}
+            {loading ? (
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="h-12 w-12 border-2 border-[#C5A059] border-t-transparent rounded-full animate-spin mb-4"></div>
+              </div>
+            ) : (
+              "No slides available"
+            )}
           </div>
         </div>
       </section>
@@ -229,10 +251,11 @@ const HeroSlider = () => {
           >
             {slides[current] && (
               <img
-                src={slides[current].image}
+                src={slides[current].optimizedImage || slides[current].image}
                 alt={slides[current].title}
                 className="h-full w-full object-cover object-[75%_2.5%]"
                 loading={current === 0 ? "eager" : "lazy"}
+                fetchPriority={current === 0 ? "high" : "auto"}
               />
             )}
 
@@ -244,19 +267,19 @@ const HeroSlider = () => {
           <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 md:px-12 lg:px-20">
             <div className="max-w-xl">
               {slides[current] && (
-                  <motion.h1
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                    className="mb-4 font-serif leading-tight tracking-normal"
-                    style={{
-                      color: "rgba(255, 255, 255, 1)",
-                      textAlign: "left",
-                      fontSize: "clamp(2rem, 5vw, 3.75rem)", // Responsive clamp
-                    }}
-                  >
-                    {slides[current].title}
-                  </motion.h1>
+                <motion.h1
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.8 }}
+                  className="mb-4 font-serif leading-tight tracking-normal"
+                  style={{
+                    color: "rgba(255, 255, 255, 1)",
+                    textAlign: "left",
+                    fontSize: "clamp(2rem, 5vw, 3.75rem)", // Responsive clamp
+                  }}
+                >
+                  {slides[current].title}
+                </motion.h1>
               )}
 
               {slides[current] && (

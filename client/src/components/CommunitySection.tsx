@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { Star, ArrowRight, Quote, CheckCircle } from "lucide-react";
 import API from "../utils/api";
+import { CLOUDINARY_PRESETS, isCloudinaryUrl } from "../utils/cloudinary";
+
+// Helper function to optimize community review images
+const optimizeReviewImage = (imageUrl: string) => {
+  if (!imageUrl) return imageUrl;
+
+  if (isCloudinaryUrl(imageUrl)) {
+    return CLOUDINARY_PRESETS.gallery(imageUrl, 600);
+  }
+
+  return imageUrl;
+};
 
 interface CommunitySectionProps {
   productId?: string;
@@ -19,7 +31,7 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
   const handleSubmitReview = async () => {
     if (!productId) return;
     if (isSubmitting) return; // Prevent multiple calls
-    
+
     setIsSubmitting(true);
 
     const formData = new FormData();
@@ -35,7 +47,7 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
       await API.post("/api/reviews", formData);
       alert("Review submitted for approval!");
       setShowReviewForm(false); // close form
-      
+
       // Optionally reset form state
       setName("");
       setRating(5);
@@ -54,7 +66,9 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
       try {
         setLoading(true);
         // If productId is provided, fetch product specific reviews, otherwise generic or all
-        const endpoint = productId ? `/api/reviews/product/${productId}` : `/api/reviews`;
+        const endpoint = productId
+          ? `/api/reviews/product/${productId}`
+          : `/api/reviews`;
         const res = await API.get(endpoint);
         if (res.data.success) {
           setReviews(res.data.data || []);
@@ -96,7 +110,7 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
             </p>
             {productId && (
               <div className="flex flex-col items-center gap-4">
-                <button 
+                <button
                   onClick={() => {
                     console.log("WRITE REVIEW CLICKED");
                     setShowReviewForm(true);
@@ -107,7 +121,9 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                 </button>
                 {showReviewForm && (
                   <div className="mt-6 p-6 border rounded-lg bg-white shadow w-full max-w-sm text-left">
-                    <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Write Your Review</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">
+                      Write Your Review
+                    </h2>
 
                     <input
                       type="text"
@@ -161,15 +177,16 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
 
   // Calculate Myntra-style rating summary stats
   const total = reviews.length;
-  const avg = reviews.reduce((acc: number, r: any) => acc + (r.rating || 5), 0) / total || 0;
+  const avg =
+    reviews.reduce((acc: number, r: any) => acc + (r.rating || 5), 0) / total ||
+    0;
   const count = [5, 4, 3, 2, 1].map(
-    (star) => reviews.filter((r: any) => (r.rating || 5) === star).length
+    (star) => reviews.filter((r: any) => (r.rating || 5) === star).length,
   );
 
   return (
     <section className="py-24 bg-[#FCFBFA] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-
         {/* HEADER */}
         <div className="text-center mb-12">
           <p className="text-[11px] tracking-[0.5em] text-[#8C8273] uppercase mb-4">
@@ -180,7 +197,7 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
           </h2>
           {productId && reviews.length > 0 && (
             <div className="flex flex-col items-center mt-6">
-              <button 
+              <button
                 onClick={() => {
                   console.log("WRITE REVIEW CLICKED");
                   setShowReviewForm(true);
@@ -191,7 +208,9 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
               </button>
               {showReviewForm && (
                 <div className="mt-6 p-6 border rounded-lg bg-white shadow w-full max-w-sm text-left">
-                  <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Write Your Review</h2>
+                  <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">
+                    Write Your Review
+                  </h2>
 
                   <input
                     type="text"
@@ -245,16 +264,22 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="text-center md:text-left md:border-r md:border-gray-100 pr-8">
                 <div className="text-5xl font-bold text-[#1A1A1A] mb-2 flex items-center justify-center md:justify-start gap-2">
-                  {avg.toFixed(1)} <Star className="w-8 h-8 fill-[#C5A059] text-[#C5A059]" />
+                  {avg.toFixed(1)}{" "}
+                  <Star className="w-8 h-8 fill-[#C5A059] text-[#C5A059]" />
                 </div>
-                <p className="text-sm text-gray-500 uppercase tracking-widest">Based on {total} Reviews</p>
+                <p className="text-sm text-gray-500 uppercase tracking-widest">
+                  Based on {total} Reviews
+                </p>
               </div>
               <div className="space-y-2">
                 {count.map((c, i) => {
                   const star = 5 - i;
                   const percent = total ? (c / total) * 100 : 0;
                   return (
-                    <div key={star} className="flex items-center gap-3 text-sm text-gray-600">
+                    <div
+                      key={star}
+                      className="flex items-center gap-3 text-sm text-gray-600"
+                    >
                       <span className="w-4 font-medium">{star}</span>
                       <Star className="w-4 h-4 text-gray-300 fill-current" />
                       <div className="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden">
@@ -276,7 +301,9 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {reviews.map((review: any) => {
             const rating = review.rating || 5;
-            const fallbackImage = "https://res.cloudinary.com/dmrnnygi5/image/upload/v1714561234/placeholder_image.jpg"; // generic fallback
+            const fallbackImage = optimizeReviewImage(
+              "https://res.cloudinary.com/dmrnnygi5/image/upload/v1714561234/placeholder_image.jpg",
+            ); // generic fallback
             const hasImage = !!review.image;
 
             return (
@@ -333,23 +360,36 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
 
                     {/* Desktop hint */}
                     <div className="hidden md:block absolute bottom-6 right-8 text-[10px] tracking-widest text-gray-300 uppercase italic">
-                      {hasImage ? 'Hover to see the look →' : 'Hover for details →'}
+                      {hasImage
+                        ? "Hover to see the look →"
+                        : "Hover for details →"}
                     </div>
                   </div>
 
                   {/* BACK (DESKTOP ONLY) */}
                   <div className="hidden md:block absolute inset-0 [transform:rotateY(180deg)] md:[backface-visibility:hidden] bg-[#1A1A1A]">
                     <img
-                      src={review.image || fallbackImage}
+                      src={
+                        review.image
+                          ? optimizeReviewImage(review.image)
+                          : fallbackImage
+                      }
                       alt={review.name || "Customer review"}
-                      onError={(e) => { e.currentTarget.src = fallbackImage; }}
-                      className={`h-full w-full object-cover transition-all duration-500 ${hasImage ? 'grayscale-[20%] group-hover:grayscale-0' : 'opacity-30'}`}
+                      onError={(e) => {
+                        e.currentTarget.src = fallbackImage;
+                      }}
+                      className={`h-full w-full object-cover transition-all duration-500 ${hasImage ? "grayscale-[20%] group-hover:grayscale-0" : "opacity-30"}`}
+                      loading="lazy"
                     />
 
                     <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 text-white">
                       <p className="text-[10px] tracking-[0.3em] uppercase mb-2 opacity-80 flex items-center gap-2">
-                        {review.isVerified && <CheckCircle className="w-3 h-3 text-green-400" />}
-                        {review.isVerified ? "Verified Purchase" : "Customer Review"}
+                        {review.isVerified && (
+                          <CheckCircle className="w-3 h-3 text-green-400" />
+                        )}
+                        {review.isVerified
+                          ? "Verified Purchase"
+                          : "Customer Review"}
                       </p>
                       <h4 className="text-xl font-serif mb-6 line-clamp-2">
                         {review.productId?.name || "Premium Collection"}
@@ -359,17 +399,14 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                       </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             );
           })}
         </div>
-
       </div>
     </section>
   );
 };
 
 export default CommunitySection;
-

@@ -22,6 +22,7 @@ import CommunitySection from "../components/CommunitySection";
 import { Product } from "../data/mockData";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { CLOUDINARY_PRESETS, isCloudinaryUrl } from "../utils/cloudinary";
 
 /* ===============================
    CONSTANTS
@@ -91,9 +92,21 @@ const DetailAccordion = ({
   );
 };
 
-/* ===============================
-   MAIN COMPONENT
-   =============================== */
+// Helper function to optimize product images
+const optimizeProductImage = (
+  imageUrl: string,
+  type: "gallery" | "thumbnail" = "gallery",
+) => {
+  if (!imageUrl) return imageUrl;
+
+  if (isCloudinaryUrl(imageUrl)) {
+    return type === "gallery"
+      ? CLOUDINARY_PRESETS.gallery(imageUrl, 800)
+      : CLOUDINARY_PRESETS.thumbnail(imageUrl, 300);
+  }
+
+  return imageUrl;
+};
 function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -109,7 +122,6 @@ function ProductDetail() {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
-
 
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -141,7 +153,6 @@ function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
-
   // Handlers
   const handleAddToCart = async () => {
     if (!product) return;
@@ -160,7 +171,7 @@ function ProductDetail() {
     try {
       await addToCart({
         ...product,
-        selectedSize: hasSizes ? (selectedSize || undefined) : undefined,
+        selectedSize: hasSizes ? selectedSize || undefined : undefined,
         selectedColor: selectedColor || undefined,
         quantity,
       });
@@ -267,11 +278,15 @@ function ProductDetail() {
               className="relative aspect-[3/4] bg-[#F9F7F3] rounded-lg overflow-hidden"
             >
               <img
-                src={
-                  product.images?.[selectedImage] || "/api/placeholder/800/1066"
-                }
+                src={optimizeProductImage(
+                  product.images?.[selectedImage] ||
+                    "/api/placeholder/800/1066",
+                  "gallery",
+                )}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="eager"
+                fetchPriority="high"
               />
             </motion.div>
 
@@ -289,9 +304,10 @@ function ProductDetail() {
                     }`}
                   >
                     <img
-                      src={image}
+                      src={optimizeProductImage(image, "thumbnail")}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -304,7 +320,9 @@ function ProductDetail() {
             {/* Category Badge */}
             <div className="inline-block">
               <span className="text-xs font-serif tracking-[0.2em] uppercase text-[#C5A059] px-4 py-1.5 border border-[#C5A059] rounded-full">
-                {typeof product.category === 'string' ? product.category : product.category?.name || "Couture"}
+                {typeof product.category === "string"
+                  ? product.category
+                  : product.category?.name || "Couture"}
               </span>
             </div>
 

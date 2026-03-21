@@ -59,7 +59,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     // Listen for cart hydration events from auth
     const handleCartHydrate = (event: CustomEvent) => {
-      console.log("Cart hydrating from event:", event.detail);
       if (Array.isArray(event.detail)) {
         const backendCart = event.detail.map((item: any) => ({
           productId: item.product._id || item.product,
@@ -111,12 +110,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Skip sync if items haven't changed since last sync
       if (currentItemsHash === lastSyncedItems) {
-        console.log("🛒 Cart unchanged, skipping sync");
         return;
       }
 
       setIsSyncing(true);
-      console.log("🛒 Pushing cart to backend:", items);
 
       const response = await API.post(
         "/api/cart/sync",
@@ -134,7 +131,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       );
 
       if (response.data.success) {
-        console.log("✅ Cart pushed successfully");
         setLastSyncedItems(currentItemsHash);
       }
     } catch (error) {

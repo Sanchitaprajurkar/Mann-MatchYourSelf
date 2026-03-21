@@ -18,6 +18,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import API from "../utils/api";
 import { getSizes, getColors, getCategories } from "../services/configService";
+import { CLOUDINARY_PRESETS, isCloudinaryUrl } from "../utils/cloudinary";
 
 /* ===============================
    CONSTANTS & VARIANTS
@@ -45,9 +46,16 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-/* ===============================
-   TYPES & INTERFACES
-   =============================== */
+// Helper function to optimize shop product images
+const optimizeShopImage = (imageUrl: string) => {
+  if (!imageUrl) return imageUrl;
+
+  if (isCloudinaryUrl(imageUrl)) {
+    return CLOUDINARY_PRESETS.thumbnail(imageUrl, 400);
+  }
+
+  return imageUrl;
+};
 interface CartItem {
   productId: string;
   name: string;
@@ -127,7 +135,7 @@ const FilterAccordion = ({
    MAIN COMPONENT
    =============================== */
 function Shop() {
-  const DEBUG = false; // Set to true for debugging
+  const DEBUG = import.meta.env.DEV; // Debug only in development
 
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -686,7 +694,11 @@ function Shop() {
                         >
                           {category.image ? (
                             <img
-                              src={category.image}
+                              src={
+                                category.image
+                                  ? optimizeShopImage(category.image)
+                                  : "/api/placeholder/400/300"
+                              }
                               alt={category.name}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               onError={(e) => {
@@ -1094,7 +1106,7 @@ function Shop() {
                     <img
                       src={
                         product.images?.[0]
-                          ? product.images[0]
+                          ? optimizeShopImage(product.images[0])
                           : "/api/placeholder/400/533"
                       }
                       alt={product.name}

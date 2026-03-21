@@ -39,7 +39,9 @@ const BackgroundMusic = () => {
         }
       } catch (error) {
         // Autoplay blocked - browser requires user interaction first
-        console.log("Autoplay blocked, waiting for interaction");
+        if (!import.meta.env.PROD) {
+          console.log("Autoplay blocked, waiting for interaction");
+        }
         setIsPlaying(false);
       }
     };

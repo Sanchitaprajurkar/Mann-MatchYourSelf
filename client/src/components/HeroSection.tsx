@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CLOUDINARY_PRESETS, getImageLoadingProps } from "../utils/cloudinary";
 
 const COLORS = {
-  gold: "#C5A059",     // Antique Gold
-  black: "#1A1A1A",    // Charcoal Black
+  gold: "#C5A059", // Antique Gold
+  black: "#1A1A1A", // Charcoal Black
   white: "#FFFFFF",
 };
 
@@ -50,16 +51,21 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]));
   const [isFirstImageLoaded, setIsFirstImageLoaded] = useState(false);
 
+  // Get optimized images for slides
+  const optimizedSlides = SLIDES.map((slide) => ({
+    ...slide,
+    optimizedImg: CLOUDINARY_PRESETS.hero(slide.img, 1920),
+  }));
+
   // Slower opening & closing slides
-  const duration =
-    current === 0 || current === SLIDES.length - 1 ? 7000 : 5000;
+  const duration = current === 0 || current === SLIDES.length - 1 ? 7000 : 5000;
 
   // Preload all images on mount for smooth transitions
   useEffect(() => {
     const preloadImages = () => {
-      SLIDES.forEach((slide, index) => {
+      optimizedSlides.forEach((slide, index) => {
         const img = new Image();
-        img.src = slide.img;
+        img.src = slide.optimizedImg;
         img.onload = () => {
           setLoadedImages((prev) => new Set([...prev, index]));
           if (index === 0) {
@@ -70,19 +76,19 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
     };
 
     preloadImages();
-  }, []);
+  }, [optimizedSlides]);
 
   // Preload next slide image aggressively
   useEffect(() => {
-    const nextIndex = (current + 1) % SLIDES.length;
+    const nextIndex = (current + 1) % optimizedSlides.length;
     if (!loadedImages.has(nextIndex)) {
       const img = new Image();
-      img.src = SLIDES[nextIndex].img;
+      img.src = optimizedSlides[nextIndex].optimizedImg;
       img.onload = () => {
         setLoadedImages((prev) => new Set([...prev, nextIndex]));
       };
     }
-  }, [current, loadedImages]);
+  }, [current, loadedImages, optimizedSlides]);
 
   useEffect(() => {
     // Don't start auto-rotation until first image is loaded
@@ -127,8 +133,8 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
             className="absolute inset-0"
           >
             <img
-              src={SLIDES[current].img}
-              alt={SLIDES[current].title}
+              src={optimizedSlides[current].optimizedImg}
+              alt={optimizedSlides[current].title}
               loading="eager"
               fetchPriority="high"
               decoding="async"
@@ -151,7 +157,7 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
                 className="mb-4 font-serif text-4xl leading-tight tracking-normal md:text-6xl md:tracking-tight"
                 style={{ color: COLORS.white }}
               >
-                {SLIDES[current].title}
+                {optimizedSlides[current].title}
               </motion.h1>
 
               <motion.p
@@ -161,7 +167,7 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
                 className="mb-8 font-sans text-xs uppercase tracking-[0.35em] md:text-sm"
                 style={{ color: "rgba(255,255,255,0.75)" }}
               >
-                {SLIDES[current].sub}
+                {optimizedSlides[current].sub}
               </motion.p>
 
               <motion.button
@@ -178,7 +184,7 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
                   color: COLORS.gold,
                 }}
               >
-                {SLIDES[current].cta}
+                {optimizedSlides[current].cta}
               </motion.button>
             </div>
           </div>
@@ -187,7 +193,7 @@ const HeroSection = ({ isMobileMenuOpen }: { isMobileMenuOpen: boolean }) => {
 
       {/* PROGRESS BAR INDICATORS */}
       <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-4">
-        {SLIDES.map((_, index) => (
+        {optimizedSlides.map((_, index) => (
           <div
             key={index}
             onClick={() => setCurrent(index)}

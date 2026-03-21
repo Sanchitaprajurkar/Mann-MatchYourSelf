@@ -66,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const data = await loginUser(email, password);
-      console.log("Login response:", data);
 
       // Check for success flag and required data
       if (data.success && data.token && data.user) {
