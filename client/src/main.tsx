@@ -6,6 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
+import { CheckoutProvider } from "./context/CheckoutContext";
 import ScrollToTop from "./components/ScrollToTop";
 import App from "./App.tsx";
 import "./index.css";
@@ -27,11 +28,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <ScrollToTop />
         <UIProvider>
           <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <App />
-              </WishlistProvider>
-            </CartProvider>
+            <CheckoutProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <App />
+                </WishlistProvider>
+              </CartProvider>
+            </CheckoutProvider>
           </AuthProvider>
         </UIProvider>
       </BrowserRouter>

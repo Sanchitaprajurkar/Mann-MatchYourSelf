@@ -62,6 +62,12 @@ const userSchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        size: {
+          type: String,
+        },
+        color: {
+          type: String,
+        },
       },
     ],
     wishlist: [

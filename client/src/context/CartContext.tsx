@@ -48,49 +48,101 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Initialize from localStorage — but only keep items that have valid product data
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem("cart");
+      if (!saved) return [];
+      const parsed: CartItem[] = JSON.parse(saved);
+      // Filter out corrupted/stale items that are missing name or price
+      const valid = parsed.filter(
+        (item) => item.productId && item.name && item.name !== "Unknown Product" && item.price > 0
+      );
+      return valid;
+    } catch {
+      return [];
+    }
+  });
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedItems, setLastSyncedItems] = useState<string>("");
 
-  // Load cart from backend on mount
+  // Persist to localStorage whenever items change
   useEffect(() => {
-    // Don't sync on mount - let auth handle cart hydration
-    // syncCartWithBackend();
+    localStorage.setItem("cart", JSON.stringify(items));
+  }, [items]);
 
-    // Listen for cart hydration events from auth
+  // On mount: if user is logged in, fetch fully-populated cart from backend
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Immediately fetch real populated cart, overriding any stale localStorage data
+      fetchCartFromBackend();
+    }
+
+    // Also listen for cart hydration events dispatched by AuthContext on login/refresh
     const handleCartHydrate = (event: CustomEvent) => {
       if (Array.isArray(event.detail)) {
-        const backendCart = event.detail.map((item: any) => ({
-          productId: item.product._id || item.product,
-          name: item.product.name || "Unknown Product",
-          price: item.product.price || 0,
-          image: item.product.images?.[0] || "/api/placeholder/400/533",
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        }));
-        setItems(backendCart);
-
-        // Update last synced hash to prevent immediate re-sync
-        setLastSyncedItems(
-          JSON.stringify(
-            backendCart.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-              color: item.color,
-            })),
-          ),
-        );
+        hydrateFromRawCart(event.detail);
       }
     };
 
     window.addEventListener("cart-hydrate" as any, handleCartHydrate);
-
     return () => {
       window.removeEventListener("cart-hydrate" as any, handleCartHydrate);
     };
   }, []);
+
+  // Fetch fully-populated cart directly from the backend GET /api/cart
+  const fetchCartFromBackend = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const res = await API.get("/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success && Array.isArray(res.data.data)) {
+        hydrateFromRawCart(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch cart from backend:", err);
+    }
+  };
+
+  // Map raw backend cart (with populated or unpopulated products) to CartItem[]
+  const hydrateFromRawCart = (rawCart: any[]) => {
+    const mapped: CartItem[] = rawCart
+      .map((item: any) => {
+        const product = item.product;
+        // product could be a populated object or just a string ID
+        const isPopulated = product && typeof product === "object";
+        return {
+          productId: isPopulated ? product._id : product,
+          name: isPopulated ? product.name : null,
+          price: isPopulated ? product.price : 0,
+          image: isPopulated
+            ? product.images?.[0] || "/placeholder-product.jpg"
+            : "/placeholder-product.jpg",
+          quantity: item.quantity || 1,
+          size: item.size,
+          color: item.color,
+        };
+      })
+      // Only keep items we could fully populate (ignore broken references)
+      .filter((item) => item.productId && item.name && item.price > 0);
+
+    setItems(mapped);
+    setLastSyncedItems(
+      JSON.stringify(
+        mapped.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        })),
+      ),
+    );
+  };
+
 
   // Sync cart with backend (PUSH local items to server)
   const syncCartWithBackend = async () => {
@@ -180,12 +232,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         currentItems.push(newItem);
       }
 
-      // API call explicitly configured to hit backend addToCart router
+      // API call configured to hit backend addToCart router - now including size and color
       const response = await API.post(
         "/api/cart",
         {
           productId: product._id,
           quantity: quantity,
+          size: product.selectedSize,
+          color: product.selectedColor
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -305,7 +359,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    // Note: Backend cart will be cleared automatically after successful order
+    localStorage.removeItem("cart");
+    // Note: Backend cart is cleared automatically after successful order
   };
 
   const getCartTotal = () => {

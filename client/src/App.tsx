@@ -14,6 +14,8 @@ import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import Payment from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
 import Orders from "./pages/Orders";
@@ -48,6 +50,8 @@ import AdminHeroVideo from "./admin/AdminHeroVideo";
 import AdminCategories from "./admin/AdminCategories";
 import AdminReviews from "./admin/AdminReviews";
 import AdminBlogs from "./admin/AdminBlogs";
+import AdminOffers from "./admin/AdminOffers";
+import AdminCoupons from "./admin/AdminCoupons";
 import BackgroundMusic from "./components/BackgroundMusic";
 
 function App() {
@@ -150,23 +154,23 @@ function App() {
               }
             />
 
-              <Route
-                path="/blogs"
-                element={
-                  <MainLayout>
-                    <Blogs />
-                  </MainLayout>
-                }
-              />
+            <Route
+              path="/blogs"
+              element={
+                <MainLayout>
+                  <Blogs />
+                </MainLayout>
+              }
+            />
 
-              <Route
-                path="/blogs/:slug"
-                element={
-                  <MainLayout>
-                    <BlogDetail />
-                  </MainLayout>
-                }
-              />
+            <Route
+              path="/blogs/:slug"
+              element={
+                <MainLayout>
+                  <BlogDetail />
+                </MainLayout>
+              }
+            />
 
             <Route
               path="/wishlist"
@@ -217,11 +221,22 @@ function App() {
             />
 
             <Route
-              path="/orders"
+              path="/payment"
               element={
                 <ProtectedRoute requireAuth>
                   <MainLayout>
-                    <Orders />
+                    <Payment />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/order-confirmation"
+              element={
+                <ProtectedRoute requireAuth>
+                  <MainLayout>
+                    <OrderConfirmation />
                   </MainLayout>
                 </ProtectedRoute>
               }
@@ -328,6 +343,8 @@ function App() {
               <Route path="blogs" element={<AdminBlogs />} />
               <Route path="hero" element={<AdminHero />} />
               <Route path="hero-video" element={<AdminHeroVideo />} />
+              <Route path="offers" element={<AdminOffers />} />
+              <Route path="coupons" element={<AdminCoupons />} />
             </Route>
 
             {/* CATCH-ALL ROUTE - Redirect to home for undefined routes */}

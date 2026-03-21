@@ -46,6 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsedUser = JSON.parse(savedUser);
         setUser(parsedUser);
         setToken(savedToken);
+        
+        // CRITICAL FIX: Trigger hydration on refresh
+        hydrateSession();
       } catch (error) {
         // Clear corrupted data
         localStorage.removeItem("user");
@@ -55,6 +58,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setLoading(false);
   }, []);
+
+  // Helper to hydrate cart/wishlist
+  const hydrateSession = async () => {
+    try {
+      const userResponse = await API.get("/api/auth/me");
+      const userData = userResponse.data;
+
+      if (userData.success && userData.data) {
+        // Dispatch events to hydrate contexts
+        window.dispatchEvent(
+          new CustomEvent("cart-hydrate", {
+            detail: userData.data.cart || [],
+          }),
+        );
+        window.dispatchEvent(
+          new CustomEvent("wishlist-hydrate", {
+            detail: userData.data.wishlist || [],
+          }),
+        );
+      }
+    } catch (error) {
+      console.error("Error hydrating session on refresh:", error);
+    }
+  };
 
   // Helper function to get auth headers
   const getAuthHeader = () => {

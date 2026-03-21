@@ -13,13 +13,15 @@ const COLORS = {
 
 interface Order {
   _id: string;
-  orderItems: {
+  items: {
     product: {
       _id: string;
       name: string;
       images: string[];
       price: number;
-    };
+    } | null;
+    name?: string;
+    image?: string;
     quantity: number;
     price: number;
   }[];
@@ -46,7 +48,7 @@ const AccountOrders = () => {
         const authHeader = getAuthHeader();
         console.log("Auth header:", authHeader);
 
-        const res = await API.get("/api/orders/my-orders", {
+        const res = await API.get("/api/orders/my", {
           headers: authHeader,
         });
         
@@ -245,7 +247,7 @@ const AccountOrders = () => {
               console.log("Manual API test triggered");
               const authHeader = getAuthHeader();
               console.log("Auth header:", authHeader);
-              API.get("/api/orders/my-orders", { headers: authHeader })
+              API.get("/api/orders/my", { headers: authHeader })
                 .then(res => {
                   console.log("Manual test response:", res.data);
                 })
@@ -355,12 +357,12 @@ const AccountOrders = () => {
 
             {/* ORDER ITEMS */}
             <div className="p-8">
-              {order.orderItems.map((item, i) => (
+              {(order.items || []).map((item, i) => (
                 <div key={i} className="flex gap-6 items-center">
                   <div className="w-20 h-20 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0">
                     <img
-                      src={item.product.images[0] || "/placeholder-product.jpg"}
-                      alt={item.product.name}
+                      src={item.product?.images?.[0] || item.image || "/placeholder-product.jpg"}
+                      alt={item.product?.name || item.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -369,7 +371,7 @@ const AccountOrders = () => {
                       className="font-medium mb-1"
                       style={{ color: COLORS.black }}
                     >
-                      {item.product.name}
+                      {item.product?.name || item.name}
                     </p>
                     <p className="text-sm text-gray-500">
                       Qty {item.quantity} × ₹{item.price.toLocaleString()}

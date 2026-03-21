@@ -100,13 +100,6 @@ const orderSchema = new mongoose.Schema(
     razorpayPaymentId: {
       type: String,
     },
-    // Razorpay payment details
-    razorpayOrderId: {
-      type: String,
-    },
-    razorpayPaymentId: {
-      type: String,
-    },
     // Legacy field for backward compatibility
     status: {
       type: String,
@@ -115,9 +108,31 @@ const orderSchema = new mongoose.Schema(
     },
     reviewEmailSent: { type: Boolean, default: false },
     reviewToken: { type: String },
+
+    // ── Coupon snapshot (saved at order-time, immutable record) ──
+    appliedCoupon: {
+      couponId: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
+      code: { type: String },
+      title: { type: String },
+      discountType: { type: String },
+      discountValue: { type: Number },
+      discountAmount: { type: Number, default: 0 },
+    },
+
+    // ── Pricing snapshot (server-computed totals) ──
+    pricingSnapshot: {
+      subtotal: { type: Number, default: 0 },
+      productDiscount: { type: Number, default: 0 },
+      couponDiscount: { type: Number, default: 0 },
+      shippingFee: { type: Number, default: 0 },
+      platformFee: { type: Number, default: 0 },
+      totalAmount: { type: Number, default: 0 },
+    },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
 

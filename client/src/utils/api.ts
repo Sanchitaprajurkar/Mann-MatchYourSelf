@@ -5,10 +5,24 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  // Check if we are interacting with admin endpoints or navigating within admin panels
+  const isAdminRoute = config.url?.includes("/admin") || window.location.pathname.startsWith("/admin");
+  
+  let token = null;
+
+  if (isAdminRoute) {
+    token = localStorage.getItem("adminToken");
+  }
+
+  // Fallback to normal user token
+  if (!token) {
+    token = localStorage.getItem("token");
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
   return config;
 });
 

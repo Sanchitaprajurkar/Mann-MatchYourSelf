@@ -277,11 +277,13 @@ const Checkout: React.FC = () => {
                   + Add New Address
                 </button>
               </div>
-　　 　 　 　
+              　　 　 　 　
               {addressesLoading ? (
                 <div className="text-center py-4">
                   <div className="w-6 h-6 border-2 border-gray-300 border-t-[#C5A059] rounded-full animate-spin mx-auto"></div>
-                  <p className="text-xs text-gray-500 mt-2">Loading addresses...</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Loading addresses...
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -298,8 +300,12 @@ const Checkout: React.FC = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <p className="font-medium text-sm">{address.name}</p>
-                            <p className="text-xs text-gray-500">{address.mobile}</p>
+                            <p className="font-medium text-sm">
+                              {address.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {address.mobile}
+                            </p>
                             {address.isDefault && (
                               <span
                                 className="px-2 py-1 text-xs rounded"
@@ -313,7 +319,8 @@ const Checkout: React.FC = () => {
                             )}
                           </div>
                           <p className="text-sm text-gray-600">
-                            {address.house}, {address.addressLine}, {address.locality}
+                            {address.house}, {address.addressLine},{" "}
+                            {address.locality}
                           </p>
                           <p className="text-sm text-gray-600">
                             {address.city}, {address.pincode}
@@ -353,7 +360,7 @@ const Checkout: React.FC = () => {
                   </button>
                 </div>
               )}
-　　 　 　 　
+              　　 　 　 　
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label className="text-xs uppercase tracking-widest text-gray-400">
@@ -449,7 +456,10 @@ const Checkout: React.FC = () => {
         </div>
 
         <div className="bg-white border border-gray-100 shadow-sm p-8 mb-8">
-          <h2 className="font-serif text-xl mb-4" style={{ color: COLORS.black }}>
+          <h2
+            className="font-serif text-xl mb-4"
+            style={{ color: COLORS.black }}
+          >
             Payment Method
           </h2>
           <div className="flex items-center gap-2">
@@ -468,26 +478,20 @@ const Checkout: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={placeOrderHandler}
-          disabled={loading}
+        <Link
+          to="/payment"
+          state={{
+            address: addresses.find((addr) => addr._id === selectedAddressId),
+          }}
           className="w-full px-8 py-4 text-white text-xs font-bold tracking-[0.3em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            backgroundColor: loading ? "#999" : COLORS.black,
-          }}
-          onMouseOver={(e) => {
-            if (!loading) {
-              e.currentTarget.style.backgroundColor = COLORS.gold;
-            }
-          }}
-          onMouseOut={(e) => {
-            if (!loading) {
-              e.currentTarget.style.backgroundColor = COLORS.black;
-            }
+            background: loading
+              ? "linear-gradient(135deg, #d4af37 0%, #b8941f 100%)"
+              : "linear-gradient(135deg, #f8f9eb 0%, #d4af37 100%)",
           }}
         >
-          {loading ? "Placing Order..." : "Place Order"}
-        </button>
+          {loading ? "Placing Order..." : "Proceed to Payment"}
+        </Link>
       </div>
     </div>
   );

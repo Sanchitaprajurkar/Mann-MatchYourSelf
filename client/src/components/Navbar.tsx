@@ -191,7 +191,7 @@ const Navbar = () => {
                       >
                         <Link
                           to="/shop"
-                          className="text-[10px] font-bold uppercase tracking-[0.25em] transition-colors duration-500"
+                          className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
                           style={{ color: navTextColor }}
                         >
                           {item}
@@ -206,7 +206,7 @@ const Navbar = () => {
                             ? "/new"
                             : `/${item.toLowerCase().replace(" ", "-")}`
                         }
-                        className="text-[10px] font-bold uppercase tracking-[0.25em] transition-colors duration-500"
+                        className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
                         style={{ color: navTextColor }}
                       >
                         {item}
@@ -297,13 +297,13 @@ const Navbar = () => {
               {user ? (
                 <div className="flex items-center gap-2 text-sm hover:scale-110 transition-all duration-200 cursor-pointer">
                   <span
-                    className="text-[10px] font-bold uppercase tracking-[0.25em] transition-colors duration-500"
+                    className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
                     style={{ color: navTextColor }}
                   >
                     Hello,
                   </span>
                   <span
-                    className="font-semibold text-[10px] font-bold uppercase tracking-[0.25em] transition-colors duration-500"
+                    className="font-semibold text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
                     style={{ color: COLORS.gold }}
                   >
                     {user.name}
@@ -387,7 +387,7 @@ const Navbar = () => {
 
                 {/* 3. Utility Links (Orders, Wishlist) */}
                 <div className="py-8 px-10 space-y-6">
-                  <Link to="/orders" className="flex items-center group">
+                  <Link to="/account/orders" className="flex items-center group">
                     <Package
                       size={18}
                       strokeWidth={1.5}
@@ -580,7 +580,7 @@ const Navbar = () => {
                   <Link
                     to={user ? "/account" : "/login"}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
+                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
                   >
                     {user ? "My Account" : "Sign In"}
                   </Link>
@@ -589,7 +589,7 @@ const Navbar = () => {
                   <Link
                     to="/wishlist"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
+                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
                   >
                     Wishlist{" "}
                     {wishlistCount > 0 && (
@@ -601,7 +601,7 @@ const Navbar = () => {
                   <Link
                     to="/cart"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
+                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
                   >
                     My Bag{" "}
                     {cartCount > 0 && (
@@ -611,9 +611,9 @@ const Navbar = () => {
 
                   {/* Orders */}
                   <Link
-                    to="/orders"
+                    to="/account/orders"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium"
+                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium"
                   >
                     Orders
                   </Link>

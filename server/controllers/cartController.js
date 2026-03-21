@@ -9,7 +9,7 @@ exports.addToCartNew = async (req, res) => {
     console.log("🛒 USER:", req.user?.id);
     console.log("🛒 BODY:", req.body);
 
-    const { productId, quantity = 1 } = req.body;
+    const { productId, quantity = 1, size, color } = req.body;
     const userId = req.user.id;
 
     if (!productId || !quantity) {
@@ -31,9 +31,11 @@ exports.addToCartNew = async (req, res) => {
 
     console.log("🛒 Current cart:", user.cart);
 
-    // Check if item already exists in cart
     const existingItemIndex = user.cart.findIndex(
-      (item) => item.product.toString() === productId,
+      (item) => 
+        item.product.toString() === productId && 
+        (item.size === size || (!item.size && !size)) &&
+        (item.color === color || (!item.color && !color))
     );
 
     if (existingItemIndex > -1) {
@@ -45,6 +47,8 @@ exports.addToCartNew = async (req, res) => {
       user.cart.push({
         product: productId,
         quantity: parseInt(quantity),
+        size,
+        color,
         addedAt: new Date(),
       });
       console.log("🛒 Added new item to cart");

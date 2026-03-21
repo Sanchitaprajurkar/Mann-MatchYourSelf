@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Product = require("../models/Product");
 
 // @desc    Register user
 // @route   POST /api/auth/signup
@@ -130,13 +131,16 @@ const login = async (req, res) => {
   }
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res) => {
   try {
-    // req.user is already the full user object from middleware
-    const user = req.user;
+    // Re-fetch user with populated products since req.user from middleware is unpopulated
+    const user = await User.findById(req.user._id)
+      .populate("cart.product", "name price images")
+      .populate("wishlist.product", "name price images");
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     res.json({
       success: true,

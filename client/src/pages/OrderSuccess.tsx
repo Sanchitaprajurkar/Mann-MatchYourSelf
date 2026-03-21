@@ -1,298 +1,261 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import API from "../utils/api";
+import { useCheckout } from "../context/CheckoutContext";
+import { Check, Truck, MapPin, ArrowRight, Package, Box, ShieldCheck, Tag } from "lucide-react";
+import { motion } from "framer-motion";
 
-const COLORS = {
-  gold: "#C5A059",
-  black: "#1A1A1A",
-  cream: "#FAF8F5",
-  border: "#E5E5E5",
-};
-
-interface OrderItem {
-  _id: string;
-  product: {
-    _id: string;
-    name: string;
-    price: number;
-    images: string[];
-  };
-  name: string;
-  image: string;
-  price: number;
-  quantity: number;
-}
-
-interface Order {
-  _id: string;
-  items: OrderItem[];
-  shippingAddress: {
-    fullName: string;
-    phone: string;
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  paymentMethod: string;
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
-
-const OrderSuccess: React.FC = () => {
+const OrderConfirmationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [order, setOrder] = useState<Order | null>(null);
+  const location = useLocation();
+  const { clearCheckout } = useCheckout();
+  const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  const orderState = location.state;
 
   useEffect(() => {
+    // Step 1: Immediately use orderData from navigation state for fast display
+    if (orderState?.orderData) {
+      const enriched = {
+        ...orderState.orderData,
+        shippingAddress: orderState.orderData.shippingAddress || orderState.address,
+        items: orderState.orderData.items?.length ? orderState.orderData.items : orderState.items,
+      };
+      console.log("📄 OrderSuccess - from location.state.orderData:", enriched);
+      console.log("📄 appliedCoupon:", enriched.appliedCoupon);
+      console.log("📄 pricingSnapshot:", enriched.pricingSnapshot);
+      setOrder(enriched);
+      setLoading(false);
+    }
+
+    // Step 2: Always re-fetch from API to get the authoritative saved order
+    // (this also serves as fallback if orderData is missing from state)
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Please login to view order details");
-          return;
-        }
+        if (!token || !id) return;
 
         const response = await API.get(`/api/orders/${id}`);
-
         if (response.data.success) {
-          setOrder(response.data.data);
-        } else {
-          setError(response.data.message || "Failed to fetch order");
+          const fetched = response.data.data;
+          console.log("🌐 OrderSuccess - from API fetch:", fetched);
+          console.log("🌐 appliedCoupon:", fetched.appliedCoupon);
+          console.log("🌐 pricingSnapshot:", fetched.pricingSnapshot);
+          setOrder(fetched); // Override with authoritative data
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error("Fetch order error:", error);
-        setError(
-          error.response?.data?.message || 
-          "Failed to fetch order details"
-        );
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchOrder();
-    }
+    fetchOrder();
+
+    // Step 3: Clear checkout state after this page mounts (order is done)
+    return () => {
+      clearCheckout();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) {
+  if (loading && !order) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-[#C5A059] rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">Loading order details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link
-            to="/my-orders"
-            className="text-[#C5A059] hover:underline text-sm"
-          >
-            View My Orders
-          </Link>
-        </div>
+      <div className="py-24 min-h-screen bg-white flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-2 border-[#C5A059] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Finalizing Your Order...</p>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Order not found</p>
-          <Link
-            to="/my-orders"
-            className="text-[#C5A059] hover:underline text-sm"
-          >
-            View My Orders
-          </Link>
-        </div>
+      <div className="py-24 px-6 md:px-12 min-h-screen bg-white flex flex-col items-center justify-center">
+        <p className="text-sm uppercase tracking-widest text-[#1A1A1A]">Order Not Found</p>
+        <Link to="/shop" className="mt-6 text-[#C5A059] text-xs font-bold uppercase tracking-widest hover:text-[#1A1A1A]">
+          Return to Shop
+        </Link>
       </div>
     );
   }
 
+
+  // Calculate estimated delivery (e.g. 5 days from today)
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 5);
+
   return (
-    <div className="min-h-screen bg-white py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="py-24 px-6 md:px-12 min-h-screen bg-white">
+      <div className="max-w-[1000px] mx-auto">
+        
         {/* Success Header */}
-        <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: COLORS.cream }}
-          >
-            <svg
-              className="w-8 h-8"
-              style={{ color: COLORS.gold }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center mb-16"
+        >
+          <div className="w-24 h-24 bg-[#FAF8F5] border border-gray-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-sm">
+            <div className="w-16 h-16 bg-[#C5A059] rounded-full flex items-center justify-center">
+              <Check size={32} strokeWidth={2.5} className="text-white" />
+            </div>
           </div>
-          <h1
-            className="font-serif text-3xl md:text-4xl tracking-tight mb-2"
-            style={{ color: COLORS.black }}
-          >
-            Order Placed Successfully!
-          </h1>
-          <p className="text-gray-600">
-            Thank you for your order. We'll send you a confirmation email shortly.
+          <h1 className="section-heading text-[#1A1A1A] !mb-2">Order Confirmed</h1>
+          <p className="text-lg font-serif text-gray-500 mb-6 italic">
+            "Your exquisite taste has been secured."
           </p>
-        </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
+              <Package size={14} className="text-[#C5A059]" /> Order ID: #{order._id.substring(0, 8).toUpperCase()}
+            </div>
+            <div className="hidden sm:block text-gray-300">•</div>
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
+              <Truck size={14} className="text-[#C5A059]" /> Est. Delivery: {deliveryDate.toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}
+            </div>
+          </div>
+        </motion.div>
 
-        {/* Order Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Info */}
-          <div className="bg-white border border-gray-100 shadow-sm p-6">
-            <h2 className="text-xl font-serif mb-4" style={{ color: COLORS.black }}>
-              Order Information
-            </h2>
-            <div className="space-y-3">
-              <div>
-                <span className="text-xs uppercase tracking-widest text-gray-400">
-                  Order ID
-                </span>
-                <p className="text-sm font-mono">#{order._id.slice(-8)}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
+          {/* LEFT: Items & Summary */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-8"
+          >
+            <div className="bg-[#FAF8F5] rounded-xl border border-gray-100 p-8 hover:shadow-lg transition-all duration-700">
+              <h2 className="text-lg font-serif text-[#1A1A1A] mb-8 pb-4 border-b border-gray-200 flex items-center gap-3">
+                <Box size={18} className="text-[#C5A059]" /> Ordered Pieces
+              </h2>
+
+              <div className="space-y-6">
+                {order.items.map((item: any, idx: number) => (
+                  <div key={idx} className="flex gap-4">
+                    <div className="w-20 h-24 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                      <img 
+                        src={item.image || item.product?.images?.[0] || item.images?.[0] || "/placeholder-product.jpg"} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <h4 className="font-serif text-[#1A1A1A] line-clamp-1 text-lg leading-tight">{item.name}</h4>
+                      <div className="flex items-center gap-3 text-[10px] text-gray-400 uppercase tracking-widest mt-2">
+                        <span>Qty: {item.quantity}</span>
+                        {item.size && <span>• Size: {item.size}</span>}
+                      </div>
+                      <p className="text-sm font-medium text-[#1A1A1A] mt-2">
+                        ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <span className="text-xs uppercase tracking-widest text-gray-400">
-                  Status
-                </span>
-                <p className="text-sm">
-                  <span
-                    className="px-2 py-1 rounded text-xs font-medium"
-                    style={{
-                      backgroundColor: COLORS.cream,
-                      color: COLORS.gold,
-                    }}
-                  >
-                    {order.status}
-                  </span>
+
+              <div className="mt-8 pt-6 border-t border-gray-200 space-y-3">
+                {/* Pricing breakdown from server snapshot */}
+                {order.pricingSnapshot ? (
+                  <>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Subtotal</span>
+                      <span>₹{order.pricingSnapshot.subtotal?.toLocaleString("en-IN")}</span>
+                    </div>
+                    {order.appliedCoupon?.discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span className="flex items-center gap-1">
+                          <Tag size={12} />
+                          Coupon ({order.appliedCoupon.code}
+                          {order.appliedCoupon.title ? ` — ${order.appliedCoupon.title}` : ""})
+                        </span>
+                        <span>-₹{order.pricingSnapshot.couponDiscount?.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Shipping</span>
+                      <span>{order.pricingSnapshot.shippingFee === 0 ? "Complimentary" : `₹${order.pricingSnapshot.shippingFee}`}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>Handling</span>
+                      <span>₹{order.pricingSnapshot.platformFee}</span>
+                    </div>
+                    <div className="flex justify-between items-end pt-3 border-t border-gray-200">
+                      <span className="text-xs tracking-widest uppercase text-gray-400 font-bold">Total Paid</span>
+                      <span className="text-2xl font-serif text-[#1A1A1A] font-bold">
+                        ₹{order.pricingSnapshot.totalAmount?.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between items-end">
+                    <span className="text-xs tracking-widest uppercase text-gray-400 font-bold">Total Amount Paid</span>
+                    <span className="text-2xl font-serif text-[#1A1A1A] font-bold">
+                      ₹{order.totalAmount?.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* RIGHT: Delivery & Actions */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-8"
+          >
+            {/* Delivery Details */}
+            <div className="bg-white rounded-xl border border-gray-100 p-8 hover:border-[#C5A059]/30 transition-all duration-500 shadow-sm">
+              <h2 className="text-lg font-serif text-[#1A1A1A] mb-6 flex items-center gap-3">
+                <MapPin size={18} className="text-[#C5A059]" /> Delivery Details
+              </h2>
+              
+              <div className="space-y-1">
+                <p className="font-serif text-[#1A1A1A] text-lg mb-2">
+                  {order.shippingAddress?.fullName || order.shippingAddress?.name}
+                </p>
+                <p className="text-sm font-light text-gray-500">
+                  {order.shippingAddress?.address || order.shippingAddress?.house}
+                </p>
+                {order.shippingAddress?.addressLine && (
+                  <p className="text-sm font-light text-gray-500">{order.shippingAddress?.addressLine}, {order.shippingAddress?.locality}</p>
+                )}
+                <p className="text-sm font-light text-gray-500">
+                  {order.shippingAddress?.city}, {order.shippingAddress?.postalCode || order.shippingAddress?.pincode}
+                </p>
+                <p className="text-sm font-light text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                  Mobile: {order.shippingAddress?.phone || order.shippingAddress?.mobile}
                 </p>
               </div>
-              <div>
-                <span className="text-xs uppercase tracking-widest text-gray-400">
-                  Payment Method
+
+              <div className="mt-6 p-4 bg-[#FAF8F5] rounded-lg flex items-center gap-3">
+                <ShieldCheck size={16} className="text-[#C5A059]" />
+                <span className="text-xs uppercase tracking-widest font-bold text-gray-500">
+                  {order.paymentMethod}
                 </span>
-                <p className="text-sm">{order.paymentMethod}</p>
-              </div>
-              <div>
-                <span className="text-xs uppercase tracking-widest text-gray-400">
-                  Order Date
-                </span>
-                <p className="text-sm">
-                  {new Date(order.createdAt).toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
               </div>
             </div>
-          </div>
 
-          {/* Shipping Address */}
-          <div className="bg-white border border-gray-100 shadow-sm p-6">
-            <h2 className="text-xl font-serif mb-4" style={{ color: COLORS.black }}>
-              Shipping Address
-            </h2>
-            <div className="text-sm space-y-1">
-              <p className="font-medium">{order.shippingAddress.fullName}</p>
-              <p>{order.shippingAddress.phone}</p>
-              <p>{order.shippingAddress.address}</p>
-              <p>
-                {order.shippingAddress.city}, {order.shippingAddress.postalCode}
-              </p>
-              <p>{order.shippingAddress.country}</p>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-4">
+              <Link
+                to="/my-orders"
+                className="w-full flex items-center justify-center gap-3 px-10 py-5 bg-[#1A1A1A] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#C5A059] transition-all duration-500 rounded-full"
+              >
+                Track Order
+                <ArrowRight size={14} />
+              </Link>
+              
+              <Link
+                to="/shop"
+                className="w-full flex items-center justify-center gap-3 px-10 py-5 border border-[#1A1A1A] text-[#1A1A1A] text-[11px] font-bold uppercase tracking-widest hover:bg-[#1A1A1A] hover:text-white transition-all duration-500 rounded-full"
+              >
+                Continue Shopping
+              </Link>
             </div>
-          </div>
-        </div>
-
-        {/* Order Items */}
-        <div className="bg-white border border-gray-100 shadow-sm p-6 mt-8">
-          <h2 className="text-xl font-serif mb-6" style={{ color: COLORS.black }}>
-            Order Items
-          </h2>
-          <div className="space-y-4">
-            {order.items.map((item) => (
-              <div key={item._id} className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-b-0">
-                <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-sm">{item.name}</h3>
-                  <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">₹{item.price}</p>
-                  <p className="text-xs text-gray-500">
-                    Total: ₹{item.price * item.quantity}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Order Total */}
-          <div className="border-t border-gray-200 pt-4 mt-6">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-serif" style={{ color: COLORS.black }}>
-                Total Amount
-              </span>
-              <span className="text-xl font-bold" style={{ color: COLORS.gold }}>
-                ₹{order.totalAmount}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
-          <Link
-            to="/my-orders"
-            className="px-8 py-3 border border-gray-200 text-center text-xs font-bold tracking-[0.3em] uppercase hover:border-[#C5A059] hover:text-[#C5A059] transition-all"
-          >
-            View All Orders
-          </Link>
-          <Link
-            to="/shop"
-            className="px-8 py-3 text-white text-center text-xs font-bold tracking-[0.3em] uppercase transition-all"
-            style={{ backgroundColor: COLORS.black }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = COLORS.gold;
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = COLORS.black;
-            }}
-          >
-            Continue Shopping
-          </Link>
+          </motion.div>
         </div>
       </div>
     </div>
   );
 };
 
-export default OrderSuccess;
+export default OrderConfirmationPage;

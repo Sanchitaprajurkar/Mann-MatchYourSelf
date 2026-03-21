@@ -12,6 +12,8 @@ import {
   Grid3x3,
   BookOpen,
   Video, // Added icon for hero video
+  Tag,
+  Ticket,
 } from "lucide-react";
 
 function AdminLayout() {
@@ -54,6 +56,16 @@ function AdminLayout() {
       label: "Blogs",
       icon: BookOpen,
     },
+    {
+      path: "/admin/offers",
+      label: "Offers",
+      icon: Tag,
+    },
+    {
+      path: "/admin/coupons",
+      label: "Coupons",
+      icon: Ticket,
+    },
   ];
 
   const getPageTitle = () => {
@@ -80,6 +92,12 @@ function AdminLayout() {
     }
     if (location.pathname.includes("blogs")) {
       return "Blog Management";
+    }
+    if (location.pathname.includes("offers")) {
+      return "Offers Management";
+    }
+    if (location.pathname.includes("coupons")) {
+      return "Coupons Management";
     }
     if (location.pathname.includes("dashboard")) {
       return "Dashboard Overview";

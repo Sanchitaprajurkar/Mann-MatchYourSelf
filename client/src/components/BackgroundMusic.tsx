@@ -91,7 +91,7 @@ const BackgroundMusic = () => {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 transition-opacity duration-500 hover:opacity-100 opacity-70">
+    <div className="fixed bottom-32 left-8 z-50 transition-opacity duration-500 hover:opacity-100 opacity-70">
       {/* Audio Element - Hidden */}
       <audio ref={audioRef} loop preload="auto">
         <source src="/audio.mpeg" type="audio/mpeg" />

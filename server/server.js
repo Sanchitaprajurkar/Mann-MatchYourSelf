@@ -109,6 +109,12 @@ app.use("/api/reviews", reviewRoutes);
 const blogRoutes = require("./routes/blogRoutes");
 app.use("/api/blogs", blogRoutes);
 
+const offerRoutes = require("./routes/offerRoutes");
+app.use("/api/offers", offerRoutes);
+
+const couponRoutes = require("./routes/couponRoutes");
+app.use("/api/coupons", couponRoutes);
+
 // Sitemap route
 const { generateSitemap } = require("./controllers/sitemapController");
 app.get("/sitemap.xml", generateSitemap);

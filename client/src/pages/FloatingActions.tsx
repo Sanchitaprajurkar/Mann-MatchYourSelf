@@ -19,8 +19,7 @@ const FloatingActions = () => {
 
   return (
     <div
-      className="fixed right-6 z-50 flex flex-col gap-4 pb-[env(safe-area-inset-bottom)]"
-      style={{ bottom: "80px" }}
+      className="fixed right-6 bottom-6 z-50 flex flex-col gap-4 pb-[env(safe-area-inset-bottom)]"
     >
       {/* Scroll To Top */}
       {showTop && (
@@ -31,7 +30,7 @@ const FloatingActions = () => {
                      text-[#C5A059]
                      flex items-center justify-center
                      hover:bg-[#C5A059] hover:text-black
-                     transition-all duration-300"
+                     transition-all duration-300 shadow-lg"
           aria-label="Scroll to top"
         >
           <ArrowUp size={20} />
@@ -43,15 +42,18 @@ const FloatingActions = () => {
         href="https://wa.me/918484082315"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-12 h-12 rounded-full border border-[#25D366]
+        className="w-12 h-12 rounded-full border border-[#C5A059]
                    bg-black/70 backdrop-blur
                    flex items-center justify-center
-                   hover:bg-[#25D366]
-                   transition-all duration-300"
-        style={{ position: "fixed", bottom: "20px", right: "24px" }}
+                   hover:bg-[#C5A059] group
+                   transition-all duration-300 shadow-xl"
         aria-label="WhatsApp"
       >
-        <img src="/WhatsApp.svg.webp" alt="WhatsApp" className="w-5 h-5" />
+        <img 
+          src="/WhatsApp.svg.webp" 
+          alt="WhatsApp" 
+          className="w-5 h-5 transition-all group-hover:invert group-hover:brightness-0" 
+        />
       </a>
     </div>
   );
