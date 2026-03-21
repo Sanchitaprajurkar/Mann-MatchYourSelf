@@ -1,4 +1,4 @@
-import { Instagram, Settings } from "lucide-react";
+import { Instagram, Settings, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import FooterLeadForm from "./FooterLeadForm";
 
@@ -73,9 +73,12 @@ const Footer = () => {
             Concierge
           </h4>
           <a
-            href="tel:+918484082315"
-            className="text-lg font-light text-white hover:text-[#C5A059] block mb-4"
+            href="https://wa.me/918484082315"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-lg font-light text-white hover:text-[#C5A059] block mb-4"
           >
+            <MessageCircle size={18} />
             +91 84840 82315
           </a>
         </div>

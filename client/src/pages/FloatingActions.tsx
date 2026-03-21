@@ -40,7 +40,7 @@ const FloatingActions = () => {
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/919022636092"
+        href="https://wa.me/918484082315"
         target="_blank"
         rel="noopener noreferrer"
         className="w-12 h-12 rounded-full border border-[#25D366]

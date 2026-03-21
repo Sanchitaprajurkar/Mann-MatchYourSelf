@@ -1,4 +1,11 @@
-import { MapPin, Phone, Clock, Star, ArrowRight } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Clock,
+  Star,
+  ArrowRight,
+  MessageCircle,
+} from "lucide-react";
 
 const VisitOurStore = () => {
   return (
@@ -48,15 +55,20 @@ const VisitOurStore = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100">
-                    <Phone className="w-4 h-4 text-[#C5A059]" />
+                    <MessageCircle className="w-4 h-4 text-[#C5A059]" />
                   </div>
                   <div>
                     <h4 className="text-[10px] tracking-[0.2em] uppercase font-bold text-[#8C8273] mb-1">
-                      Contact
+                      WhatsApp
                     </h4>
-                    <p className="text-xs md:text-sm text-[#2B2B2B]">
+                    <a
+                      href="https://wa.me/918484082315"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs md:text-sm text-[#2B2B2B] hover:text-[#C5A059] transition-colors"
+                    >
                       +91 84840 82315
-                    </p>
+                    </a>
                   </div>
                 </div>
 
@@ -115,7 +127,20 @@ const VisitOurStore = () => {
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
                 loading="lazy"
               />
+
               <div className="absolute inset-0 border-[10px] md:border-[15px] border-white/10 pointer-events-none"></div>
+
+              <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-20">
+                <a
+                  href="https://www.google.com/local/place/fid/0x3bddeb3b55dededb:0x28e1e61a4964dd1e/photosphere?iu=https://lh3.googleusercontent.com/gps-cs-s/AHVAweo2d0T6-kSHHSk_q4TwQp6p2bV95TVAHHNYy2hEjPfwG_S148DNNK6Z1C_eYlM-RE2ce0sQIyaKUsvl8Ny_d7Ye4EmUzrfxmOdoUoJTm63DB-wuwJsfKJJQBJb_8YfYpQKO0gt%3Dw160-h106-k-no-pi-0-ya354.38638-ro-0-fo100&ik=CAoSFkNJSE0wb2dLRUlDQWdJRDNwSTdPSFE%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-black/70 text-white text-[10px] tracking-[0.2em] uppercase rounded-sm hover:bg-[#C5A059] transition-all duration-300 backdrop-blur-sm"
+                >
+                  View 360° Store Tour
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
             </div>
             {/* Decorative Frame - Hidden on smallest screens to avoid clipping issues */}
             <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 w-full h-full border border-[#C5A059]/20 -z-0"></div>
