@@ -54,9 +54,9 @@ const WhyMannVideo = () => {
 
   return (
     <section className="relative w-full min-h-[100svh] overflow-hidden">
-      {/* BACKGROUND VIDEO - Full coverage with object-cover */}
+      {/* BACKGROUND VIDEO - Lazy loaded with metadata preload only */}
       <video
-        key={videoUrl} // Force re-render when URL changes
+        key={videoUrl}
         className="absolute top-0 left-0 w-full h-full object-cover"
         src={videoUrl}
         autoPlay
@@ -65,7 +65,7 @@ const WhyMannVideo = () => {
         playsInline
         poster={POSTER_IMAGE}
         onError={handleVideoError}
-        preload="auto"
+        preload="metadata"
       />
 
       {/* DARK OVERLAY - High contrast for text readability */}

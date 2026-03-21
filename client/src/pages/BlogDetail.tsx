@@ -20,8 +20,6 @@ const BlogDetail = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-
     const fetchBlog = async () => {
       try {
         const response = await API.get(`/api/blogs/${slug}`);

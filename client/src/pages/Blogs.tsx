@@ -18,9 +18,6 @@ const Blogs = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Scroll to top on mount
-    window.scrollTo(0, 0);
-    
     const fetchBlogs = async () => {
       try {
         const response = await API.get("/api/blogs?limit=12");

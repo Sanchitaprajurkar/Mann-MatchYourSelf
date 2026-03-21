@@ -165,13 +165,18 @@ const Navbar = () => {
             {/* BRAND LOGO - DESKTOP ONLY */}
             <Link
               to="/"
-              className="hidden xl:flex items-center transition-transform duration-300 hover:scale-105 -ml-6 -mt-3"
+              className="hidden xl:flex items-center transition-transform duration-300 hover:scale-105"
             >
-              <img
-                src="/Mann.svg"
-                alt="MANN"
-                className="h-24 xl:h-32 w-auto object-contain transition-all duration-500"
-              />
+              <div
+                className="flex items-center justify-center"
+                style={{ width: "200px", height: "80px" }}
+              >
+                <img
+                  src="/Mann.svg"
+                  alt="MANN"
+                  className="w-full h-full object-contain transition-all duration-500"
+                />
+              </div>
             </Link>
 
             {/* DESKTOP NAVIGATION - Enhanced luxury styling */}
@@ -220,11 +225,16 @@ const Navbar = () => {
             to="/"
             className="xl:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center h-full z-0"
           >
-            <img
-              src="/Mann.svg"
-              alt="MANN"
-              className="h-14 w-auto object-contain transition-all duration-500"
-            />
+            <div
+              className="flex items-center justify-center"
+              style={{ width: "140px", height: "50px" }}
+            >
+              <img
+                src="/Mann.svg"
+                alt="MANN"
+                className="w-full h-full object-contain transition-all duration-500"
+              />
+            </div>
           </Link>
 
           {/* RIGHT GROUP: ICONS - Enhanced visibility and interactions */}
@@ -510,7 +520,16 @@ const Navbar = () => {
             {/* 1. Header: Scaled down for balance */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-[#C5A059]/10">
               <div className="flex items-center">
-                <img src="/Mann.svg" alt="MANN" className="h-6 w-auto mr-3" />
+                <div
+                  className="flex items-center justify-center"
+                  style={{ width: "80px", height: "30px" }}
+                >
+                  <img
+                    src="/Mann.svg"
+                    alt="MANN"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
               </div>
               <button onClick={() => setIsMobileMenuOpen(false)}>
                 <X size={22} strokeWidth={1.5} className="text-[#1A1A1A]" />

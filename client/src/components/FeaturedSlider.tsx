@@ -140,6 +140,7 @@ const FeaturedSlider = ({ products }: Props) => {
                     src={product.images[0]}
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    loading={index === activeIdx ? "eager" : "lazy"}
                   />
 
                   {/* Overlay text - Gold & Black style */}

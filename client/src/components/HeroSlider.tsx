@@ -232,6 +232,7 @@ const HeroSlider = () => {
                 src={slides[current].image}
                 alt={slides[current].title}
                 className="h-full w-full object-cover object-[75%_2.5%]"
+                loading={current === 0 ? "eager" : "lazy"}
               />
             )}
 

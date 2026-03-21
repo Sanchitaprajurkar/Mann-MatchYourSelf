@@ -113,6 +113,7 @@ const VisitOurStore = () => {
                 src="/VisitOurStore.png"
                 alt="Mann Boutique Interior"
                 className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                loading="lazy"
               />
               <div className="absolute inset-0 border-[10px] md:border-[15px] border-white/10 pointer-events-none"></div>
             </div>

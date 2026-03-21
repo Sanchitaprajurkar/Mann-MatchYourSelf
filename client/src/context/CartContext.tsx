@@ -49,10 +49,13 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncedItems, setLastSyncedItems] = useState<string>("");
 
   // Load cart from backend on mount
   useEffect(() => {
-    syncCartWithBackend();
+    // Don't sync on mount - let auth handle cart hydration
+    // syncCartWithBackend();
 
     // Listen for cart hydration events from auth
     const handleCartHydrate = (event: CustomEvent) => {
@@ -68,6 +71,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
           color: item.color,
         }));
         setItems(backendCart);
+
+        // Update last synced hash to prevent immediate re-sync
+        setLastSyncedItems(
+          JSON.stringify(
+            backendCart.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color,
+            })),
+          ),
+        );
       }
     };
 
@@ -82,11 +97,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const syncCartWithBackend = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token || isSyncing) return;
 
+      // Create a hash of current items to compare with last sync
+      const currentItemsHash = JSON.stringify(
+        items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        })),
+      );
+
+      // Skip sync if items haven't changed since last sync
+      if (currentItemsHash === lastSyncedItems) {
+        console.log("🛒 Cart unchanged, skipping sync");
+        return;
+      }
+
+      setIsSyncing(true);
       console.log("🛒 Pushing cart to backend:", items);
 
-      const response = await API.post("/api/cart/sync",
+      const response = await API.post(
+        "/api/cart/sync",
         {
           items: items.map((item) => ({
             product: item.productId,
@@ -102,9 +135,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (response.data.success) {
         console.log("✅ Cart pushed successfully");
+        setLastSyncedItems(currentItemsHash);
       }
     } catch (error) {
       console.error("Error syncing cart with backend:", error);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -157,7 +193,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.success) {
@@ -195,13 +231,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       );
 
       // Sync to backend
-      const syncResponse = await API.post("/api/cart/sync",
+      const syncResponse = await API.post(
+        "/api/cart/sync",
         {
-          items: updatedItems.map(item => ({
+          items: updatedItems.map((item) => ({
             product: item.productId,
             quantity: item.quantity,
             size: item.size,
-            color: item.color
+            color: item.color,
           })),
         },
         {
@@ -246,13 +283,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       );
 
       // Sync to backend
-      const syncResponse = await API.post("/api/cart/sync",
+      const syncResponse = await API.post(
+        "/api/cart/sync",
         {
-          items: updatedItems.map(item => ({
+          items: updatedItems.map((item) => ({
             product: item.productId,
             quantity: item.quantity,
             size: item.size,
-            color: item.color
+            color: item.color,
           })),
         },
         {

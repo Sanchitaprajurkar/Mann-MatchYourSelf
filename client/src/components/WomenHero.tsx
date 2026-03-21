@@ -43,6 +43,7 @@ const WomenHero = () => {
             src="/women-hero.png"
             alt="Mann Women Collection"
             className="w-full h-full object-cover"
+            loading="lazy"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}

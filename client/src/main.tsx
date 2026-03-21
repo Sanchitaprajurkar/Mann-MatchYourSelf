@@ -5,6 +5,7 @@ import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
+import ScrollToTop from "./components/ScrollToTop";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/theme.css";
@@ -13,6 +14,7 @@ import "./App.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <UIProvider>
         <AuthProvider>
           <CartProvider>
