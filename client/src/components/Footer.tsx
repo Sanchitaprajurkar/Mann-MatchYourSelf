@@ -1,4 +1,4 @@
-import { Instagram, Twitter, Facebook, Youtube, Settings } from "lucide-react";
+import { Instagram, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import FooterLeadForm from "./FooterLeadForm";
 
@@ -86,22 +86,14 @@ const Footer = () => {
             Social
           </h4>
           <div className="flex gap-6">
-            <Instagram
-              size={18}
-              className="text-[#C5A059] hover:text-white transition-colors cursor-pointer"
-            />
-            <Youtube
-              size={18}
-              className="text-[#C5A059] hover:text-white transition-colors cursor-pointer"
-            />
-            <Twitter
-              size={18}
-              className="text-[#C5A059] hover:text-white transition-colors cursor-pointer"
-            />
-            <Facebook
-              size={18}
-              className="text-[#C5A059] hover:text-white transition-colors cursor-pointer"
-            />
+            <a
+              href="https://www.instagram.com/mannmatchyourself?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C5A059] hover:text-white transition-colors"
+            >
+              <Instagram size={18} />
+            </a>
           </div>
         </div>
       </div>

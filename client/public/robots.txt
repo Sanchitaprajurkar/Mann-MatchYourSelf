@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Block admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /cart
+Disallow: /orders
+Disallow: /my-orders
+Disallow: /order-success/
+Disallow: /account/
+Disallow: /wishlist
+
+# Block dynamic routes that don't need SEO
+Disallow: /*?*
+Disallow: /search
+Disallow: /filter
+
+# Allow specific static resources
+Allow: /uploads/
+Allow: /static/
+Allow: /assets/
+
+# Sitemap location
+Sitemap: https://www.mannmatchyourself.com/sitemap.xml
+
+# Crawl delay (optional, adjust as needed)
+Crawl-delay: 1

@@ -109,13 +109,19 @@ app.use("/api/reviews", reviewRoutes);
 const blogRoutes = require("./routes/blogRoutes");
 app.use("/api/blogs", blogRoutes);
 
+// Sitemap route
+const { generateSitemap } = require("./controllers/sitemapController");
+app.get("/sitemap.xml", generateSitemap);
+
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to MANN Match Yourself API" });
 });
 
 // Serve static files from uploads directory
-
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Serve static files from client public directory
+app.use(express.static(path.join(__dirname, "../client/public")));
 
 // Test route
 

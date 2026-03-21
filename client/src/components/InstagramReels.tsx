@@ -44,8 +44,9 @@ const InstagramReels = () => {
 
       <div className="text-center mt-12">
         <a
-          href="https://instagram.com/YOUR_HANDLE"
+          href="https://www.instagram.com/mannmatchyourself?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
           target="_blank"
+          rel="noopener noreferrer"
           className="inline-block bg-black text-white px-8 py-4 rounded-lg"
         >
           Visit Instagram

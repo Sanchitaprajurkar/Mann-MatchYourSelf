@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../utils/api";
 import { Product } from "../data/mockData";
+import SEO from "../components/SEO";
 
 import HeroSlider from "../components/HeroSlider";
 import CategorySlider from "../components/CategorySlider";
@@ -44,6 +45,12 @@ function Home() {
 
   return (
     <>
+      <SEO
+        title="Home"
+        description="Discover exquisite ethnic wear and contemporary fashion at Mann Match Yourself. Shop our curated collection of sarees, lehengas, and designer apparel."
+        keywords="Mann Match Yourself, ethnic wear, sarees, lehengas, designer clothing, fashion, indian wear, contemporary fashion, home"
+        image="/women-hero.png"
+      />
       <HeroSlider />
       <CategorySlider />
       <FeaturedSlider products={products} />
