@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -23,7 +23,7 @@ const Blogs = () => {
     
     const fetchBlogs = async () => {
       try {
-        const response = await api.get("/blogs?limit=12");
+        const response = await API.get("/api/blogs?limit=12");
         if (response.data.success) {
           setBlogs(response.data.data);
         }

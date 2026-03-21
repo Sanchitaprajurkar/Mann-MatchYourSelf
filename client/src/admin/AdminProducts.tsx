@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import api from "../api/axios";
+import API from "../utils/api";
 import {
   Plus,
   Edit,
@@ -61,7 +61,7 @@ function AdminProducts() {
         params.append("search", searchTerm);
       }
 
-      const response = await api.get(`/products?${params}`);
+      const response = await API.get(`/api/products?${params}`);
 
       if (response.data.success) {
         setProducts(response.data.data);
@@ -76,7 +76,7 @@ function AdminProducts() {
   // Delete product
   const deleteProduct = async (productId: string) => {
     try {
-      await api.delete(`/products/${productId}`);
+      await API.delete(`/api/products/${productId}`);
       setProducts(products.filter((p) => p._id !== productId));
       setShowDeleteModal(null);
     } catch (error) {

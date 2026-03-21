@@ -1,9 +1,9 @@
-import api from "../api/axios";
+import API from "../utils/api";
 
 export const loginAdmin = async (email: string, password: string) => {
   try {
     console.log("Admin login request:", { email, password: "***" });
-    const res = await api.post("/admin/auth/login", { email, password });
+    const res = await API.post("/api/admin/auth/login", { email, password });
     console.log("Admin login response:", res.data);
     return res.data;
   } catch (error: any) {
@@ -16,7 +16,7 @@ export const loginAdmin = async (email: string, password: string) => {
 export const getAdminMe = async () => {
   try {
     // No need to manually add Authorization header - interceptor handles it
-    const res = await api.get("/admin/auth/me");
+    const res = await API.get("/api/admin/auth/me");
     return res.data;
   } catch (error: any) {
     console.error("Get admin me error:", error);

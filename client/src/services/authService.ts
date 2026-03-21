@@ -1,9 +1,9 @@
-import api from "../api/axios";
+import API from "../utils/api";
 
 export const loginUser = async (email: string, password: string) => {
   try {
     console.log("Login request:", { email, password: "***" });
-    const res = await api.post("/auth/login", { email, password });
+    const res = await API.post("/api/auth/login", { email, password });
     console.log("Login response:", res.data);
     return res.data;
   } catch (error: any) {
@@ -20,7 +20,7 @@ export const signupUser = async (
 ) => {
   try {
     console.log("Signup request:", { name, email, password: "***" });
-    const res = await api.post("/auth/signup", {
+    const res = await API.post("/api/auth/signup", {
       name,
       email,
       password,

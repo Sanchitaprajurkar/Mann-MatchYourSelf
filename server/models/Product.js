@@ -58,6 +58,14 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: false, // Temporarily make optional until auth is properly implemented
     },
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+    numReviews: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

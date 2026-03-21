@@ -6,7 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { Product } from "../data/mockData";
-import api from "../api/axios";
+import API from "../utils/api";
 import { useAuth } from "./AuthContext";
 
 // Strict TypeScript interface for populated wishlist products
@@ -56,7 +56,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     
     try {
       setLoading(true);
-      const response = await api.get("/wishlist");
+      const response = await API.get("/api/wishlist");
       
       if (response.data.success && response.data.data) {
         const wishlistProducts = response.data.data.map((item: any) => item.product).filter(Boolean);
@@ -73,13 +73,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   const addToWishlist = async (product: Product): Promise<void> => {
     if (!isAuthenticated || !token) {
+      alert("Please log in to manage your wishlist.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.post("/wishlist/add", {
+      const response = await API.post("/api/wishlist/add", {
         productId: product._id
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       
       if (response.data.success) {
@@ -94,13 +97,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromWishlist = async (productId: string) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !token) {
+      alert("Please log in to manage your wishlist.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.delete(`/wishlist/${productId}`);
+      const response = await API.delete(`/api/wishlist/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       if (response.data.success) {
         setItems(prevItems => prevItems.filter(item => item._id !== productId));
@@ -113,14 +119,17 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleWishlist = async (product: Product) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !token) {
+      alert("Please log in to manage your wishlist.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.post("/wishlist", {
+      const response = await API.post("/api/wishlist", {
         productId: product._id
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       
       if (response.data.success) {
@@ -143,13 +152,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
 
   const clearWishlist = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !token) {
+      alert("Please log in to manage your wishlist.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.delete("/wishlist");
+      const response = await API.delete("/api/wishlist", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       if (response.data.success) {
         setItems([]);

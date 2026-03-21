@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 
 interface Blog {
   _id: string;
@@ -18,7 +18,7 @@ const BlogSection = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await api.get("/blogs?limit=3");
+        const response = await API.get("/api/blogs?limit=3");
         if (response.data.success) {
           setBlogs(response.data.data.slice(0, 3));
         }

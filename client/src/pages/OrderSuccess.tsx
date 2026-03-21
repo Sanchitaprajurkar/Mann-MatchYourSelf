@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 
 const COLORS = {
   gold: "#C5A059",
@@ -55,7 +55,7 @@ const OrderSuccess: React.FC = () => {
           return;
         }
 
-        const response = await api.get(`/orders/${id}`);
+        const response = await API.get(`/api/orders/${id}`);
 
         if (response.data.success) {
           setOrder(response.data.data);

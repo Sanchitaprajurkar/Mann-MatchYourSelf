@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Search, Filter, Eye, Loader2, Upload } from "lucide-react";
-import api from "../api/axios";
+import API from "../utils/api";
 
 interface Blog {
   _id: string;
@@ -43,7 +43,7 @@ const AdminBlogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await api.get("/blogs/admin/all");
+      const response = await API.get("/api/blogs/admin/all");
       if (response.data.success) {
         setBlogs(response.data.data);
       }
@@ -124,9 +124,9 @@ const AdminBlogs = () => {
       };
 
       if (editingBlog) {
-        await api.put(`/blogs/${editingBlog._id}`, data, config);
+        await API.put(`/api/blogs/${editingBlog._id}`, data, config);
       } else {
-        await api.post("/blogs", data, config);
+        await API.post("/api/blogs", data, config);
       }
       
       await fetchBlogs();
@@ -144,7 +144,7 @@ const AdminBlogs = () => {
     if (!window.confirm("Are you sure you want to delete this blog post?")) return;
     
     try {
-      await api.delete(`/blogs/${id}`);
+      await API.delete(`/api/blogs/${id}`);
       setBlogs(prev => prev.filter(b => b._id !== id));
     } catch (error) {
       console.error("Error deleting blog:", error);

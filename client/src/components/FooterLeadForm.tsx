@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "../api/axios";
+import API from "../utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 
@@ -12,7 +12,7 @@ export default function FooterLeadForm() {
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/leads", { email, phone, preference });
+      await API.post("/api/leads", { email, phone, preference });
       setSuccess(true);
       setEmail("");
       setPhone("");

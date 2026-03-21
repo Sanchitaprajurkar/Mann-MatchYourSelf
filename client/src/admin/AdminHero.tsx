@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Upload, X, Save, Plus, Trash2 } from "lucide-react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { BASE_URL } from "../config";
 
 interface HeroSlide {
@@ -53,7 +53,7 @@ const AdminHero = () => {
   const fetchSlides = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/hero/admin");
+      const response = await API.get("/api/hero/admin");
       if (response.data.success) {
         setSlides(response.data.data);
       }
@@ -135,11 +135,11 @@ const AdminHero = () => {
 
       let response;
       if (editingSlide) {
-        response = await api.put(`/hero/${editingSlide._id}`, formDataToSend, {
+        response = await API.put(`/api/hero/${editingSlide._id}`, formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        response = await api.post("/hero", formDataToSend, {
+        response = await API.post("/api/hero", formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
@@ -183,7 +183,7 @@ const AdminHero = () => {
     }
 
     try {
-      const response = await api.delete(`/hero/${id}`);
+      const response = await API.delete(`/api/hero/${id}`);
       if (response.data.success) {
         alert("Hero slide deleted successfully!");
         fetchSlides();
@@ -197,7 +197,7 @@ const AdminHero = () => {
   // Toggle active status
   const handleToggleActive = async (slide: HeroSlide) => {
     try {
-      const response = await api.put(`/hero/${slide._id}`, {
+      const response = await API.put(`/api/hero/${slide._id}`, {
         ...slide,
         isActive: !slide.isActive,
       });
@@ -213,7 +213,7 @@ const AdminHero = () => {
   // Reorder slides
   const handleReorder = async (slideId: string, newOrder: number) => {
     try {
-      const response = await api.put(`/hero/${slideId}`, {
+      const response = await API.put(`/api/hero/${slideId}`, {
         order: newOrder,
       });
       if (response.data.success) {

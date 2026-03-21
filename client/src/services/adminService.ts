@@ -1,4 +1,4 @@
-import api from "../api/axios";
+import API from "../utils/api";
 
 export interface Product {
   _id: string;
@@ -35,7 +35,7 @@ export interface CreateProductData {
 
 // Dashboard
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const response = await api.get("/products/admin/dashboard/stats");
+  const response = await API.get("/api/products/admin/dashboard/stats");
   return response.data.data;
 };
 
@@ -51,12 +51,12 @@ export const getAdminProducts = async (params?: {
   page: number;
   pages: number;
 }> => {
-  const response = await api.get("/products", { params });
+  const response = await API.get("/api/products", { params });
   return response.data;
 };
 
 export const getAdminProduct = async (id: string): Promise<Product> => {
-  const response = await api.get(`/products/${id}`);
+  const response = await API.get(`/api/products/${id}`);
   return response.data.data;
 };
 
@@ -79,7 +79,7 @@ export const createAdminProduct = async (
     formData.append("images", image);
   });
 
-  const response = await api.post("/products", formData, {
+  const response = await API.post("/api/products", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -116,7 +116,7 @@ export const updateAdminProduct = async (
     });
   }
 
-  const response = await api.put(`/products/${id}`, formData, {
+  const response = await API.put(`/api/products/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -126,7 +126,7 @@ export const updateAdminProduct = async (
 };
 
 export const deleteAdminProduct = async (id: string): Promise<void> => {
-  await api.delete(`/products/${id}`);
+  await API.delete(`/api/products/${id}`);
 };
 
 // Orders (basic implementation)
@@ -141,7 +141,7 @@ export const getAdminOrders = async (params?: {
   pages: number;
 }> => {
   // TODO: Implement when order endpoints are ready
-  const response = await api.get("/orders", { params });
+  const response = await API.get("/api/orders", { params });
   return response.data;
 };
 
@@ -150,6 +150,6 @@ export const updateOrderStatus = async (
   status: string,
 ): Promise<any> => {
   // TODO: Implement when order endpoints are ready
-  const response = await api.put(`/orders/${id}/status`, { status });
+  const response = await API.put(`/api/orders/${id}/status`, { status });
   return response.data.data;
 };

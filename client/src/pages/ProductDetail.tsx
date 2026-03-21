@@ -17,7 +17,8 @@ import {
   RefreshCw,
   Star,
 } from "lucide-react";
-import api from "../api/axios";
+import API from "../utils/api";
+import CommunitySection from "../components/CommunitySection";
 import { Product } from "../data/mockData";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -108,8 +109,7 @@ function ProductDetail() {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
-  const [reviews, setReviews] = useState([]);
-  const [averageRating, setAverageRating] = useState(0);
+
 
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -120,7 +120,7 @@ function ProductDetail() {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get(`/products/${id}`);
+        const response = await API.get(`/api/products/${id}`);
         if (response.data.success) {
           const productData = response.data.data;
           setProduct(productData);
@@ -141,24 +141,6 @@ function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
-  // Fetch reviews
-  useEffect(() => {
-    const fetchReviews = async () => {
-       if(!id) return;
-       try {
-         const res = await api.get(`/reviews/product/${id}`);
-         if(res.data.success) {
-           setReviews(res.data.data);
-           // Calculate average
-           const total = res.data.data.reduce((acc:any, r:any) => acc + r.rating, 0);
-           setAverageRating(res.data.data.length ? (total / res.data.data.length) : 0);
-         }
-       } catch(err) {
-         console.error("Error fetching reviews", err);
-       }
-    };
-    fetchReviews();
-  }, [id]);
 
   // Handlers
   const handleAddToCart = async () => {
@@ -615,62 +597,8 @@ function ProductDetail() {
       </div>
 
       {/* Reviews Section */}
-      <div className="max-w-[1600px] mx-auto px-6 py-12 border-t border-gray-100">
-        <h2 className="text-2xl font-serif tracking-[0.2em] uppercase text-center mb-8">
-          Customer Reviews
-        </h2>
-        
-        {/* Rating Summary */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="text-4xl font-bold text-[#C5A059] mb-2">{averageRating.toFixed(1)}</div>
-          <div className="flex gap-1 mb-2">
-             {[1, 2, 3, 4, 5].map((star) => (
-                <Star 
-                  key={star} 
-                  size={20} 
-                  className={star <= Math.round(averageRating) ? "fill-[#C5A059] text-[#C5A059]" : "text-gray-300"} 
-                />
-             ))}
-          </div>
-          <p className="text-gray-500 text-sm">{reviews.length} Reviews</p>
-        </div>
-
-        {/* Reviews List */}
-        <div className="grid gap-6 max-w-4xl mx-auto">
-          {reviews.length > 0 ? (
-            reviews.map((review: any) => (
-              <div key={review._id} className="bg-[#FAF8F5] p-6 rounded-lg">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                      {review.userId?.name || "Customer"}
-                      <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full flex items-center">
-                        <Check size={10} className="mr-1" /> Verified Purchase
-                      </span>
-                    </div>
-                    <div className="flex gap-1 mt-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star 
-                          key={star} 
-                          size={14} 
-                          className={star <= review.rating ? "fill-[#C5A059] text-[#C5A059]" : "text-gray-300"} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-gray-500 py-8 italic">
-              No reviews yet. Be the first to review this product!
-            </div>
-          )}
-        </div>
+      <div className="border-t border-gray-100">
+        <CommunitySection productId={id} />
       </div>
 
       {/* YOU MAY ALSO LIKE Section */}

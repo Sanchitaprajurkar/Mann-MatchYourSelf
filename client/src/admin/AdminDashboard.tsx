@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/axios";
+import API from "../utils/api";
 import { motion } from "framer-motion";
 import {
   Package,
@@ -47,7 +47,7 @@ function AdminDashboard() {
         setError(null);
 
         // Fetch real dashboard stats
-        const statsResponse = await api.get("/products/dashboard/stats");
+        const statsResponse = await API.get("/api/products/dashboard/stats");
 
         if (statsResponse.data.success) {
           setStats(statsResponse.data.data);

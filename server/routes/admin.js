@@ -122,4 +122,9 @@ router.patch("/orders/:id/status", updateOrderStatus);
 // Dashboard stats
 router.get("/stats", getDashboardStats);
 
+// Review Management
+const { hideReview, unhideReview } = require("../controllers/reviewController");
+router.put("/reviews/:id/hide", hideReview);
+router.put("/reviews/:id/unhide", unhideReview);
+
 module.exports = router;

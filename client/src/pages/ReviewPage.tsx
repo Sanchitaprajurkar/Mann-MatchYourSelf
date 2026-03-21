@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
@@ -34,7 +34,7 @@ const ReviewPage = () => {
     setError("");
 
     try {
-      await api.post(`/reviews/submit`, {
+      await API.post(`/api/reviews/submit`, {
         token,
         rating,
         comment,

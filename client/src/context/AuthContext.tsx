@@ -6,7 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { loginUser } from "../services/authService";
-import api from "../api/axios";
+import API from "../utils/api";
 
 // Types
 interface User {
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Hydrate cart and wishlist from MongoDB
         try {
-          const userResponse = await api.get("/auth/me");
+          const userResponse = await API.get("/api/auth/me");
           const userData = userResponse.data;
 
           if (userData.success && userData.data) {

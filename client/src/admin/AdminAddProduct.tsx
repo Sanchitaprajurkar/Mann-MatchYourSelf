@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import api from "../api/axios";
+import API from "../utils/api";
 import {
   Upload,
   X,
@@ -343,8 +343,8 @@ function AdminAddProduct({
       // Make API call - POST for create, PUT for edit
       const response =
         mode === "edit" && productId
-          ? await api.put(`/products/${productId}`, productFormData)
-          : await api.post("/products", productFormData);
+          ? await API.put(`/api/products/${productId}`, productFormData)
+          : await API.post("/api/products", productFormData);
 
       console.log(
         `Product ${mode === "edit" ? "updated" : "created"} successfully:`,

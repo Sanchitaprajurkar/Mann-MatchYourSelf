@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useCategories } from "../../hooks/useCategories";
 import CategoryForm from "./forms/CategoryForm";
-import api from "../../api/axios";
+import API from "../../utils/api";
 
 // Brand colors matching MANN theme
 const COLORS = {
@@ -66,11 +66,11 @@ const CategoryManagement = () => {
   const handleFormSubmit = async (formData: FormData) => {
     try {
       if (editingCategory) {
-        await api.put(`/admin/categories/${editingCategory}`, formData, {
+        await API.put(`/api/admin/categories/${editingCategory}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        await api.post("/admin/categories", formData, {
+        await API.post("/api/admin/categories", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { Product } from "../data/mockData";
 
 import HeroSlider from "../components/HeroSlider";
@@ -20,7 +20,7 @@ function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await api.get("/products");
+        const response = await API.get("/api/products");
         if (response.data.success) {
           setProducts(response.data.data.slice(0, 8));
         }

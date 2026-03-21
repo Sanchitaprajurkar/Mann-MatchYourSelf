@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../api/axios";
+import API from "../../utils/api";
 import { Copy } from "lucide-react";
 
 const COLORS = {
@@ -46,7 +46,7 @@ const AccountOrders = () => {
         const authHeader = getAuthHeader();
         console.log("Auth header:", authHeader);
 
-        const res = await api.get("/orders/my-orders", {
+        const res = await API.get("/api/orders/my-orders", {
           headers: authHeader,
         });
         
@@ -245,7 +245,7 @@ const AccountOrders = () => {
               console.log("Manual API test triggered");
               const authHeader = getAuthHeader();
               console.log("Auth header:", authHeader);
-              api.get("/orders/my-orders", { headers: authHeader })
+              API.get("/api/orders/my-orders", { headers: authHeader })
                 .then(res => {
                   console.log("Manual test response:", res.data);
                 })

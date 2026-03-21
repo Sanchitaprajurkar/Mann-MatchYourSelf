@@ -1,30 +1,5 @@
-import axios from "axios";
-import { BASE_URL } from "../config";
+import API from "../utils/api";
 
-const API_BASE_URL = `${BASE_URL}/api`;
-
-// Create axios instance with timeout and better error handling
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000, // 10 second timeout
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Add request interceptor to include auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
 
 export interface Address {
   _id: string;
@@ -65,7 +40,7 @@ class AddressService {
   // Get all addresses for the authenticated user
   async getAddresses(): Promise<Address[]> {
     try {
-      const response = await api.get("/addresses");
+      const response = await API.get("/api/addresses");
       const addresses = response.data.data || response.data;
       // Add id property for component compatibility
       return addresses.map((addr: any) => ({ ...addr, id: addr._id }));
@@ -78,7 +53,7 @@ class AddressService {
   // Get a single address by ID
   async getAddressById(id: string): Promise<Address> {
     try {
-      const response = await api.get(`/addresses/${id}`);
+      const response = await API.get(`/api/addresses/${id}`);
       const address = response.data.data || response.data;
       return { ...address, id: address._id };
     } catch (error) {
@@ -90,7 +65,7 @@ class AddressService {
   // Create a new address
   async createAddress(addressData: CreateAddressData): Promise<Address> {
     try {
-      const response = await api.post("/addresses", addressData);
+      const response = await API.post("/api/addresses", addressData);
       const address = response.data.data || response.data;
       return { ...address, id: address._id };
     } catch (error: any) {
@@ -105,7 +80,7 @@ class AddressService {
     addressData: Partial<CreateAddressData>,
   ): Promise<Address> {
     try {
-      const response = await api.put(`/addresses/${id}`, addressData);
+      const response = await API.put(`/api/addresses/${id}`, addressData);
       const address = response.data.data || response.data;
       return { ...address, id: address._id };
     } catch (error) {
@@ -117,7 +92,7 @@ class AddressService {
   // Delete an address
   async deleteAddress(id: string): Promise<void> {
     try {
-      await api.delete(`/addresses/${id}`);
+      await API.delete(`/api/addresses/${id}`);
     } catch (error) {
       console.error("Error deleting address:", error);
       throw this.handleError(error);
@@ -127,7 +102,7 @@ class AddressService {
   // Set an address as default
   async setDefaultAddress(id: string): Promise<Address> {
     try {
-      const response = await api.patch(`/addresses/${id}/set-default`, {});
+      const response = await API.patch(`/api/addresses/${id}/set-default`, {});
       const address = response.data.data || response.data;
       return { ...address, id: address._id };
     } catch (error) {
@@ -139,7 +114,7 @@ class AddressService {
   // Get the default address
   async getDefaultAddress(): Promise<Address | null> {
     try {
-      const response = await api.get("/addresses/default");
+      const response = await API.get("/api/addresses/default");
       const address = response.data.data || response.data;
       return address ? { ...address, id: address._id } : null;
     } catch (error: any) {

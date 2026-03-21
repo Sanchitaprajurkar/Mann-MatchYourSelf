@@ -58,7 +58,7 @@ exports.getProductReviews = async (req, res) => {
     const { productId } = req.params;
     const reviews = await Review.find({
       productId,
-      status: "approved"
+      isHidden: false
     }).populate("userId", "name").sort({ createdAt: -1 });
 
     res.json({ success: true, data: reviews });
@@ -68,16 +68,16 @@ exports.getProductReviews = async (req, res) => {
   }
 };
 
-// Admin: Get all pending reviews
-exports.getPendingReviews = async (req, res) => {
+// Admin: Get all reviews (including hidden)
+exports.getAdminReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ status: "pending" })
+    const reviews = await Review.find({})
       .populate("userId", "name email")
       .populate("productId", "name")
       .sort({ createdAt: -1 });
     res.json({ success: true, data: reviews });
   } catch (error) {
-    console.error("Error fetching pending reviews:", error);
+    console.error("Error fetching admin reviews:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -105,6 +105,117 @@ exports.updateReviewStatus = async (req, res) => {
     res.json({ success: true, message: `Review ${status}`, data: review });
   } catch (error) {
     console.error("Error updating review status:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Admin: Approve review (Specifically handled for rating recalculations)
+exports.approveReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const review = await Review.findByIdAndUpdate(
+      id,
+      { status: "approved", isApproved: true },
+      { new: true }
+    );
+
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    // Auto-update product rating
+    const approvedReviews = await Review.find({ productId: review.productId, status: "approved" });
+    const avg = approvedReviews.length > 0
+      ? approvedReviews.reduce((acc, r) => acc + r.rating, 0) / approvedReviews.length
+      : 0;
+
+    await Order.mongoose?.model('Product').findByIdAndUpdate(review.productId, {
+      averageRating: avg,
+      numReviews: approvedReviews.length,
+    }).catch(e => {
+        // Fallback if Product model isn't populated nicely
+        const Product = require("../models/Product");
+        return Product.findByIdAndUpdate(review.productId, { averageRating: avg, numReviews: approvedReviews.length });
+    });
+
+    res.json({ success: true, data: review, message: "Review approved and rating updated" });
+  } catch (error) {
+    console.error("Error approving review:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Create a new general review
+exports.createReview = async (req, res) => {
+  console.log("REVIEW BODY:", req.body);
+  try {
+    const { productId, name, location, rating, comment } = req.body;
+    let imageUrl = "";
+
+    // If an image was uploaded via multipart/form-data
+    if (req.file) {
+      imageUrl = req.file.path;
+    } else if (req.body.image) {
+      imageUrl = req.body.image;
+    }
+
+    const review = await Review.create({
+      productId,
+      name,
+      location: location || "India",
+      rating: Number(rating) || 5,
+      comment,
+      image: imageUrl,
+      isHidden: false // Explicitly making visible
+    });
+
+    res.status(201).json({ success: true, data: review, message: "Review submitted successfully" });
+  } catch (error) {
+    console.error("Error creating review:", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Get all reviews (for homepage, hidden false)
+exports.getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({ isHidden: false })
+      .populate("userId", "name")
+      .populate("productId", "name")
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.json({ success: true, data: reviews });
+  } catch (error) {
+    console.error("Error fetching all reviews:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Admin: Hide review
+exports.hideReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      { isHidden: true },
+      { new: true }
+    );
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    res.json({ success: true, data: review, message: "Review hidden successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Admin: Unhide review
+exports.unhideReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      { isHidden: false },
+      { new: true }
+    );
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    res.json({ success: true, data: review, message: "Review unhidden successfully" });
+  } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 import AdminAddProduct from "./AdminAddProduct";
 
 export default function AdminEditProduct() {
@@ -15,7 +15,7 @@ export default function AdminEditProduct() {
 
     const fetchProduct = async () => {
       try {
-        const res = await api.get(`/products/${id}`);
+        const res = await API.get(`/api/products/${id}`);
         setInitialData(res.data.data || res.data);
       } catch (err) {
         console.error("Failed to load product", err);

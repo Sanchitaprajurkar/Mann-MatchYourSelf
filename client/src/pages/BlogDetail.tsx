@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 import { Loader2, ArrowLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
@@ -24,7 +24,7 @@ const BlogDetail = () => {
 
     const fetchBlog = async () => {
       try {
-        const response = await api.get(`/blogs/${slug}`);
+        const response = await API.get(`/api/blogs/${slug}`);
         if (response.data.success) {
           setBlog(response.data.data);
         } else {

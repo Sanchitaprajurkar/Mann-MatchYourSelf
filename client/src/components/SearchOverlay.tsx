@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 
 const COLORS = {
   gold: "#C5A059",
@@ -39,7 +39,7 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/products?search=${searchQuery}`);
+        const res = await API.get(`/api/products?search=${searchQuery}`);
 
         if (res.data.success) {
           setResults(res.data.data);

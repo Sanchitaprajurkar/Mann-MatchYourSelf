@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { Product } from "../data/mockData";
-import api from "../api/axios";
+import API from "../utils/api";
 
 interface CartItem {
   productId: string;
@@ -86,8 +86,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       console.log("🛒 Pushing cart to backend:", items);
 
-      const response = await api.post(
-        "/cart/sync",
+      const response = await API.post("/api/cart/sync",
         {
           items: items.map((item) => ({
             product: item.productId,
@@ -117,62 +116,59 @@ export function CartProvider({ children }: { children: ReactNode }) {
     },
   ) => {
     const quantity = product.quantity || 1;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
 
     try {
-      const token = localStorage.getItem("token");
+      // Get current items and add the new item locally
+      const currentItems = [...items];
+      const existingItemIndex = currentItems.findIndex(
+        (item) =>
+          item.productId === product._id &&
+          item.size === product.selectedSize &&
+          item.color === product.selectedColor,
+      );
 
-      if (token) {
-        // Get current items and add the new item
-        const currentItems = [...items];
-        const existingItemIndex = currentItems.findIndex(
-          (item) =>
-            item.productId === product._id &&
-            item.size === product.selectedSize &&
-            item.color === product.selectedColor,
-        );
+      if (existingItemIndex > -1) {
+        currentItems[existingItemIndex].quantity += quantity;
+      } else {
+        const newItem = {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.images?.[0] || "/api/placeholder/400/533",
+          quantity: quantity,
+          size: product.selectedSize,
+          color: product.selectedColor,
+        };
+        currentItems.push(newItem);
+      }
 
-        if (existingItemIndex > -1) {
-          // Update existing item
-          currentItems[existingItemIndex].quantity += quantity;
-        } else {
-          // Add new item
-          const newItem = {
-            productId: product._id,
-            name: product.name,
-            price: product.price,
-            image: product.images?.[0] || "/api/placeholder/400/533",
-            quantity: quantity,
-            size: product.selectedSize,
-            color: product.selectedColor,
-          };
-          currentItems.push(newItem);
+      // API call explicitly configured to hit backend addToCart router
+      const response = await API.post(
+        "/api/cart",
+        {
+          productId: product._id,
+          quantity: quantity,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
 
-        // Sync to backend
-        const syncResponse = await api.post(
-          "/cart/sync",
-          {
-            items: currentItems.map(item => ({
-              product: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-              color: item.color
-            })),
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (syncResponse.data.success) {
-          // Update local state after successful backend sync
-          setItems(currentItems);
-        } else {
-          throw new Error(syncResponse.data.message || "Sync failed");
-        }
+      if (response.data.success) {
+        // Update local state smoothly for UI
+        setItems(currentItems);
+      } else {
+        throw new Error(response.data.message || "Failed to add to cart");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
+      alert("Failed to add to cart. Please try again.");
     }
   };
 
@@ -183,37 +179,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
   ) => {
     try {
       const token = localStorage.getItem("token");
-      if (token) {
-        // Filter out the item to remove
-        const updatedItems = items.filter(
-          (item) =>
-            !(
-              item.productId === productId &&
-              item.size === size &&
-              item.color === color
-            ),
-        );
+      if (!token) {
+        alert("Please log in to modify your cart.");
+        return;
+      }
 
-        // Sync to backend
-        const syncResponse = await api.post(
-          "/cart/sync",
-          {
-            items: updatedItems.map(item => ({
-              product: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-              color: item.color
-            })),
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+      // Filter out the item to remove
+      const updatedItems = items.filter(
+        (item) =>
+          !(
+            item.productId === productId &&
+            item.size === size &&
+            item.color === color
+          ),
+      );
 
-        if (syncResponse.data.success) {
-          // Update local state after successful backend sync
-          setItems(updatedItems);
-        }
+      // Sync to backend
+      const syncResponse = await API.post("/api/cart/sync",
+        {
+          items: updatedItems.map(item => ({
+            product: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color
+          })),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (syncResponse.data.success) {
+        // Update local state after successful backend sync
+        setItems(updatedItems);
       }
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -233,36 +231,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("token");
-      if (token) {
-        // Update the item quantity
-        const updatedItems = items.map((item) =>
-          item.productId === productId &&
-          item.size === size &&
-          item.color === color
-            ? { ...item, quantity }
-            : item,
-        );
+      if (!token) {
+        alert("Please log in to modify your cart.");
+        return;
+      }
 
-        // Sync to backend
-        const syncResponse = await api.post(
-          "/cart/sync",
-          {
-            items: updatedItems.map(item => ({
-              product: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-              color: item.color
-            })),
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+      // Update the item quantity
+      const updatedItems = items.map((item) =>
+        item.productId === productId &&
+        item.size === size &&
+        item.color === color
+          ? { ...item, quantity }
+          : item,
+      );
 
-        if (syncResponse.data.success) {
-          // Update local state after successful backend sync
-          setItems(updatedItems);
-        }
+      // Sync to backend
+      const syncResponse = await API.post("/api/cart/sync",
+        {
+          items: updatedItems.map(item => ({
+            product: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color
+          })),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (syncResponse.data.success) {
+        // Update local state after successful backend sync
+        setItems(updatedItems);
       }
     } catch (error) {
       console.error("Error updating quantity:", error);

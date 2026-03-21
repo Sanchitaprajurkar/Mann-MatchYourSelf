@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { Check, X, Star, Clock } from "lucide-react";
 
 interface Review {
@@ -16,7 +16,7 @@ interface Review {
   };
   rating: number;
   comment: string;
-  status: "pending" | "approved" | "rejected";
+  isHidden: boolean;
   createdAt: string;
 }
 
@@ -27,12 +27,11 @@ const AdminReviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await api.get(`/reviews/pending`);
+      const response = await API.get(`/api/reviews/admin`);
       setReviews(response.data.data);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch pending reviews");
+      setError("Failed to fetch reviews");
       setLoading(false);
     }
   };
@@ -41,16 +40,20 @@ const AdminReviews = () => {
     fetchReviews();
   }, []);
 
-  const handleStatusUpdate = async (id: string, status: "approved" | "rejected") => {
+  const handleToggleVisibility = async (id: string, isCurrentlyHidden: boolean) => {
     try {
-      const token = localStorage.getItem("adminToken");
-      await api.put(`/reviews/${id}`, { status });
+      const endpoint = isCurrentlyHidden 
+        ? `/api/admin/reviews/${id}/unhide` 
+        : `/api/admin/reviews/${id}/hide`;
+
+      await API.put(endpoint);
       
-      // Remove from list or update locally
-      setReviews(reviews.filter(r => r._id !== id));
-      
+      // Update local state smoothly
+      setReviews(reviews.map(r => 
+        r._id === id ? { ...r, isHidden: !isCurrentlyHidden } : r
+      ));
     } catch (err) {
-      alert("Failed to update status");
+      alert("Failed to update visibility status");
     }
   };
 
@@ -58,13 +61,13 @@ const AdminReviews = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Pending Reviews</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">All Reviews</h1>
       
       {error && <div className="text-red-500 mb-4">{error}</div>}
       
       {reviews.length === 0 ? (
         <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-          No pending reviews to moderate.
+          No reviews available.
         </div>
       ) : (
         <div className="grid gap-4">
@@ -94,6 +97,18 @@ const AdminReviews = () => {
                     <Clock className="w-3 h-3 mr-1" />
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
+                  {/* VISIBILITY TAG */}
+                  <div className="ml-4">
+                    {review.isHidden ? (
+                      <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full border border-red-200">
+                        🔴 Hidden
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
+                        🟢 Visible
+                      </span>
+                    )}
+                  </div>
                 </div>
                 
                 <p className="text-gray-700 bg-gray-50 p-3 rounded text-sm italic border border-gray-100">
@@ -101,19 +116,22 @@ const AdminReviews = () => {
                 </p>
               </div>
               
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => handleStatusUpdate(review._id, "approved")}
-                  className="flex items-center gap-1 bg-green-100 text-green-700 px-4 py-2 rounded hover:bg-green-200 transition-colors text-sm font-medium"
-                >
-                  <Check className="w-4 h-4" /> Approve
-                </button>
-                <button
-                  onClick={() => handleStatusUpdate(review._id, "rejected")}
-                  className="flex items-center gap-1 bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors text-sm font-medium"
-                >
-                  <X className="w-4 h-4" /> Reject
-                </button>
+              <div className="flex flex-col gap-2 shrink-0">
+                {review.isHidden ? (
+                  <button
+                    onClick={() => handleToggleVisibility(review._id, review.isHidden)}
+                    className="flex justify-center items-center gap-1 bg-green-100 text-green-700 w-24 py-2 rounded hover:bg-green-200 transition-colors text-sm font-medium"
+                  >
+                    <Check className="w-4 h-4" /> Unhide 
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleToggleVisibility(review._id, review.isHidden)}
+                    className="flex justify-center items-center gap-1 bg-red-100 text-red-700 w-24 py-2 rounded hover:bg-red-200 transition-colors text-sm font-medium"
+                  >
+                    <X className="w-4 h-4" /> Hide
+                  </button>
+                )}
               </div>
             </div>
           ))}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { BASE_URL } from "../config";
 
 interface Category {
@@ -57,7 +57,7 @@ const AdminCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/config/categories");
+      const response = await API.get("/api/config/categories");
       if (response.data.success) {
         setCategories(response.data.data);
       }
@@ -146,15 +146,14 @@ const AdminCategories = () => {
 
       let response;
       if (editingCategory) {
-        response = await api.put(
-          `/config/categories/${editingCategory._id}`,
+        response = await API.put(`/api/config/categories/${editingCategory._id}`,
           formDataToSend,
           {
             headers: { "Content-Type": "multipart/form-data" },
           },
         );
       } else {
-        response = await api.post("/config/categories", formDataToSend, {
+        response = await API.post("/api/config/categories", formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
@@ -197,7 +196,7 @@ const AdminCategories = () => {
     }
 
     try {
-      const response = await api.delete(`/config/categories/${id}`);
+      const response = await API.delete(`/api/config/categories/${id}`);
       if (response.data.success) {
         alert("Category deleted successfully!");
         fetchCategories();
@@ -211,7 +210,7 @@ const AdminCategories = () => {
   // Toggle active status
   const handleToggleActive = async (category: Category) => {
     try {
-      const response = await api.put(`/config/categories/${category._id}`, {
+      const response = await API.put(`/api/config/categories/${category._id}`, {
         ...category,
         active: !category.active,
       });
@@ -227,7 +226,7 @@ const AdminCategories = () => {
   // Toggle show on home
   const handleToggleShowOnHome = async (category: Category) => {
     try {
-      const response = await api.put(`/config/categories/${category._id}`, {
+      const response = await API.put(`/api/config/categories/${category._id}`, {
         ...category,
         showOnHome: !category.showOnHome,
       });

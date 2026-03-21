@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import api from "../api/axios";
+import API from "../utils/api";
 import { getSizes, getColors, getCategories } from "../services/configService";
 
 /* ===============================
@@ -407,7 +407,7 @@ function Shop() {
     const fetchShopCategories = async () => {
       try {
         setCategoriesLoading(true);
-        const response = await api.get("/config/categories");
+        const response = await API.get("/api/config/categories");
 
         if (response.data.success) {
           // Filter for active categories and add "All" option
@@ -506,7 +506,7 @@ function Shop() {
         }
         if (searchTerm) params.append("search", searchTerm);
 
-        const response = await api.get(`/products?${params}`);
+        const response = await API.get(`/api/products?${params}`);
         if (response.data.success) {
           // Only filter out invalid products - keep all legitimate admin-added products
           const validProducts = response.data.data.filter(

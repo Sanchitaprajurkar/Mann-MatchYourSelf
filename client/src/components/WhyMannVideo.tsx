@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 
 const FALLBACK_VIDEO = "/mann-heritage.mp4"; // Local public video fallback
 const POSTER_IMAGE = "/women-hero.png"; // Fallback poster image
@@ -14,7 +14,7 @@ const WhyMannVideo = () => {
 
     const fetchHeroVideo = async () => {
       try {
-        const response = await api.get("/settings/hero-video", {
+        const response = await API.get("/api/settings/hero-video", {
           timeout: 3000, // Reduced timeout to 3s
           signal: controller.signal,
         });

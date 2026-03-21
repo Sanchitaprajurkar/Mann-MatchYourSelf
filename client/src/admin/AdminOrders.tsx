@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { Link } from "react-router-dom";
 import { Eye, Search, Filter, ChevronDown, Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -38,7 +38,7 @@ export default function AdminOrders() {
       console.log("🔍 Making request to /api/admin/orders");
       console.log("🔍 Authorization header:", `Bearer ${token.substring(0, 20)}...`);
       
-      const { data } = await api.get("/admin/orders");
+      const { data } = await API.get("/api/admin/orders");
       
       console.log("✅ AdminOrders: Orders fetched successfully");
       console.log("✅ AdminOrders: Order count:", data.data?.length || 0);
@@ -63,8 +63,7 @@ export default function AdminOrders() {
     console.log("🔄 AdminOrders: Updating order status");
     
     try {
-      await api.patch(
-        `/admin/orders/${id}/status`,
+      await API.patch(`/api/admin/orders/${id}/status`,
         { status }
       );
 

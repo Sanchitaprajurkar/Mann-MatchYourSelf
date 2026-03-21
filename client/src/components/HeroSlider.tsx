@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { BASE_URL } from "../config";
 import { useUI } from "../context/UIContext";
 
@@ -116,7 +116,7 @@ const HeroSlider = () => {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const response = await api.get("/hero");
+        const response = await API.get("/api/hero");
         if (response.data && response.data.data && response.data.data.length > 0) {
           const slidesWithFullUrls = response.data.data.map((slide: any) => {
             return {

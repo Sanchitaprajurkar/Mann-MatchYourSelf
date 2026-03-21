@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import API from "../utils/api";
 import { useParams } from "react-router-dom";
 
 export default function AdminOrderDetails() {
@@ -9,7 +9,7 @@ export default function AdminOrderDetails() {
   useEffect(() => {
     const fetchOrder = async () => {
       const token = localStorage.getItem("token");
-      const { data } = await api.get("/admin/orders");
+      const { data } = await API.get("/api/admin/orders");
 
       const found = data.data.find(o => o._id === id);
       setOrder(found);

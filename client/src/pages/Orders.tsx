@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/axios";
+import API from "../utils/api";
 import { Link } from "react-router-dom";
 
 interface Order {
@@ -50,7 +50,7 @@ function Orders() {
         console.log("Orders page: Fetching orders from API");
         
         // Use the same API as AccountOrders
-        const res = await api.get("/orders/my-orders");
+        const res = await API.get("/api/orders/my-orders");
         
         console.log("Orders page: API response:", res.data);
         

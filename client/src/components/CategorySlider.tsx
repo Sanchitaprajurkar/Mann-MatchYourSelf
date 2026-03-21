@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import api from "../api/axios";
+import API from "../utils/api";
 
 // Brand colors for consistency
 const COLORS = {
@@ -35,7 +35,7 @@ const CategorySlider = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/config/categories");
+        const response = await API.get("/api/config/categories");
 
         if (response.data.success) {
           // Filter for active + showOnHome categories and sort by order

@@ -1,4 +1,4 @@
-import api from "../api/axios";
+import API from "../utils/api";
 
 export interface UpdateProfileData {
   name: string;
@@ -9,7 +9,7 @@ export interface UpdateProfileData {
 
 export const updateUserProfile = async (profileData: UpdateProfileData) => {
   try {
-    const response = await api.put("/auth/profile", profileData);
+    const response = await API.put("/api/auth/profile", profileData);
     return response.data;
   } catch (error: any) {
     console.error("Update profile error:", error);
@@ -19,7 +19,7 @@ export const updateUserProfile = async (profileData: UpdateProfileData) => {
 
 export const getUserProfile = async () => {
   try {
-    const response = await api.get("/auth/profile");
+    const response = await API.get("/api/auth/profile");
     return response.data;
   } catch (error: any) {
     console.error("Get profile error:", error);

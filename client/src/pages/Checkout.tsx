@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../api/axios";
+import API from "../utils/api";
 import { useCart } from "../context/CartContext";
 import { addressService, Address } from "../services/addressService";
 
@@ -165,7 +165,7 @@ const Checkout: React.FC = () => {
       await syncCartWithBackend();
       console.log("🛒 Cart synced, placing order...");
 
-      const response = await api.post("/orders", { shippingAddress });
+      const response = await API.post("/api/orders", { shippingAddress });
 
       if (response.data.success) {
         navigate(`/order-success/${response.data.data._id}`);

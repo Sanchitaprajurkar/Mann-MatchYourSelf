@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Upload, Video, Trash2, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import api from "../api/axios";
+import API from "../utils/api";
 
 const AdminHeroVideo = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -17,7 +17,7 @@ const AdminHeroVideo = () => {
   const fetchCurrentVideo = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/settings/hero-video");
+      const response = await API.get("/api/settings/hero-video");
       if (response.data.success && response.data.heroVideo) {
         setCurrentVideo(response.data.heroVideo);
       }
@@ -62,7 +62,7 @@ const AdminHeroVideo = () => {
       const formData = new FormData();
       formData.append("video", videoFile);
 
-      const response = await api.post("/settings/hero-video", formData, {
+      const response = await API.post("/api/settings/hero-video", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -99,7 +99,7 @@ const AdminHeroVideo = () => {
 
     try {
       setLoading(true);
-      const response = await api.delete("/settings/hero-video");
+      const response = await API.delete("/api/settings/hero-video");
 
       if (response.data.success) {
         setMessage({ type: "success", text: "Hero video deleted successfully" });
