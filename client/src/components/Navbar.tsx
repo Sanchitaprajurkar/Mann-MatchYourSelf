@@ -274,7 +274,7 @@ const Navbar = () => {
 
             <Link
               to="/cart"
-              className="hidden xl:block relative p-2 hover:scale-110 transition-all duration-200"
+              className="relative p-2 hover:scale-110 transition-all duration-200"
             >
               <ShoppingBag
                 size={22}

@@ -453,7 +453,7 @@ function ProductDetail() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
+              <div className="flex flex-wrap sm:flex-nowrap gap-3">
                 <button
                   onClick={() => {
                     if (justAdded) {

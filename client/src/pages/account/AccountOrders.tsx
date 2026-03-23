@@ -420,9 +420,9 @@ const AccountOrders = () => {
             </div>
 
             {/* ORDER ITEMS */}
-            <div className="p-8">
+            <div className="p-4 sm:p-8 space-y-4">
               {(order.items || []).map((item, i) => (
-                <div key={i} className="flex gap-6 items-center">
+                <div key={i} className="flex flex-wrap sm:flex-nowrap gap-4 sm:gap-6 items-center border-b sm:border-none border-gray-100 pb-4 sm:pb-0">
                   <div className="w-20 h-20 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0">
                     <img
                       src={item.product?.images?.[0] || item.image || "/placeholder-product.jpg"}
@@ -449,12 +449,12 @@ const AccountOrders = () => {
             </div>
 
             {/* ORDER FOOTER WITH ACTIONS */}
-            <div className="bg-gray-50/50 px-8 py-4 flex justify-between items-center border-t border-gray-50">
-              <p className="font-serif text-lg" style={{ color: COLORS.black }}>
+            <div className="bg-gray-50/50 px-4 sm:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-gray-50">
+              <p className="font-serif text-lg text-center md:text-left" style={{ color: COLORS.black }}>
                 ₹{order.totalAmount.toLocaleString()}
               </p>
 
-              <div className="flex gap-6">
+              <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                 <a
                   href="#"
                   className="text-xs uppercase tracking-widest text-gray-500 hover:text-[#C5A059] transition-colors"

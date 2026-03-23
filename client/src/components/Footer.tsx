@@ -18,7 +18,7 @@ const Footer = () => {
           </div>
 
           {/* RIGHT: Navigation Grid (70% on lg) */}
-          <div className="w-full lg:w-3/4 grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16">
+          <div className="w-full lg:w-3/4 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 lg:gap-16">
             
             {/* SERVICES */}
             <div className="space-y-6">
@@ -96,15 +96,15 @@ const Footer = () => {
         </div>
 
         {/* 2. BOTTOM BAR - Sharp & Minimal */}
-        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] tracking-[0.2em] text-white/70 uppercase font-bold">
+        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-center md:justify-between items-center gap-6 text-[9px] tracking-[0.2em] text-white/70 uppercase font-bold text-center">
           <span>&copy; 2026 MANN MATCH YOUR SELF</span>
           
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 md:gap-8">
             <Link to="#" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Privacy Policy</Link>
             <Link to="#" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Terms of Use</Link>
             <Link
               to="/admin/login"
-              className="flex items-center gap-2 hover:text-[#C5A059] italic tracking-[0.1em] border-l border-white/10 pl-8 ml-4 transition-colors"
+              className="flex items-center gap-2 hover:text-[#C5A059] italic tracking-[0.1em] border-l border-white/10 pl-4 md:pl-8 ml-2 md:ml-4 transition-colors"
             >
               <Settings size={12} className="text-[#C5A059]" /> Admin Access
             </Link>
