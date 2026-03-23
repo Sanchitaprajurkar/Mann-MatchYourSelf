@@ -28,6 +28,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import ReviewPage from "./pages/ReviewPage";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
+import Unauthorized from "./pages/Unauthorized";
 
 // Account pages
 import AccountOverview from "./pages/account/AccountOverview";
@@ -338,7 +339,6 @@ function App() {
               <Route path="add-product" element={<AdminAddProduct />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="orders/:id" element={<AdminOrderDetails />} />
-              <Route path="orders/:id" element={<AdminOrderDetails />} />
               <Route path="reviews" element={<AdminReviews />} />
               <Route path="blogs" element={<AdminBlogs />} />
               <Route path="hero" element={<AdminHero />} />
@@ -346,6 +346,9 @@ function App() {
               <Route path="offers" element={<AdminOffers />} />
               <Route path="coupons" element={<AdminCoupons />} />
             </Route>
+
+            {/* UNAUTHORIZED PAGE */}
+            <Route path="/unauthorized" element={<MainLayout><Unauthorized /></MainLayout>} />
 
             {/* CATCH-ALL ROUTE - Redirect to home for undefined routes */}
             <Route path="*" element={<Navigate to="/" replace />} />

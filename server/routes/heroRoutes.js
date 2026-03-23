@@ -8,20 +8,15 @@ const {
   updateHeroSlide,
   deleteHeroSlide,
 } = require("../controllers/heroController");
+const authenticateAdmin = require("../middleware/adminAuthMiddleware");
 
-// GET slides (public)
+// ── Public routes ────────────────────────────────────────────────────────────
 router.get("/", getHeroSlides);
 
-// GET all slides (admin - includes inactive)
-router.get("/admin", getAllHeroSlides);
-
-// POST slide
-router.post("/", upload.single("image"), addHeroSlide);
-
-// PUT slide
-router.put("/:id", upload.single("image"), updateHeroSlide);
-
-// DELETE slide
-router.delete("/:id", deleteHeroSlide);
+// ── Admin-only routes ────────────────────────────────────────────────────────
+router.get("/admin", authenticateAdmin, getAllHeroSlides);
+router.post("/", authenticateAdmin, upload.single("image"), addHeroSlide);
+router.put("/:id", authenticateAdmin, upload.single("image"), updateHeroSlide);
+router.delete("/:id", authenticateAdmin, deleteHeroSlide);
 
 module.exports = router;

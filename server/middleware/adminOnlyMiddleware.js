@@ -1,19 +1,12 @@
-// Admin-only middleware - use AFTER authenticateToken
-// Ensures only admin role can access the route
+// Admin-only middleware — must be used AFTER authenticateToken or authenticateAdmin
 const adminOnly = (req, res, next) => {
-  console.log("🛡️ ADMIN-ONLY CHECK");
-  console.log("🎭 Current role:", req.role);
-
-  if (req.role !== "admin") {
-    console.log("❌ ACCESS DENIED - Not an admin");
-    return res.status(403).json({
-      success: false,
-      message: "Access denied. Admin privileges required.",
-    });
+  if (req.role === "admin" || req.user?.role === "admin") {
+    return next();
   }
-
-  console.log("✅ ADMIN ACCESS GRANTED");
-  next();
+  return res.status(403).json({
+    success: false,
+    message: "Access denied. Admin privileges required.",
+  });
 };
 
 module.exports = adminOnly;

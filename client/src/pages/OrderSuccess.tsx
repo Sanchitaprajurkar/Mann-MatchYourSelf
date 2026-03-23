@@ -22,15 +22,11 @@ const OrderConfirmationPage: React.FC = () => {
         shippingAddress: orderState.orderData.shippingAddress || orderState.address,
         items: orderState.orderData.items?.length ? orderState.orderData.items : orderState.items,
       };
-      console.log("📄 OrderSuccess - from location.state.orderData:", enriched);
-      console.log("📄 appliedCoupon:", enriched.appliedCoupon);
-      console.log("📄 pricingSnapshot:", enriched.pricingSnapshot);
       setOrder(enriched);
       setLoading(false);
     }
 
     // Step 2: Always re-fetch from API to get the authoritative saved order
-    // (this also serves as fallback if orderData is missing from state)
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -38,14 +34,10 @@ const OrderConfirmationPage: React.FC = () => {
 
         const response = await API.get(`/api/orders/${id}`);
         if (response.data.success) {
-          const fetched = response.data.data;
-          console.log("🌐 OrderSuccess - from API fetch:", fetched);
-          console.log("🌐 appliedCoupon:", fetched.appliedCoupon);
-          console.log("🌐 pricingSnapshot:", fetched.pricingSnapshot);
-          setOrder(fetched); // Override with authoritative data
+          setOrder(response.data.data);
         }
-      } catch (error) {
-        console.error("Fetch order error:", error);
+      } catch {
+        // silently fail — state data is already shown
       } finally {
         setLoading(false);
       }
@@ -53,7 +45,7 @@ const OrderConfirmationPage: React.FC = () => {
 
     fetchOrder();
 
-    // Step 3: Clear checkout state after this page mounts (order is done)
+    // Step 3: Clear checkout state after this page mounts
     return () => {
       clearCheckout();
     };
@@ -80,8 +72,11 @@ const OrderConfirmationPage: React.FC = () => {
     );
   }
 
+  // Safe order ID string — handles both plain string and ObjectId
+  const orderId = typeof order._id === "string" ? order._id : String(order._id ?? id ?? "");
+  const orderIdDisplay = orderId.slice(-8).toUpperCase();
 
-  // Calculate estimated delivery (e.g. 5 days from today)
+  // Estimated delivery: 5 days from today
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 5);
 
@@ -106,7 +101,7 @@ const OrderConfirmationPage: React.FC = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
             <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
-              <Package size={14} className="text-[#C5A059]" /> Order ID: #{order._id.substring(0, 8).toUpperCase()}
+              <Package size={14} className="text-[#C5A059]" /> Order ID: #{orderIdDisplay}
             </div>
             <div className="hidden sm:block text-gray-300">•</div>
             <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
@@ -128,7 +123,7 @@ const OrderConfirmationPage: React.FC = () => {
               </h2>
 
               <div className="space-y-6">
-                {order.items.map((item: any, idx: number) => (
+                {(order.items || []).map((item: any, idx: number) => (
                   <div key={idx} className="flex gap-4">
                     <div className="w-20 h-24 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                       <img 
@@ -152,7 +147,6 @@ const OrderConfirmationPage: React.FC = () => {
               </div>
 
               <div className="mt-8 pt-6 border-t border-gray-200 space-y-3">
-                {/* Pricing breakdown from server snapshot */}
                 {order.pricingSnapshot ? (
                   <>
                     <div className="flex justify-between text-sm text-gray-500">

@@ -15,88 +15,63 @@ function ProtectedRoute({
 }: ProtectedRouteProps) {
   const location = useLocation();
   const { user, isAuthenticated, loading } = useAuth();
-  
-  console.log("🛡️ ProtectedRoute: Checking route:", location.pathname);
-  console.log("🛡️ ProtectedRoute: requireAuth:", requireAuth, "requireAdmin:", requireAdmin);
-  
-  // Admin login page is public - no checks needed
+
+  // Admin login page is always public
   if (location.pathname === "/admin/login") {
-    console.log("🛡️ ProtectedRoute: Admin login page - public access, no checks");
     return <>{children}</>;
   }
-  
-  // Check if this is an admin route (excluding login page)
-  const isAdminRoute = location.pathname.startsWith("/admin");
-  
-  console.log("🛡️ ProtectedRoute: isAdminRoute:", isAdminRoute);
 
-  // For admin routes, check admin authentication
+  // ── Admin routes ────────────────────────────────────────────────────────────
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   if (isAdminRoute) {
     const adminToken = localStorage.getItem("adminToken");
-    const adminUser = localStorage.getItem("adminUser");
-    
-    console.log("🛡️ ProtectedRoute: Checking admin authentication");
-    console.log("🛡️ ProtectedRoute: adminToken exists?", !!adminToken);
-    console.log("🛡️ ProtectedRoute: adminUser exists?", !!adminUser);
+    const adminUserRaw = localStorage.getItem("adminUser");
 
-    if (!adminToken || !adminUser) {
-      console.log("🛡️ ProtectedRoute: No admin token found, redirecting to /admin/login");
+    if (!adminToken || !adminUserRaw) {
       return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
 
-    // Validate admin user data
     try {
-      const adminData = JSON.parse(adminUser);
-      console.log("🛡️ ProtectedRoute: Admin data parsed, role:", adminData?.role);
-      
+      const adminData = JSON.parse(adminUserRaw);
       if (!adminData || adminData.role !== "admin") {
-        console.log("🛡️ ProtectedRoute: Invalid admin role, redirecting to /admin/login");
         localStorage.removeItem("adminToken");
         localStorage.removeItem("adminUser");
-        return (
-          <Navigate to="/admin/login" state={{ from: location }} replace />
-        );
+        return <Navigate to="/admin/login" state={{ from: location }} replace />;
       }
-    } catch (error) {
-      console.log("🛡️ ProtectedRoute: Error parsing admin data, redirecting to /admin/login");
+    } catch {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminUser");
       return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
 
-    console.log("🛡️ ProtectedRoute: Admin authenticated successfully, rendering admin content");
     return <>{children}</>;
   }
 
-  // For regular user routes, check user authentication
-  console.log("🛡️ ProtectedRoute: Regular route, checking user authentication");
-  
-  // Show loading while checking auth status
+  // ── Regular user routes ─────────────────────────────────────────────────────
+
+  // Show loading spinner while auth state resolves (prevents flash)
   if (loading) {
-    console.log("🛡️ ProtectedRoute: Loading user authentication...");
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D4AF37]"></div>
-          <p className="mt-4 text-[#8C8273]">Checking authentication...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C5A059] mx-auto"></div>
+          <p className="mt-4 text-sm uppercase tracking-widest text-gray-400">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Check if authentication is required but user is not authenticated
+  // Redirect unauthenticated users to login
   if (requireAuth && !isAuthenticated) {
-    console.log("🛡️ ProtectedRoute: User auth required but not authenticated, redirecting to /login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check if admin access is required but user is not admin
+  // Redirect non-admin users away from admin-requiring routes
   if (requireAdmin && (!user || user.role !== "admin")) {
-    console.log("🛡️ ProtectedRoute: Admin access required but user is not admin");
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />;
   }
 
-  console.log("🛡️ ProtectedRoute: All checks passed, rendering content");
   return <>{children}</>;
 }
 

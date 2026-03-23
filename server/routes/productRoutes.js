@@ -9,15 +9,16 @@ const {
   getDashboardStats,
 } = require("../controllers/productController");
 const upload = require("../middleware/upload");
+const authenticateAdmin = require("../middleware/adminAuthMiddleware");
 
-// Public routes
+// ── Public routes ────────────────────────────────────────────────────────────
 router.get("/", getAllProducts);
 router.get("/:id", getSingleProduct);
 
-// Admin routes (temporarily public for testing)
-router.get("/dashboard/stats", getDashboardStats);
-router.post("/", upload.array("images", 5), createProduct);
-router.put("/:id", upload.array("images", 5), updateProduct);
-router.delete("/:id", deleteProduct);
+// ── Admin-only routes (require admin token) ──────────────────────────────────
+router.get("/dashboard/stats", authenticateAdmin, getDashboardStats);
+router.post("/", authenticateAdmin, upload.array("images", 5), createProduct);
+router.put("/:id", authenticateAdmin, upload.array("images", 5), updateProduct);
+router.delete("/:id", authenticateAdmin, deleteProduct);
 
 module.exports = router;

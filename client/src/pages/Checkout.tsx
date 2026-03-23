@@ -478,20 +478,30 @@ const Checkout: React.FC = () => {
           </div>
         </div>
 
-        <Link
-          to="/payment"
-          state={{
-            address: addresses.find((addr) => addr._id === selectedAddressId),
+        <button
+          onClick={() => {
+            const selectedAddress = addresses.find((addr) => addr._id === selectedAddressId);
+            if (!selectedAddress) {
+              setError("Please select a shipping address");
+              return;
+            }
+            navigate("/payment", {
+              state: {
+                address: selectedAddress,
+                items: cart,
+                total: cart.reduce((total, item) => total + item.price * item.quantity, 0)
+              }
+            });
           }}
-          className="w-full px-8 py-4 text-white text-xs font-bold tracking-[0.3em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || cart.length === 0}
+          className="w-full px-8 py-5 text-white text-[11px] font-bold tracking-[0.3em] uppercase transition-all rounded-full shadow-lg hover:shadow-[#C5A059]/30 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: loading
-              ? "linear-gradient(135deg, #d4af37 0%, #b8941f 100%)"
-              : "linear-gradient(135deg, #f8f9eb 0%, #d4af37 100%)",
+            background: "linear-gradient(135deg, #1A1A1A 0%, #333333 100%)",
+            border: `1px solid ${COLORS.gold}`,
           }}
         >
-          {loading ? "Placing Order..." : "Proceed to Payment"}
-        </Link>
+          {loading ? "Processing..." : "Continue to Payment"}
+        </button>
       </div>
     </div>
   );

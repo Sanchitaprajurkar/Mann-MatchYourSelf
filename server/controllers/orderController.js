@@ -28,9 +28,8 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Shipping address is required" });
     }
 
-    // Build order items from user's DB cart (never trust frontend items)
     const orderItems = user.cart
-      .filter((ci) => ci.product) // skip orphaned refs
+      .filter((ci) => ci.product)
       .map((ci) => ({
         product: ci.product._id,
         name: ci.product.name,
@@ -43,7 +42,6 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "No valid products in cart" });
     }
 
-    // ── Server-side pricing computation ──────────────────────────
     const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingFee = subtotal > 500 ? 0 : 50;
     const platformFee = 10;
@@ -51,9 +49,7 @@ const createOrder = async (req, res) => {
     let couponDiscount = 0;
     let couponSnapshot = null;
 
-    // Revalidate coupon if provided
     if (couponCode) {
-      console.log("🏷️  Coupon code received:", couponCode);
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase().trim() });
       const now = new Date();
 
@@ -64,8 +60,6 @@ const createOrder = async (req, res) => {
         (!coupon.validTill || new Date(coupon.validTill) >= now) &&
         (!coupon.minOrderAmount || subtotal >= coupon.minOrderAmount) &&
         (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit);
-
-      console.log("🏷️  Coupon found:", !!coupon, "| isValid:", isValid);
 
       if (isValid) {
         if (coupon.discountType === "percentage") {
@@ -84,7 +78,6 @@ const createOrder = async (req, res) => {
           discountValue: coupon.discountValue,
           discountAmount: Math.round(couponDiscount),
         };
-        console.log("🏷️  Coupon snapshot:", couponSnapshot);
       }
     }
 
@@ -98,13 +91,12 @@ const createOrder = async (req, res) => {
       platformFee,
       totalAmount: Math.round(totalAmount),
     };
-    // ─────────────────────────────────────────────────────────────
 
     const order = new Order({
       user: req.user.id,
       items: orderItems,
       shippingAddress,
-      paymentMethod: paymentMethod === "cod" ? "COD" : "COD",
+      paymentMethod: paymentMethod ? paymentMethod.toUpperCase() : "COD",
       paymentStatus: "Pending",
       totalAmount: Math.round(totalAmount),
       orderStatus: "Placed",
@@ -113,23 +105,15 @@ const createOrder = async (req, res) => {
       pricingSnapshot,
     });
 
-    console.log("📦 Order about to save - appliedCoupon:", order.appliedCoupon);
-    console.log("📦 Order about to save - pricingSnapshot:", order.pricingSnapshot);
-
     const createdOrder = await order.save();
 
-    // Increment coupon usage count after successful save
     if (couponSnapshot) {
       await Coupon.findByIdAndUpdate(couponSnapshot.couponId, { $inc: { usedCount: 1 } });
     }
 
-    // Clear user's backend cart
     await User.updateOne({ _id: user._id }, { $set: { cart: [] } });
 
-    // Convert to plain object so all nested fields (appliedCoupon, pricingSnapshot) serialize properly
     const plainOrder = createdOrder.toObject();
-    console.log("✅ Order saved - appliedCoupon in response:", plainOrder.appliedCoupon);
-    console.log("✅ Order saved - pricingSnapshot in response:", plainOrder.pricingSnapshot);
 
     res.status(201).json({
       success: true,
@@ -137,7 +121,7 @@ const createOrder = async (req, res) => {
       data: plainOrder,
     });
   } catch (error) {
-    console.error("❌ CREATE ORDER ERROR:", error);
+    console.error("CREATE ORDER ERROR:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -170,33 +154,16 @@ const getOrderById = async (req, res) => {
       .populate("items.product", "name price images");
 
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     if (order.user._id.toString() !== req.user.id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Not authorized to view this order",
-      });
+      return res.status(403).json({ success: false, message: "Not authorized to view this order" });
     }
 
-    const plainOrder = order.toObject();
-    console.log("📋 getOrderById - appliedCoupon:", plainOrder.appliedCoupon);
-    console.log("📋 getOrderById - pricingSnapshot:", plainOrder.pricingSnapshot);
-
-    res.status(200).json({
-      success: true,
-      data: plainOrder,
-    });
+    res.status(200).json({ success: true, data: order.toObject() });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Order fetch failed",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Order fetch failed", error: error.message });
   }
 };
 

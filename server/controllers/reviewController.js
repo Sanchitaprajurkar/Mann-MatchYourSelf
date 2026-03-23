@@ -58,7 +58,7 @@ exports.getProductReviews = async (req, res) => {
     const { productId } = req.params;
     const reviews = await Review.find({
       productId,
-      isHidden: false
+      status: "approved"
     }).populate("userId", "name").sort({ createdAt: -1 });
 
     res.json({ success: true, data: reviews });
@@ -147,7 +147,7 @@ exports.approveReview = async (req, res) => {
 exports.createReview = async (req, res) => {
   console.log("REVIEW BODY:", req.body);
   try {
-    const { productId, name, location, rating, comment } = req.body;
+    const { productId, name, location, rating, comment, userId } = req.body;
     let imageUrl = "";
 
     // If an image was uploaded via multipart/form-data
@@ -157,14 +157,32 @@ exports.createReview = async (req, res) => {
       imageUrl = req.body.image;
     }
 
+    let isVerified = false;
+
+    // Check verified buyer logic
+    if (userId) {
+      // Find if this user has any order containing this product
+      const Order = require("../models/Order");
+      const hasPurchased = await Order.findOne({
+        user: userId,
+        "items.product": productId
+      });
+      if (hasPurchased) {
+        isVerified = true;
+      }
+    }
+
     const review = await Review.create({
       productId,
+      userId: userId || undefined,
       name,
-      location: location || "India",
+      location: location || "",
       rating: Number(rating) || 5,
       comment,
       image: imageUrl,
-      isHidden: false // Explicitly making visible
+      isVerified,
+      isApproved: false,
+      status: "pending"
     });
 
     res.status(201).json({ success: true, data: review, message: "Review submitted successfully" });
@@ -177,7 +195,7 @@ exports.createReview = async (req, res) => {
 // Get all reviews (for homepage, hidden false)
 exports.getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ isHidden: false })
+    const reviews = await Review.find({ status: "approved" })
       .populate("userId", "name")
       .populate("productId", "name")
       .sort({ createdAt: -1 })

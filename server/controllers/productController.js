@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const Category = require("../models/Category");
+const Order = require("../models/Order");
 const { upload } = require("../config/cloudinary");
 const cloudinary = require("cloudinary").v2;
 
@@ -262,12 +264,20 @@ const getDashboardStats = async (req, res) => {
       .select("name stock")
       .limit(10);
 
+    const totalCategories = await Category.countDocuments();
+    const recentOrders = await Order.find()
+      .populate("user", "name")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
     res.status(200).json({
       success: true,
       data: {
         totalProducts,
         totalStock: totalStock[0]?.total || 0,
         lowStockProducts,
+        totalCategories,
+        recentOrders
       },
     });
   } catch (error) {

@@ -10,7 +10,7 @@ const reviewSchema = new mongoose.Schema({
   comment: { type: String, required: true },
   image: { type: String },
   isVerified: { type: Boolean, default: false },
-  isApproved: { type: Boolean, default: true },
+  isApproved: { type: Boolean, default: false },
   isHidden: { type: Boolean, default: false },
   status: {
     type: String,

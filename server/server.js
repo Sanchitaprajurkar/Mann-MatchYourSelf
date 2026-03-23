@@ -1,3 +1,5 @@
+require("dotenv").config(); // ✅ Load .env FIRST before anything else
+
 const express = require("express");
 
 const cors = require("cors");
@@ -85,7 +87,7 @@ app.use("/api/cart", cartRoutes);
 
 app.use("/api/admin/orders", adminOrderRoutes);
 
-app.use("/api/payments", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.use("/api/wishlist", wishlistRoutes);
 

@@ -14,6 +14,7 @@ import {
   Video, // Added icon for hero video
   Tag,
   Ticket,
+  MessageSquare,
 } from "lucide-react";
 
 function AdminLayout() {
@@ -40,6 +41,11 @@ function AdminLayout() {
       path: "/admin/orders",
       label: "Orders",
       icon: ShoppingBag,
+    },
+    {
+      path: "/admin/reviews",
+      label: "Reviews",
+      icon: MessageSquare,
     },
     {
       path: "/admin/hero",
@@ -95,6 +101,9 @@ function AdminLayout() {
     }
     if (location.pathname.includes("offers")) {
       return "Offers Management";
+    }
+    if (location.pathname.includes("reviews")) {
+      return "Review Moderation";
     }
     if (location.pathname.includes("coupons")) {
       return "Coupons Management";

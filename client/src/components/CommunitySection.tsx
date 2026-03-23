@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Star, ArrowRight, Quote, CheckCircle } from "lucide-react";
 import API from "../utils/api";
 import { CLOUDINARY_PRESETS, isCloudinaryUrl } from "../utils/cloudinary";
+import { useAuth } from "../context/AuthContext";
 
 // Helper function to optimize community review images
 const optimizeReviewImage = (imageUrl: string) => {
@@ -19,10 +20,18 @@ interface CommunitySectionProps {
 }
 
 const CommunitySection = ({ productId }: CommunitySectionProps) => {
+  const { user } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+
+  useEffect(() => {
+    if (user?.name && !name) {
+      setName(user.name);
+    }
+  }, [user]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -36,16 +45,17 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
 
     const formData = new FormData();
     formData.append("productId", productId);
+    if (user?._id) formData.append("userId", user._id);
     formData.append("name", name);
     formData.append("rating", String(rating));
     formData.append("comment", comment);
-    formData.append("location", "India"); // Send location from frontend
+    if (location) formData.append("location", location);
 
     if (image) formData.append("image", image);
 
     try {
       await API.post("/api/reviews", formData);
-      alert("Review submitted for approval!");
+      alert("Submitted for review");
       setShowReviewForm(false); // close form
 
       // Optionally reset form state
@@ -133,6 +143,14 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                       className="w-full border border-gray-200 p-2 mb-3 rounded focus:outline-none focus:border-[#C5A059]"
                     />
 
+                    <input
+                      type="text"
+                      placeholder="Location (Optional)"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full border border-gray-200 p-2 mb-3 rounded focus:outline-none focus:border-[#C5A059]"
+                    />
+
                     <select
                       value={rating}
                       onChange={(e) => setRating(Number(e.target.value))}
@@ -217,6 +235,14 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                     placeholder="Your Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className="w-full border border-gray-200 p-2 mb-3 rounded focus:outline-none focus:border-[#C5A059]"
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Location (Optional)"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
                     className="w-full border border-gray-200 p-2 mb-3 rounded focus:outline-none focus:border-[#C5A059]"
                   />
 
@@ -335,9 +361,14 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                       <p className="text-base md:text-lg text-[#444] leading-relaxed font-light italic line-clamp-6">
                         “{review.comment}”
                       </p>
+                      {hasImage && (
+                        <div className="mt-4 md:hidden">
+                          <img src={optimizeReviewImage(review.image)} alt="Customer product photo" className="w-14 h-14 object-cover rounded-md border border-gray-200" />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-4 mt-8">
+                    <div className="flex items-center gap-4 mt-6 md:mt-8">
                       <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#8C8273] flex items-center justify-center text-white text-xs md:text-sm uppercase flex-shrink-0">
                         {review.name ? review.name[0] : "A"}
                       </div>
@@ -352,8 +383,14 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] md:text-[11px] tracking-widest uppercase text-[#8C8273]">
-                          {review.location || "India"}
+                        <p className="text-[10px] md:text-[11px] tracking-widest uppercase text-[#8C8273] flex items-center gap-2 mt-0.5 whitespace-nowrap flex-wrap">
+                          <span>{review.location || "India"}</span>
+                          {review.createdAt && (
+                            <>
+                              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                              <span>{new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>

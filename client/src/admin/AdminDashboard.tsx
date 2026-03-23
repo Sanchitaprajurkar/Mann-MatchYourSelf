@@ -16,6 +16,7 @@ interface DashboardStats {
   totalStock: number;
   productsByCategory: any[];
   lowStockProducts: any[];
+  totalCategories?: number;
 }
 
 interface RecentOrder {
@@ -51,11 +52,8 @@ function AdminDashboard() {
 
         if (statsResponse.data.success) {
           setStats(statsResponse.data.data);
+          setRecentOrders(statsResponse.data.data.recentOrders || []);
         }
-
-        // TODO: Fetch recent orders when orders API is ready
-        // For now, we'll show empty orders
-        setRecentOrders([]);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError("Failed to load dashboard data");
@@ -163,7 +161,7 @@ function AdminDashboard() {
 
         <StatCard
           title="Categories"
-          value={8}
+          value={stats.totalCategories || 0}
           icon={TrendingUp}
           color="text-[var(--mann-gold)] opacity-70"
           bgColor="bg-[var(--mann-soft-grey)]"

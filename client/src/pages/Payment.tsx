@@ -11,7 +11,7 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const { clearCart } = useCart();
+  const { items: cartItems, clearCart } = useCart();
   const { appliedCoupon, pricing, computePricing, clearCheckout } = useCheckout();
   
   // Data passed from OrderConfirmation
@@ -34,13 +34,92 @@ const PaymentPage: React.FC = () => {
   const subtotal = typeof total === "number" ? total : 0;
   const displayPricing = pricing ?? computePricing(subtotal, appliedCoupon?.discountAmount ?? 0);
 
+  // Razorpay integration
+  const handleRazorpayPayment = async (orderId: string, amount: number) => {
+    try {
+      // 1. Get Razorpay Key
+      const keyRes = await API.get("/api/payment/key");
+      const key = keyRes.data.key;
+
+      if (!key) throw new Error("Razorpay key not found");
+
+      // 2. Create Razorpay Order by passing our existing DB Order ID
+      const rzpOrderRes = await API.post("/api/payment/create-order", { orderId });
+      
+      const { razorpayOrderId, currency } = rzpOrderRes.data;
+
+      const options = {
+        key: key,
+        amount: amount * 100, // already in paise from backend usually, but let's be safe
+        currency: currency || "INR",
+        name: "Mann Match Yourself",
+        description: `Order Payment for #${orderId.slice(-6)}`,
+        order_id: razorpayOrderId,
+        handler: async function (response: any) {
+          try {
+            setIsProcessing(true);
+            const verifyRes = await API.post("/api/payment/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: orderId,
+            });
+
+            if (verifyRes.data.success) {
+              clearCart();
+              const orderData = verifyRes.data.order;
+              navigate(`/order-success/${orderId}`, {
+                state: { 
+                  orderId,
+                  address,
+                  paymentMethod: "ONLINE",
+                  items,
+                  orderData,
+                }
+              });
+            } else {
+              alert("Payment verification failed. Please contact support.");
+              navigate("/my-orders");
+            }
+          } catch (err: any) {
+            console.error("Verification error:", err);
+            alert("Payment verification failed. Please contact support.");
+            navigate("/my-orders");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: address.fullName || "",
+          contact: address.phone || "",
+        },
+        theme: {
+          color: "#C5A059",
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      console.error("Razorpay error:", error);
+      alert(error.response?.data?.message || error.message || "Failed to initiate Razorpay payment.");
+      setIsProcessing(false);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
     
+    // Normalize address for the backend schema
     const formattedAddress = {
       fullName: address.fullName || address.name || "",
       phone: address.phone || address.mobile || "",
-      address: address.address || `${address.house || ""}, ${address.addressLine || ""}, ${address.locality || ""}`.replace(/^[,\s]+|[,\s]+$/g, ''),
+      address: address.address || `${address.house || ""}, ${address.addressLine || ""}, ${address.locality || ""}`.trim().replace(/^[,\s]+|[,\s]+$/g, ''),
       city: address.city || "",
       postalCode: address.postalCode || address.pincode || "",
       country: address.country || "India",
@@ -48,45 +127,55 @@ const PaymentPage: React.FC = () => {
 
     const orderPayload = {
       shippingAddress: formattedAddress,
-      paymentMethod: selectedPaymentMethod,
+      paymentMethod: selectedPaymentMethod, // "online" or "cod"
       couponCode: appliedCoupon?.code || null,
     };
 
-    // Debug: verify coupon is in the payload
-    console.log("🛒 Placing order with payload:", JSON.stringify(orderPayload, null, 2));
-    console.log("🏷️ Applied coupon from context:", appliedCoupon);
-    
     try {
+      // Step 0: Force-push current cart to backend DB (bypass skip guard in CartContext)
+      const token = localStorage.getItem("token");
+      const cartPayload = items.map((item: any) => ({
+        product: item.productId,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      }));
+      await API.post("/api/cart/sync", { items: cartPayload }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("🛒 Force-synced cart to backend:", cartPayload);
+
+      // Step 1: Create the initial order in our database
       const res = await API.post("/api/orders", orderPayload);
 
       if (res.data.success) {
-        clearCart();
-        // NOTE: clearCheckout is intentionally NOT called here.
-        // OrderSuccess page will call it after mounting, so the context
-        // coupon remains available as a backup if orderData is missing it.
-
         const orderId = res.data.data._id;
         const orderData = res.data.data;
+        const totalAmount = orderData.totalAmount;
 
-        console.log("✅ Order created. orderData.appliedCoupon:", orderData.appliedCoupon);
-        console.log("✅ Order created. orderData.pricingSnapshot:", orderData.pricingSnapshot);
-        
-        navigate(`/order-success/${orderId}`, {
-          state: { 
-            orderId,
-            address,
-            paymentMethod: selectedPaymentMethod,
-            items,
-            orderData,
-          }
-        });
+        // Step 2: Handle based on payment method
+        if (selectedPaymentMethod === "online") {
+          console.log("💳 Initiating Razorpay flow for order:", orderId);
+          await handleRazorpayPayment(orderId, totalAmount);
+        } else {
+          // COD Flow - Done
+          clearCart();
+          navigate(`/order-success/${orderId}`, {
+            state: { 
+              orderId,
+              address,
+              paymentMethod: "COD",
+              items,
+              orderData,
+            }
+          });
+        }
       } else {
         throw new Error(res.data.message || "Failed to place order.");
       }
     } catch (error: any) {
       console.error("Order error:", error);
       alert(error.response?.data?.message || error.message || "Failed to process the order. Please try again.");
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -97,14 +186,14 @@ const PaymentPage: React.FC = () => {
       id: "online",
       name: "Pay Online Securely",
       icon: <CreditCard size={18} />,
-      label: "Secure payment via Razorpay",
+      label: "Pay securely via Razorpay (UPI, Card, NetBanking)",
       recommended: true
     },
     {
       id: "cod",
       name: "Cash on Delivery",
       icon: <Truck size={18} />,
-      label: "Pay when you receive your order at your doorstep",
+      label: "Standard payment when order arrives",
       recommended: false
     }
   ];
