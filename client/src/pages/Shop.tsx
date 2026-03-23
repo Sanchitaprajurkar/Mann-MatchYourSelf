@@ -137,17 +137,13 @@ const FilterAccordion = ({
 function Shop() {
   const DEBUG = import.meta.env.DEV; // Debug only in development
 
-  const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter states - using ObjectId-based filtering
-  const [defaultPriceRange, setDefaultPriceRange] = useState<[number, number]>([
-    0, 100000,
-  ]);
-  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [selectedColors, setSelectedColors] = useState<string[]>([]); // Store ObjectIds
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]); // Store ObjectIds
@@ -169,8 +165,7 @@ function Shop() {
   const [shopCategories, setShopCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  // Initialization guard to prevent filter state overwriting
-  const hasInitializedPrice = React.useRef(false);
+
 
   // Carousel state for shop categories
   const [startIndex, setStartIndex] = useState(0);
@@ -236,13 +231,7 @@ function Shop() {
 
   // Comprehensive reset function - deterministic and value-driven
   const handleResetAllFilters = () => {
-    // Always use allProducts (the master list) for boundaries
-    const prices = allProducts.map((p) => Number(p.price));
-    const min = prices.length > 0 ? Math.min(...prices) : 0;
-    const max = prices.length > 0 ? Math.max(...prices) : 100000;
-
     // Update states
-    setPriceRange([min, max]);
     setSelectedColors([]);
     setSelectedSizes([]);
     setSelectedCategory(null);
@@ -252,136 +241,67 @@ function Shop() {
     setHasUserInteracted(false);
 
     // Directly set products back to master list for instant UI response
-    setProducts(allProducts);
+    setFilteredProducts(allProducts);
 
     if (DEBUG) {
       console.log(" All filters reset to default values");
-      console.log("Reset price range to:", [min, max]);
     }
   };
 
-  // Final filtering logic - Pure value-driven filtering
-  const filteredProducts = React.useMemo(() => {
-    // If user hasn't touched anything, show master list
-    if (!hasUserInteracted && !selectedCategory) return allProducts;
-
-    if (DEBUG) {
-      console.log("=== FILTERING START ===");
-      console.log("Total products in allProducts:", allProducts.length);
-      console.log("Price range:", priceRange);
-      console.log("Selected colors:", selectedColors);
-      console.log("Selected sizes:", selectedSizes);
-      console.log("Selected category:", selectedCategory);
+  // Strict value-driven filtering and sorting in useEffect
+  useEffect(() => {
+    if (!hasUserInteracted && !selectedCategory && sortBy === "Recommended") {
+      setFilteredProducts(allProducts);
+      return;
     }
 
-    const filtered = allProducts.filter((product) => {
-      // Category filter - using ObjectId comparison
-      const matchesCategory =
-        !selectedCategory ||
-        (product.category &&
-          (typeof product.category === "string"
-            ? product.category === selectedCategory
-            : product.category._id === selectedCategory));
+    let updated = [...allProducts];
 
-      // Price filter - always applied
-      const matchesPrice =
-        product.price >= priceRange[0] && product.price <= priceRange[1];
-
-      // Color filter - using ObjectId comparison
-      const matchesColor =
-        selectedColors.length === 0 ||
-        !product.colors || // If product has no colors property, pass the filter
-        (product.colors &&
-          product.colors.some((c: any) => {
-            const colorId = typeof c === "string" ? c : c?._id;
-            return colorId && selectedColors.includes(colorId);
-          }));
-
-      // Size filter - using ObjectId comparison
-      const matchesSize =
-        selectedSizes.length === 0 ||
-        !product.sizes || // If product has no sizes property, pass the filter
-        (product.sizes &&
-          product.sizes.some((s: any) => {
-            const sizeId = typeof s === "string" ? s : s?._id;
-            return sizeId && selectedSizes.includes(sizeId);
-          }));
-
-      const passesFilter =
-        matchesCategory && matchesPrice && matchesColor && matchesSize;
-
-      if (DEBUG && !passesFilter) {
-        console.log(
-          " Product filtered out: ",
-          product.name,
-          " | Price: ",
-          product.price,
-          {
-            matchesCategory,
-            matchesPrice,
-            matchesColor,
-            matchesSize,
-            productColors: product.colors,
-            productSizes: product.sizes,
-            productCategory: product.category,
-          },
-        );
-      }
-
-      return passesFilter;
-    });
-
-    if (DEBUG) {
-      console.log("Filtered products count:", filtered.length);
-      console.log("=== FILTERING END ===");
+    // Color
+    if (selectedColors.length > 0) {
+      updated = updated.filter((product) => {
+        if (!product.colors || product.colors.length === 0) return false;
+        return product.colors.some((c: any) => {
+          const colorId = typeof c === "string" ? c : c?._id;
+          return selectedColors.includes(colorId);
+        });
+      });
     }
 
-    return filtered;
-  }, [
-    allProducts,
-    selectedCategory,
-    priceRange,
-    selectedColors,
-    selectedSizes,
-    hasUserInteracted,
-  ]);
+    // Size
+    if (selectedSizes.length > 0) {
+      updated = updated.filter((product) => {
+        if (!product.sizes || product.sizes.length === 0) return false;
+        return product.sizes.some((s: any) => {
+          const sizeId = typeof s === "string" ? s : s?._id;
+          return selectedSizes.includes(sizeId);
+        });
+      });
+    }
 
-  // Sorting logic with useMemo - apply to filtered products
-  const sortedProducts = useMemo(() => {
-    let sorted = [...filteredProducts];
-
+    // Sort
     switch (sortBy) {
       case "Price: Low to High":
-        sorted.sort((a, b) => a.price - b.price);
+        updated.sort((a, b) => a.price - b.price);
         break;
-
       case "Price: High to Low":
-        sorted.sort((a, b) => b.price - a.price);
+        updated.sort((a, b) => b.price - a.price);
         break;
-
       case "What's New":
-        sorted.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
+        updated.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
-
       case "Recommended":
       default:
-        // Smart Recommended - popularity score
-        // score = views + wishlistCount + sales
-        sorted.sort((a, b) => {
-          const scoreA =
-            (a.views || 0) + (a.wishlistCount || 0) + (a.sales || 0);
-          const scoreB =
-            (b.views || 0) + (b.wishlistCount || 0) + (b.sales || 0);
+        updated.sort((a, b) => {
+          const scoreA = (a.views || 0) + (a.wishlistCount || 0) + (a.sales || 0);
+          const scoreB = (b.views || 0) + (b.wishlistCount || 0) + (b.sales || 0);
           return scoreB - scoreA;
         });
         break;
     }
 
-    return sorted;
-  }, [filteredProducts, sortBy]);
+    setFilteredProducts(updated);
+  }, [allProducts, selectedColors, selectedSizes, sortBy, hasUserInteracted, selectedCategory]);
 
   // Fetch config data on component mount
   useEffect(() => {
@@ -459,25 +379,7 @@ function Shop() {
     }
   }, [location.search]);
 
-  // Initialize default price range ONCE when allProducts load (with guard)
-  useEffect(() => {
-    if (allProducts.length > 0 && !hasInitializedPrice.current) {
-      const prices = allProducts.map((p) => Number(p.price));
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
 
-      setDefaultPriceRange([minPrice, maxPrice]);
-      setPriceRange([minPrice, maxPrice]);
-      hasInitializedPrice.current = true; // 🔐 Lock initialization
-
-      if (DEBUG) {
-        console.log(" Default price range initialized ONCE from allProducts:", [
-          minPrice,
-          maxPrice,
-        ]);
-      }
-    }
-  }, [allProducts, DEBUG]);
 
   // Dynamic colors from products (now using populated data)
   const allColors = React.useMemo(() => {
@@ -538,8 +440,8 @@ function Shop() {
               })),
             );
           }
-          setProducts(validProducts);
-          setAllProducts(validProducts); // Store master copy here
+          setAllProducts(validProducts);
+          setFilteredProducts(validProducts);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -554,13 +456,13 @@ function Shop() {
   // Track products state changes
   useEffect(() => {
     if (DEBUG) {
-      console.log("📦 Products state changed. Count:", products.length);
+      console.log("📦 Filtered products state changed. Count:", filteredProducts.length);
       console.log(
         "📦 Products:",
-        products.map((p) => ({ name: p.name, price: p.price })),
+        filteredProducts.map((p) => ({ name: p.name, price: p.price })),
       );
     }
-  }, [products]);
+  }, [filteredProducts]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -924,85 +826,7 @@ function Shop() {
                   </span>
                 </div>
 
-                {/* Price Filter */}
-                <FilterAccordion key="Price" title="Price" defaultOpen={true}>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        ₹{priceRange[0]}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        ₹{priceRange[1]}
-                      </span>
-                    </div>
-                    {/* Minimum Price */}
-                    <div className="space-y-1">
-                      <label className="text-xs text-gray-500">Min Price</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max={defaultPriceRange[1]}
-                        value={priceRange[0]}
-                        onChange={(e) => {
-                          const newMin = Number(e.target.value);
-                          if (newMin <= priceRange[1]) {
-                            if (DEBUG) {
-                              console.log(
-                                "🎚️ Desktop min price changing from",
-                                priceRange[0],
-                                "to",
-                                newMin,
-                              );
-                            }
-                            setPriceRange([newMin, priceRange[1]]);
-                            setHasUserInteracted(true); // Track user interaction
-                          } else {
-                            if (DEBUG)
-                              console.log(
-                                "🚫 Min price",
-                                newMin,
-                                "exceeds max",
-                                priceRange[1],
-                              );
-                          }
-                        }}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C5A059]"
-                      />
-                    </div>
-                    {/* Maximum Price */}
-                    <div className="space-y-1">
-                      <label className="text-xs text-gray-500">Max Price</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max={defaultPriceRange[1]}
-                        value={priceRange[1]}
-                        onChange={(e) => {
-                          const newMax = Number(e.target.value);
-                          if (DEBUG) {
-                            console.log(
-                              "🎚️ Desktop max price changing from",
-                              priceRange[1],
-                              "to",
-                              newMax,
-                            );
-                          }
 
-                          setPriceRange([priceRange[0], newMax]);
-                          setHasUserInteracted(true); // Track user interaction
-
-                          if (DEBUG) {
-                            console.log("🎚️ Set priceRange to:", [
-                              priceRange[0],
-                              newMax,
-                            ]);
-                          }
-                        }}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C5A059]"
-                      />
-                    </div>
-                  </div>
-                </FilterAccordion>
 
                 {/* Color Filter - Dynamic */}
                 <FilterAccordion key="Color" title="Color">
@@ -1090,8 +914,8 @@ function Shop() {
               : "grid-cols-1 sm:grid-cols-2"
           }`}
         >
-          {sortedProducts.length > 0 ? (
-            sortedProducts.map((product) => {
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => {
               const productIsWishlisted = isInWishlist(product._id);
               const productIsInCart = isInCart(product._id);
 
@@ -1261,62 +1085,7 @@ function Shop() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-5">
-                {/* Price Filter - Mobile */}
-                <FilterAccordion key="Price" title="Price" defaultOpen={true}>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        ₹{priceRange[0]}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        ₹{priceRange[1]}
-                      </span>
-                    </div>
-                    {/* Minimum Price */}
-                    <div className="space-y-1">
-                      <label className="text-xs text-gray-500">Min Price</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max={defaultPriceRange[1]}
-                        value={priceRange[0]}
-                        onChange={(e) => {
-                          const newMin = Number(e.target.value);
-                          if (newMin <= priceRange[1]) {
-                            console.log(
-                              "Mobile min price changing to:",
-                              newMin,
-                            );
-                            setPriceRange([newMin, priceRange[1]]);
-                          }
-                        }}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C5A059]"
-                      />
-                    </div>
-                    {/* Maximum Price */}
-                    <div className="space-y-1">
-                      <label className="text-xs text-gray-500">Max Price</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max={defaultPriceRange[1]}
-                        value={priceRange[1]}
-                        onChange={(e) => {
-                          const newMax = Number(e.target.value);
-                          if (newMax >= priceRange[0]) {
-                            console.log(
-                              "Mobile max price changing to:",
-                              newMax,
-                            );
-                            setPriceRange([priceRange[0], newMax]);
-                            setHasUserInteracted(true); // Track user interaction
-                          }
-                        }}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C5A059]"
-                      />
-                    </div>
-                  </div>
-                </FilterAccordion>
+
 
                 {/* Size Filter - Mobile */}
                 <FilterAccordion key="Size" title="Size">

@@ -19,6 +19,11 @@ const PaymentPage: React.FC = () => {
   
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("online");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCreatedOrderId(null);
+  }, [selectedPaymentMethod]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -132,46 +137,53 @@ const PaymentPage: React.FC = () => {
     };
 
     try {
-      // Step 0: Force-push current cart to backend DB (bypass skip guard in CartContext)
-      const token = localStorage.getItem("token");
-      const cartPayload = items.map((item: any) => ({
-        product: item.productId,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-      }));
-      await API.post("/api/cart/sync", { items: cartPayload }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("🛒 Force-synced cart to backend:", cartPayload);
+      let orderId = createdOrderId;
+      let orderData = null;
 
-      // Step 1: Create the initial order in our database
-      const res = await API.post("/api/orders", orderPayload);
+      if (!orderId) {
+        // Step 0: Force-push current cart to backend DB
+        const token = localStorage.getItem("token");
+        const cartPayload = items.map((item: any) => ({
+          product: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        }));
+        await API.post("/api/cart/sync", { items: cartPayload }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("🛒 Force-synced cart to backend:", cartPayload);
 
-      if (res.data.success) {
-        const orderId = res.data.data._id;
-        const orderData = res.data.data;
-        const totalAmount = orderData.totalAmount;
+        // Step 1: Create the initial order in our database
+        const res = await API.post("/api/orders", orderPayload);
 
-        // Step 2: Handle based on payment method
-        if (selectedPaymentMethod === "online") {
-          console.log("💳 Initiating Razorpay flow for order:", orderId);
-          await handleRazorpayPayment(orderId, totalAmount);
+        if (res.data.success) {
+          orderId = res.data.data._id;
+          orderData = res.data.data;
+          setCreatedOrderId(orderId);
         } else {
-          // COD Flow - Done
-          clearCart();
-          navigate(`/order-success/${orderId}`, {
-            state: { 
-              orderId,
-              address,
-              paymentMethod: "COD",
-              items,
-              orderData,
-            }
-          });
+          throw new Error(res.data.message || "Failed to place order.");
         }
+      }
+
+      const totalAmount = displayPricing.totalAmount;
+
+      // Step 2: Handle based on payment method
+      if (selectedPaymentMethod === "online") {
+        console.log("💳 Initiating Razorpay flow for order:", orderId);
+        await handleRazorpayPayment(orderId!, totalAmount);
       } else {
-        throw new Error(res.data.message || "Failed to place order.");
+        // COD Flow - Done
+        clearCart();
+        navigate(`/order-success/${orderId}`, {
+          state: { 
+            orderId,
+            address,
+            paymentMethod: "COD",
+            items,
+            orderData,
+          }
+        });
       }
     } catch (error: any) {
       console.error("Order error:", error);

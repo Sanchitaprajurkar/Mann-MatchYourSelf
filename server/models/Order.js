@@ -43,6 +43,12 @@ const orderSchema = new mongoose.Schema(
           required: true,
           min: 1,
         },
+        size: {
+          type: String,
+        },
+        color: {
+          type: String,
+        },
       },
     ],
     shippingAddress: {
@@ -98,6 +104,9 @@ const orderSchema = new mongoose.Schema(
       type: String,
     },
     razorpayPaymentId: {
+      type: String,
+    },
+    paymentFailureReason: {
       type: String,
     },
     // Legacy field for backward compatibility

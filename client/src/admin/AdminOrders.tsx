@@ -10,6 +10,9 @@ interface Order {
   user?: { name: string; email: string };
   totalAmount: number;
   status: string;
+  orderStatus: string;
+  paymentMethod: string;
+  paymentStatus: string;
   createdAt: string;
   items: any[];
 }
@@ -64,12 +67,12 @@ export default function AdminOrders() {
     
     try {
       await API.patch(`/api/admin/orders/${id}/status`,
-        { status }
+        { status, orderStatus: status }
       );
 
       console.log("✅ AdminOrders: Status updated successfully");
       setOrders((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status } : o))
+        prev.map((o) => (o._id === id ? { ...o, status: status.toUpperCase(), orderStatus: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase() } : o))
       );
     } catch (error) {
       console.error("❌ AdminOrders: Error updating status:", error);
@@ -161,6 +164,9 @@ export default function AdminOrders() {
                   Total
                 </th>
                 <th className="py-4 px-6 text-[11px] font-bold text-[#8C8273] uppercase tracking-widest">
+                  Payment
+                </th>
+                <th className="py-4 px-6 text-[11px] font-bold text-[#8C8273] uppercase tracking-widest">
                   Status
                 </th>
                 <th className="py-4 px-6 text-[11px] font-bold text-[#8C8273] uppercase tracking-widest text-right">
@@ -184,6 +190,9 @@ export default function AdminOrders() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="h-4 w-16 bg-gray-100 rounded"></div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-4 w-20 bg-gray-100 rounded"></div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="h-6 w-24 bg-gray-100 rounded-full"></div>
@@ -231,9 +240,22 @@ export default function AdminOrders() {
                       </span>
                     </td>
                     <td className="py-4 px-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-[#1A1A1A]">
+                          {order.paymentMethod || 'COD'}
+                        </span>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                          order.paymentStatus === 'Paid' ? 'text-green-600' : 
+                          order.paymentStatus === 'Failed' ? 'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          {order.paymentStatus || 'Pending'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
                       <div className="relative inline-block group/status">
                         <select
-                          value={order.status}
+                          value={order.orderStatus?.toUpperCase() || order.status}
                           onChange={(e) =>
                             changeStatus(order._id, e.target.value)
                           }

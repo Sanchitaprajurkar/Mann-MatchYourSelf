@@ -28,6 +28,7 @@ interface Order {
   totalAmount: number;
   orderStatus: string;
   paymentStatus: string;
+  paymentMethod: string;
   createdAt: string;
 }
 
@@ -38,6 +39,7 @@ const AccountOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -96,6 +98,55 @@ const AccountOrders = () => {
       fetchOrders();
     }
   }, [user, getAuthHeader]);
+
+  const handleRetryPayment = async (orderId: string, amount: number) => {
+    try {
+      setIsProcessingPayment(true);
+      const keyRes = await API.get("/api/payment/key");
+      const key = keyRes.data.key;
+      const rzpOrderRes = await API.post("/api/payment/create-order", { orderId });
+      const { razorpayOrderId, currency } = rzpOrderRes.data;
+
+      const options = {
+        key: key,
+        amount: amount * 100,
+        currency: currency || "INR",
+        name: "Mann Match Yourself",
+        description: `Order Payment for #${orderId.slice(-6)}`,
+        order_id: razorpayOrderId,
+        handler: async function (response: any) {
+             try {
+               const verifyRes = await API.post("/api/payment/verify-payment", {
+                 razorpay_order_id: response.razorpay_order_id,
+                 razorpay_payment_id: response.razorpay_payment_id,
+                 razorpay_signature: response.razorpay_signature,
+                 orderId: orderId,
+               });
+               if (verifyRes.data.success) {
+                 window.location.reload();
+               } else {
+                 alert("Payment verification failed.");
+                 setIsProcessingPayment(false);
+               }
+             } catch (err) {
+               alert("Payment verification failed.");
+               setIsProcessingPayment(false);
+             }
+        },
+        theme: { color: "#C5A059" },
+        modal: {
+          ondismiss: function () {
+            setIsProcessingPayment(false);
+          },
+        },
+      };
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to initiate payment retry");
+      setIsProcessingPayment(false);
+    }
+  };
 
   console.log("AccountOrders render - loading:", loading, "error:", error, "orders.length:", orders.length);
   console.log("AccountOrders render - user:", user);
@@ -316,15 +367,28 @@ const AccountOrders = () => {
                   </p>
                 </div>
 
-                <span
-                  className="text-xs px-3 py-1 rounded-full font-medium"
-                  style={{
-                    backgroundColor: COLORS.cream,
-                    color: COLORS.black,
-                  }}
-                >
-                  {order.orderStatus}
-                </span>
+                <div className="flex gap-2">
+                  <span
+                    className="text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest border"
+                    style={{
+                      borderColor: order.paymentStatus === 'Paid' ? '#C5A059' : 
+                                  order.paymentStatus === 'Failed' ? '#ef4444' : '#E5E5E5',
+                      color: order.paymentStatus === 'Paid' ? '#C5A059' : 
+                            order.paymentStatus === 'Failed' ? '#ef4444' : '#6B7280',
+                    }}
+                  >
+                    {order.paymentStatus || 'Pending'}
+                  </span>
+                  <span
+                    className="text-xs px-3 py-1 rounded-full font-medium"
+                    style={{
+                      backgroundColor: COLORS.cream,
+                      color: COLORS.black,
+                    }}
+                  >
+                    {order.orderStatus}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -404,6 +468,16 @@ const AccountOrders = () => {
                 >
                   Track Order
                 </a>
+                {order.paymentMethod === 'ONLINE' && order.paymentStatus !== 'Paid' && (
+                  <button
+                    onClick={() => handleRetryPayment(order._id, order.totalAmount)}
+                    disabled={isProcessingPayment}
+                    className="px-4 py-2 text-[10px] uppercase tracking-widest font-bold transition-all rounded shadow-sm disabled:opacity-50"
+                    style={{ backgroundColor: COLORS.black, color: COLORS.gold }}
+                  >
+                    {isProcessingPayment ? "Processing..." : "Complete Payment"}
+                  </button>
+                )}
                 {order.orderStatus === "Delivered" && (
                   <a
                     href="#"

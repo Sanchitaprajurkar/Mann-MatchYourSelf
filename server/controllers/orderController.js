@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const User = require("../models/User");
 const Coupon = require("../models/Coupon");
+const Product = require("../models/Product");
 
 const syncCart = async (req, res) => {
   try {
@@ -36,6 +37,8 @@ const createOrder = async (req, res) => {
         image: ci.product.images?.[0] || "",
         price: ci.product.price,
         quantity: ci.quantity,
+        size: ci.size,
+        color: ci.color,
       }));
 
     if (orderItems.length === 0) {
@@ -92,14 +95,16 @@ const createOrder = async (req, res) => {
       totalAmount: Math.round(totalAmount),
     };
 
+    const isOnline = paymentMethod && paymentMethod.toUpperCase() === "ONLINE";
+
     const order = new Order({
       user: req.user.id,
       items: orderItems,
       shippingAddress,
-      paymentMethod: paymentMethod ? paymentMethod.toUpperCase() : "COD",
+      paymentMethod: isOnline ? "ONLINE" : "COD",
       paymentStatus: "Pending",
       totalAmount: Math.round(totalAmount),
-      orderStatus: "Placed",
+      orderStatus: isOnline ? "Pending" : "Placed",
       status: "PLACED",
       ...(couponSnapshot && { appliedCoupon: couponSnapshot }),
       pricingSnapshot,
@@ -111,7 +116,13 @@ const createOrder = async (req, res) => {
       await Coupon.findByIdAndUpdate(couponSnapshot.couponId, { $inc: { usedCount: 1 } });
     }
 
-    await User.updateOne({ _id: user._id }, { $set: { cart: [] } });
+    if (!isOnline) {
+      // COD Order: Clear cart & deduct stock immediately
+      await User.updateOne({ _id: user._id }, { $set: { cart: [] } });
+      for (const item of orderItems) {
+        await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
+      }
+    }
 
     const plainOrder = createdOrder.toObject();
 
@@ -199,7 +210,7 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, orderStatus } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (!order) {
@@ -209,7 +220,14 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    order.status = status;
+    if (status) order.status = status.toUpperCase();
+    
+    let newStatus = orderStatus || status;
+    if (newStatus) {
+      newStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+      order.orderStatus = newStatus;
+    }
+    
     await order.save();
 
     res.status(200).json({

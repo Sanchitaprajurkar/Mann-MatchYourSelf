@@ -24,9 +24,24 @@ export default function AdminOrderDetails() {
     <div>
       <h2 className="text-xl font-bold mb-4">Order Details</h2>
 
-      <p><b>User:</b> {order.user?.name}</p>
-      <p><b>Email:</b> {order.user?.email}</p>
-      <p><b>Status:</b> {order.status}</p>
+      <div className="grid grid-cols-2 gap-8 mb-8 border-b pb-4">
+        <div>
+          <p className="text-sm text-gray-500 uppercase tracking-widest mb-2">Customer Info</p>
+          <p className="font-medium text-lg">{order.user?.name}</p>
+          <p className="text-gray-600">{order.user?.email}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 uppercase tracking-widest mb-2">Payment Info</p>
+          <p className="font-medium text-lg">{order.paymentMethod}</p>
+          <p className={`font-bold ${order.paymentStatus === 'Paid' ? 'text-green-600' : 'text-yellow-600'}`}>
+            {order.paymentStatus}
+          </p>
+          {order.razorpayPaymentId && <p className="text-xs text-gray-400 mt-1">TXN: {order.razorpayPaymentId}</p>}
+        </div>
+      </div>
+      
+      <p><b>Order Status:</b> {order.orderStatus || order.status}</p>
+      <p><b>Legacy Status:</b> {order.status}</p>
       <p><b>Total:</b> ₹{order.totalAmount}</p>
 
       <h3 className="mt-4 font-semibold">Items</h3>

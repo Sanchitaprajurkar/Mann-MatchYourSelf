@@ -4,6 +4,7 @@ const {
   createRazorpayOrder,
   verifyPayment,
   getRazorpayKey,
+  razorpayWebhook,
 } = require("../controllers/paymentController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -15,5 +16,8 @@ router.post("/create-order", protect, createRazorpayOrder);
 
 // Verify payment (protected - requires authentication)
 router.post("/verify-payment", protect, verifyPayment);
+
+// Razorpay Webhook (public)
+router.post("/webhook", razorpayWebhook);
 
 module.exports = router;
