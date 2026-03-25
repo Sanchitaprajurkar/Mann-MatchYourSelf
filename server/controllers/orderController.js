@@ -3,6 +3,16 @@ const User = require("../models/User");
 const Coupon = require("../models/Coupon");
 const Product = require("../models/Product");
 
+// Valid order status constants
+const ORDER_STATUS = {
+  PLACED: "Placed",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
+const VALID_ORDER_STATUSES = Object.values(ORDER_STATUS);
+
 const syncCart = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -104,7 +114,7 @@ const createOrder = async (req, res) => {
       paymentMethod: isOnline ? "ONLINE" : "COD",
       paymentStatus: "Pending",
       totalAmount: Math.round(totalAmount),
-      orderStatus: isOnline ? "Pending" : "Placed",
+      orderStatus: ORDER_STATUS.PLACED,
       status: "PLACED",
       ...(couponSnapshot && { appliedCoupon: couponSnapshot }),
       pricingSnapshot,
@@ -207,8 +217,6 @@ const getAllOrders = async (req, res) => {
     });
   }
 };
-
-const updateOrderStatus = async (req, res) => {
   try {
     const { status, orderStatus } = req.body;
     const order = await Order.findById(req.params.id);
@@ -220,14 +228,43 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // Update legacy status field if provided
     if (status) order.status = status.toUpperCase();
-    
+
+    // Update orderStatus with validation and normalization
     let newStatus = orderStatus || status;
+
     if (newStatus) {
-      newStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+      // Normalize common frontend inputs to valid enum values
+      const statusMapping = {
+        'pending': 'Placed',
+        'processing': 'Shipped', // If frontend sends processing, map to Shipped
+        'cancelled': 'Cancelled',
+        'delivered': 'Delivered',
+        'shipped': 'Shipped',
+        'placed': 'Placed'
+      };
+
+      // First try direct mapping, then normalize case
+      newStatus = statusMapping[newStatus.toLowerCase()] ||
+                  (newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase());
+
+      console.log("🔥 Attempting to update orderStatus to:", newStatus);
+
+      // Validate against allowed enum values
+      if (!VALID_ORDER_STATUSES.includes(newStatus)) {
+        console.error("❌ Invalid orderStatus attempted:", newStatus);
+        return res.status(400).json({
+          success: false,
+          message: `Invalid order status: "${newStatus}". Allowed values are: ${VALID_ORDER_STATUSES.join(", ")}`,
+          allowedStatuses: VALID_ORDER_STATUSES,
+        });
+      }
+
+      console.log("✅ Valid orderStatus, updating to:", newStatus);
       order.orderStatus = newStatus;
     }
-    
+
     await order.save();
 
     res.status(200).json({
@@ -235,6 +272,7 @@ const updateOrderStatus = async (req, res) => {
       data: order,
     });
   } catch (error) {
+    console.error("❌ Order update error:", error);
     res.status(500).json({
       success: false,
       message: "Order update failed",

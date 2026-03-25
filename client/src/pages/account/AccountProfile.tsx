@@ -9,16 +9,42 @@ interface ProfileData {
   gender: string;
   dateOfBirth: string;
   mobileNumber: string;
+  age: string;
+  state: string;
+  interests: string[];
+  sizePreference: string;
+  favoriteColor: string;
 }
+
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+];
+
+const INTERESTS_OPTIONS = [
+  "Ethnic Wear", "Western Wear", "Accessories", "Footwear", "Casual Wear", "Party Wear"
+];
+
+const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 
 const AccountProfile = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData>({
     name: "",
     email: "",
-    gender: "",
+    gender: "female",
     dateOfBirth: "",
     mobileNumber: "",
+    age: "",
+    state: "",
+    interests: [],
+    sizePreference: "",
+    favoriteColor: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,9 +58,14 @@ const AccountProfile = () => {
       setProfileData({
         name: user.name || "",
         email: user.email || "",
-        gender: "",
-        dateOfBirth: "",
-        mobileNumber: "",
+        gender: user.gender || "female",
+        dateOfBirth: user.dateOfBirth || "",
+        mobileNumber: user.mobileNumber || "",
+        age: user.age || "",
+        state: user.state || "",
+        interests: user.interests || [],
+        sizePreference: user.sizePreference || "",
+        favoriteColor: user.favoriteColor || "",
       });
     }
   }, [user]);
@@ -42,11 +73,28 @@ const AccountProfile = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, type } = e.target as HTMLInputElement;
+    
+    if (type === "checkbox") {
+      const checkbox = e.target as HTMLInputElement;
+      const currentInterests = [...profileData.interests];
+      if (checkbox.checked) {
+        setProfileData(prev => ({
+          ...prev,
+          interests: [...prev.interests, value]
+        }));
+      } else {
+        setProfileData(prev => ({
+          ...prev,
+          interests: prev.interests.filter(i => i !== value)
+        }));
+      }
+    } else {
+      setProfileData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSave = async () => {
@@ -83,9 +131,14 @@ const AccountProfile = () => {
       setProfileData({
         name: user.name || "",
         email: user.email || "",
-        gender: "",
-        dateOfBirth: "",
-        mobileNumber: "",
+        gender: user.gender || "female",
+        dateOfBirth: user.dateOfBirth || "",
+        mobileNumber: user.mobileNumber || "",
+        age: user.age || "",
+        state: user.state || "",
+        interests: user.interests || [],
+        sizePreference: user.sizePreference || "",
+        favoriteColor: user.favoriteColor || "",
       });
     }
     setIsEditing(false);
@@ -110,17 +163,18 @@ const AccountProfile = () => {
       helperText: "Email cannot be changed",
     },
     {
-      label: "Gender",
-      name: "gender",
-      type: "select",
+      label: "Mobile Number",
+      name: "mobileNumber",
+      type: "tel",
+      icon: Phone,
+      placeholder: "Enter your mobile number",
+    },
+    {
+      label: "Age",
+      name: "age",
+      type: "number",
       icon: User,
-      options: [
-        { value: "", label: "Select Gender" },
-        { value: "male", label: "Male" },
-        { value: "female", label: "Female" },
-        { value: "other", label: "Other" },
-        { value: "prefer_not_to_say", label: "Prefer not to say" },
-      ],
+      placeholder: "Enter your age",
     },
     {
       label: "Date of Birth",
@@ -129,11 +183,14 @@ const AccountProfile = () => {
       icon: Calendar,
     },
     {
-      label: "Mobile Number",
-      name: "mobileNumber",
-      type: "tel",
-      icon: Phone,
-      placeholder: "Enter your mobile number",
+      label: "State",
+      name: "state",
+      type: "select",
+      icon: MapPin,
+      options: [
+        { value: "", label: "Select State" },
+        ...INDIAN_STATES.map(state => ({ value: state, label: state }))
+      ],
     },
   ];
 
@@ -232,7 +289,7 @@ const AccountProfile = () => {
                 {field.type === "select" ? (
                   <select
                     name={field.name}
-                    value={profileData[field.name as keyof ProfileData]}
+                    value={profileData[field.name as keyof ProfileData] as string}
                     onChange={handleInputChange}
                     disabled={!isEditing || field.disabled}
                     className="w-full px-3 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 disabled:cursor-not-allowed"
@@ -255,7 +312,7 @@ const AccountProfile = () => {
                   <input
                     type={field.type}
                     name={field.name}
-                    value={profileData[field.name as keyof ProfileData]}
+                    value={profileData[field.name as keyof ProfileData] as string}
                     onChange={handleInputChange}
                     disabled={!isEditing || field.disabled}
                     placeholder={field.placeholder}
@@ -279,6 +336,148 @@ const AccountProfile = () => {
               </div>
             );
           })}
+
+          {/* Gender Radio Buttons */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--mann-black)" }}>
+              <User className="w-4 h-4" />
+              Gender
+            </label>
+            <div className="flex gap-4 mt-2">
+              {["male", "female", "other"].map((option) => (
+                <label key={option} className="flex items-center gap-2 cursor-pointer capitalize">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={option}
+                    checked={profileData.gender === option}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-4 h-4"
+                    style={{ accentColor: "var(--mann-gold)" }}
+                  />
+                  <span style={{ color: "var(--mann-text)" }}>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Fashion Preferences Section */}
+        <div className="mt-8 pt-8 border-t" style={{ borderColor: "var(--mann-border)" }}>
+          <h3 className="text-lg font-semibold mb-6" style={{ color: "var(--mann-black)" }}>
+            Fashion Preferences
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Interests Checkboxes */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium block" style={{ color: "var(--mann-black)" }}>
+                Interests
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {INTERESTS_OPTIONS.map((interest) => (
+                  <label key={interest} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="interests"
+                      value={interest}
+                      checked={profileData.interests.includes(interest)}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="w-4 h-4 rounded"
+                      style={{ accentColor: "var(--mann-gold)" }}
+                    />
+                    <span className="text-sm" style={{ color: "var(--mann-text)" }}>{interest}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Size Preference */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium block" style={{ color: "var(--mann-black)" }}>
+                  Size Preference
+                </label>
+                <div className="flex gap-3">
+                  {SIZE_OPTIONS.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => isEditing && setProfileData(prev => ({ ...prev, sizePreference: size }))}
+                      className={`px-4 py-2 rounded-lg border transition-all ${
+                        profileData.sizePreference === size 
+                          ? "border-transparent" 
+                          : "border-gray-200"
+                      }`}
+                      style={{
+                        backgroundColor: profileData.sizePreference === size ? "var(--mann-gold)" : "transparent",
+                        color: profileData.sizePreference === size ? "var(--mann-black)" : "var(--mann-text)",
+                        borderColor: profileData.sizePreference === size ? "var(--mann-gold)" : "var(--mann-border)",
+                        cursor: isEditing ? "pointer" : "default"
+                      }}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Favorite Color */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium block" style={{ color: "var(--mann-black)" }}>
+                  Favorite Color
+                </label>
+                <input
+                  type="color"
+                  name="favoriteColor"
+                  value={profileData.favoriteColor || "#000000"}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  className="w-full h-10 rounded-lg cursor-pointer p-0 border-0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Summary / Dynamic Display */}
+        <div className="mt-10 p-6 rounded-xl border-2 border-dashed" style={{ borderColor: "var(--mann-gold)", backgroundColor: "rgba(var(--mann-gold-rgb), 0.05)" }}>
+          <h4 className="text-md font-bold mb-4 flex items-center gap-2" style={{ color: "var(--mann-black)" }}>
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--mann-gold)" }}></div>
+            Profile Summary
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="font-semibold" style={{ color: "var(--mann-muted)" }}>Name</p>
+              <p style={{ color: "var(--mann-text)" }}>{profileData.name || "Not set"}</p>
+            </div>
+            <div>
+              <p className="font-semibold" style={{ color: "var(--mann-muted)" }}>Gender</p>
+              <p className="capitalize" style={{ color: "var(--mann-text)" }}>{profileData.gender}</p>
+            </div>
+            <div>
+              <p className="font-semibold" style={{ color: "var(--mann-muted)" }}>Age</p>
+              <p style={{ color: "var(--mann-text)" }}>{profileData.age || "Not set"}</p>
+            </div>
+            <div>
+              <p className="font-semibold" style={{ color: "var(--mann-muted)" }}>State</p>
+              <p style={{ color: "var(--mann-text)" }}>{profileData.state || "Not set"}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="font-semibold text-sm" style={{ color: "var(--mann-muted)" }}>Interests</p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {profileData.interests.length > 0 ? (
+                profileData.interests.map(i => (
+                  <span key={i} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: "var(--mann-gold)", color: "var(--mann-black)" }}>{i}</span>
+                ))
+              ) : (
+                <p className="text-sm" style={{ color: "var(--mann-text)" }}>No interests selected</p>
+              )}
+            </div>
+          </div>
         </div>
 
         {!isEditing && (

@@ -32,6 +32,38 @@ const AddressForm: React.FC<AddressFormProps> = ({ onSave, onCancel, initialData
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
+  const handleSubmit = () => {
+    // Sanitize data before sending
+    const sanitizedData: CreateAddressData = {
+      name: form.name.trim(),
+      mobile: form.mobile.trim().replace(/\s+/g, ''), // Remove all spaces
+      pincode: form.pincode.trim().replace(/\s+/g, ''), // Remove all spaces
+      state: form.state.trim(),
+      house: form.house.trim(),
+      addressLine: form.addressLine.trim(),
+      locality: form.locality.trim(),
+      city: form.city.trim(),
+      addressType: form.addressType,
+      openSaturday: form.openSaturday,
+      openSunday: form.openSunday,
+      isDefault: form.isDefault,
+    };
+
+    // Normalize mobile number - ensure it starts with +91
+    if (sanitizedData.mobile && !sanitizedData.mobile.startsWith('+91')) {
+      // Remove any leading 0 or 91
+      let cleanMobile = sanitizedData.mobile.replace(/^(0|91)/, '');
+      sanitizedData.mobile = `+91${cleanMobile}`;
+    }
+
+    // Ensure pincode is exactly 6 digits
+    if (sanitizedData.pincode) {
+      sanitizedData.pincode = sanitizedData.pincode.replace(/\D/g, '').slice(0, 6);
+    }
+
+    onSave(sanitizedData);
+  };
+
   return (
     <div className="bg-white p-8 border border-gray-100 shadow-sm">
       <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-8 flex items-center gap-2">
@@ -186,7 +218,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onSave, onCancel, initialData
       {/* Actions */}
       <div className="mt-10 flex items-center gap-4">
         <button
-          onClick={() => onSave(form)}
+          onClick={handleSubmit}
           className="px-10 py-4 bg-black text-white text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-[#C5A059] transition-all"
         >
           Save Address

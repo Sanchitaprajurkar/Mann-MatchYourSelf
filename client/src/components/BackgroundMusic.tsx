@@ -91,7 +91,7 @@ const BackgroundMusic = () => {
   };
 
   return (
-    <div className="fixed bottom-32 left-8 z-50 transition-opacity duration-500 hover:opacity-100 opacity-70">
+    <div className="fixed bottom-6 left-6 z-50 transition-opacity duration-500 hover:opacity-100 opacity-70">
       {/* Audio Element - Hidden */}
       <audio ref={audioRef} loop preload="auto">
         <source src="/audio.mpeg" type="audio/mpeg" />
@@ -100,10 +100,10 @@ const BackgroundMusic = () => {
       {/* Toggle Button */}
       <button
         onClick={togglePlay}
-        className={`group relative flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-110 border border-[#C5A059] ${
+        className={`group relative flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 border border-[#C5A059] hover:shadow-lg hover:border-[#B8941F] ${
           isPlaying
             ? "bg-[#C5A059] text-black shadow-[0_0_15px_rgba(197,160,89,0.5)]"
-            : "bg-black/80 text-[#C5A059]"
+            : "bg-black/80 text-[#C5A059] hover:bg-[#C5A059]/90 hover:text-black"
         }`}
         aria-label={isPlaying ? "Mute Music" : "Play Music"}
       >

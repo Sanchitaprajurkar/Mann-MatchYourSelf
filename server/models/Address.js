@@ -18,13 +18,25 @@ const addressSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      match: [/^\+91\s?\d{10}$/, "Please enter a valid Indian mobile number"],
+      validate: {
+        validator: function(v) {
+          // Accept +919876543210 format (normalized by controller)
+          return /^\+91\d{10}$/.test(v);
+        },
+        message: 'Mobile number must be in format +919876543210'
+      }
     },
     pincode: {
       type: String,
       required: true,
       trim: true,
-      match: [/^\d{6}$/, "Please enter a valid 6-digit pincode"],
+      validate: {
+        validator: function(v) {
+          // Accept 6 digits only (normalized by controller)
+          return /^\d{6}$/.test(v);
+        },
+        message: 'Pincode must be exactly 6 digits'
+      }
     },
     state: {
       type: String,

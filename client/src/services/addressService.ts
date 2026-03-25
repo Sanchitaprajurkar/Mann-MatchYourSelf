@@ -65,11 +65,18 @@ class AddressService {
   // Create a new address
   async createAddress(addressData: CreateAddressData): Promise<Address> {
     try {
+      console.log("📍 Creating address with data:", JSON.stringify(addressData, null, 2));
       const response = await API.post("/api/addresses", addressData);
+      console.log("✅ Address created successfully:", response.data);
       const address = response.data.data || response.data;
       return { ...address, id: address._id };
     } catch (error: any) {
-      console.error("Error creating address:", error);
+      console.error("❌ Error creating address:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        sentData: addressData
+      });
       throw this.handleError(error);
     }
   }
@@ -140,14 +147,24 @@ class AddressService {
 
     if (!address.mobile?.trim()) {
       errors.push("Mobile number is required");
-    } else if (!/^\+91\s?\d{10}$/.test(address.mobile.trim())) {
-      errors.push("Mobile number must be in format: +91 9876543210");
+    } else {
+      // Normalize mobile for validation
+      let mobile = address.mobile.trim().replace(/\s+/g, '');
+      if (!mobile.startsWith('+91')) {
+        mobile = `+91${mobile.replace(/^(0|91)/, '')}`;
+      }
+      if (!/^\+91\d{10}$/.test(mobile)) {
+        errors.push("Mobile number must be 10 digits (e.g., 9876543210 or +919876543210)");
+      }
     }
 
     if (!address.pincode?.trim()) {
       errors.push("Pincode is required");
-    } else if (!/^\d{6}$/.test(address.pincode.trim())) {
-      errors.push("Pincode must be 6 digits");
+    } else {
+      const pincode = address.pincode.trim().replace(/\D/g, '');
+      if (pincode.length !== 6) {
+        errors.push("Pincode must be exactly 6 digits");
+      }
     }
 
     if (!address.state?.trim()) {
@@ -184,11 +201,21 @@ class AddressService {
   private handleError(error: any): Error {
     if (error.response) {
       // Server responded with error status
-      const message =
-        error.response.data?.message ||
-        error.response.data?.error ||
-        "Server error occurred";
+      const responseData = error.response.data;
       const status = error.response.status;
+
+      // Handle validation errors with field details
+      if (status === 400 && responseData.errors) {
+        const fieldErrors = responseData.errors
+          .map((err: any) => `${err.field}: ${err.message}`)
+          .join('; ');
+        return new Error(`Validation failed: ${fieldErrors}`);
+      }
+
+      const message =
+        responseData?.message ||
+        responseData?.error ||
+        "Server error occurred";
 
       if (status === 401) {
         return new Error("Your session has expired. Please log in again.");
@@ -196,7 +223,7 @@ class AddressService {
         return new Error("You are not authorized to perform this action.");
       } else if (status === 404) {
         return new Error("Address not found.");
-      } else if (status === 422) {
+      } else if (status === 422 || status === 400) {
         return new Error(message || "Invalid address data provided.");
       } else if (status >= 500) {
         return new Error("Server error. Please try again later.");

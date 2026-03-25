@@ -54,6 +54,10 @@ const getAddressById = async (req, res) => {
 // Create a new address
 const createAddress = async (req, res) => {
   try {
+    console.log("📍 CREATE ADDRESS REQUEST");
+    console.log("📍 User ID:", req.user.id);
+    console.log("📍 Request Body:", JSON.stringify(req.body, null, 2));
+
     const {
       name,
       mobile,
@@ -68,14 +72,79 @@ const createAddress = async (req, res) => {
       addressType,
       type,
       isDefault,
+      openSaturday,
+      openSunday,
     } = req.body;
 
-    // Validation
-    if (!name || !mobile || !pincode || !addressLine) {
+    // Detailed validation with specific error messages
+    const validationErrors = [];
+
+    if (!name || !name.trim()) {
+      validationErrors.push({ field: 'name', message: 'Full name is required' });
+    }
+
+    if (!mobile || !mobile.trim()) {
+      validationErrors.push({ field: 'mobile', message: 'Mobile number is required' });
+    } else {
+      // Normalize and validate mobile
+      const normalizedMobile = mobile.trim().replace(/\s+/g, '');
+      if (!/^\+91\d{10}$/.test(normalizedMobile)) {
+        validationErrors.push({ 
+          field: 'mobile', 
+          message: 'Mobile number must be in format +919876543210 (10 digits after +91)' 
+        });
+      }
+    }
+
+    if (!pincode || !pincode.trim()) {
+      validationErrors.push({ field: 'pincode', message: 'Pincode is required' });
+    } else {
+      const normalizedPincode = pincode.trim().replace(/\D/g, '');
+      if (normalizedPincode.length !== 6) {
+        validationErrors.push({ 
+          field: 'pincode', 
+          message: 'Pincode must be exactly 6 digits' 
+        });
+      }
+    }
+
+    const finalAddressLine = addressLine || address;
+    if (!finalAddressLine || !finalAddressLine.trim()) {
+      validationErrors.push({ field: 'addressLine', message: 'Street address is required' });
+    }
+
+    if (!state || !state.trim()) {
+      validationErrors.push({ field: 'state', message: 'State is required' });
+    }
+
+    const finalHouse = house || houseNumber;
+    if (!finalHouse || !finalHouse.trim()) {
+      validationErrors.push({ field: 'house', message: 'House/Flat/Block number is required' });
+    }
+
+    if (!locality || !locality.trim()) {
+      validationErrors.push({ field: 'locality', message: 'Locality is required' });
+    }
+
+    if (!city || !city.trim()) {
+      validationErrors.push({ field: 'city', message: 'City is required' });
+    }
+
+    const finalAddressType = addressType || type || 'HOME';
+    if (!['HOME', 'OFFICE'].includes(finalAddressType)) {
+      validationErrors.push({ 
+        field: 'addressType', 
+        message: 'Address type must be HOME or OFFICE' 
+      });
+    }
+
+    // Return validation errors if any
+    if (validationErrors.length > 0) {
+      console.log("❌ VALIDATION ERRORS:", validationErrors);
       return res.status(400).json({
         success: false,
-        message:
-          "Mandatory fields are missing: name, mobile, pincode, addressLine",
+        message: "Validation failed",
+        errors: validationErrors,
       });
     }
 
@@ -87,22 +156,29 @@ const createAddress = async (req, res) => {
       );
     }
 
+    // Normalize data before saving
+    const normalizedMobile = mobile.trim().replace(/\s+/g, '');
+    const normalizedPincode = pincode.trim().replace(/\D/g, '');
+
     // Create address
     const newAddress = new Address({
       user: req.user.id,
-      name,
-      mobile,
-      pincode,
-      state,
-      house: house || houseNumber,
-      addressLine: addressLine || address,
-      locality,
-      city,
-      addressType: addressType || type || "HOME",
+      name: name.trim(),
+      mobile: normalizedMobile,
+      pincode: normalizedPincode,
+      state: state.trim(),
+      house: (house || houseNumber).trim(),
+      addressLine: (addressLine || address).trim(),
+      locality: locality.trim(),
+      city: city.trim(),
+      addressType: finalAddressType,
+      openSaturday: openSaturday || false,
+      openSunday: openSunday || false,
       isDefault: isDefault || false,
     });
 
     const savedAddress = await newAddress.save();
+    console.log("✅ ADDRESS CREATED:", savedAddress._id);
 
     // Link to user
     try {
@@ -112,6 +188,7 @@ const createAddress = async (req, res) => {
       });
     } catch (userUpdateError) {
       // User model may not have addresses array - continue
+      console.log("⚠️ Could not link address to user:", userUpdateError.message);
     }
 
     res.status(201).json({
@@ -120,6 +197,8 @@ const createAddress = async (req, res) => {
       data: savedAddress,
     });
   } catch (error) {
+    console.error("❌ CREATE ADDRESS ERROR:", error);
+
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map((err) => ({
         field: err.path,

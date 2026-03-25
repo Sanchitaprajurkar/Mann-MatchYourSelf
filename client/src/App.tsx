@@ -19,7 +19,6 @@ import Payment from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
 import Orders from "./pages/Orders";
-import OurStory from "./components/OurStory";
 import LookBook from "./components/LookBook";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
@@ -38,6 +37,11 @@ import AccountAddresses from "./pages/account/AccountAddresses";
 import AccountDelete from "./pages/account/AccountDelete";
 import AccountTerms from "./pages/account/AccountTerms";
 import AccountPrivacy from "./pages/account/AccountPrivacy";
+
+// Standalone policy pages
+import TermsOfUse from "./pages/TermsOfUse";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import OurStory from "./pages/OurStory";
 
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -169,6 +173,25 @@ function App() {
               element={
                 <MainLayout>
                   <BlogDetail />
+                </MainLayout>
+              }
+            />
+
+            {/* POLICY PAGES */}
+            <Route
+              path="/privacy"
+              element={
+                <MainLayout>
+                  <PrivacyPolicy />
+                </MainLayout>
+              }
+            />
+
+            <Route
+              path="/terms"
+              element={
+                <MainLayout>
+                  <TermsOfUse />
                 </MainLayout>
               }
             />

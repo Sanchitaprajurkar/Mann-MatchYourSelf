@@ -50,7 +50,7 @@ exports.createRazorpayOrder = async (req, res) => {
     const razorpayOrder = await razorpayInstance.orders.create(options);
 
     order.razorpayOrderId = razorpayOrder.id;
-    order.orderStatus = "Pending";
+    // orderStatus remains "Placed" - payment status tracks payment state
     await order.save();
 
     res.status(200).json({
@@ -112,7 +112,7 @@ exports.verifyPayment = async (req, res) => {
         paymentMethod: "ONLINE",
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
-        orderStatus: "Processing"
+        orderStatus: "Placed"
       },
       { new: true }
     );
@@ -226,7 +226,7 @@ exports.razorpayWebhook = async (req, res) => {
           paymentStatus: "Paid",
           paymentMethod: "ONLINE",
           razorpayPaymentId: razorpayPaymentId,
-          orderStatus: "Processing"
+          orderStatus: "Placed"
         },
         { new: true }
       );

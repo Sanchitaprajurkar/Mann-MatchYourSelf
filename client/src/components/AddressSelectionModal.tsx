@@ -51,11 +51,23 @@ const AddressSelectionModal: React.FC<AddressSelectionModalProps> = ({
 
   const handleAddAddress = async (addressData: CreateAddressData) => {
     try {
-      console.log("🏠 Adding address:", addressData);
+      console.log("🏠 Validating address data...");
+      
+      // Validate before sending
+      const validation = addressService.validateAddress(addressData);
+      if (!validation.isValid) {
+        const errorMessage = validation.errors.join('; ');
+        console.error("🏠 Validation failed:", errorMessage);
+        setError(errorMessage);
+        return;
+      }
+
+      console.log("🏠 Adding address:", JSON.stringify(addressData, null, 2));
       const newAddress = await addressService.createAddress(addressData);
       console.log("🏠 Address added successfully:", newAddress);
       setAddresses((prev) => [...prev, newAddress]);
       setShowAddAddressForm(false);
+      setError(null);
       // Auto-select the newly created address
       handleSelectAddress(newAddress);
     } catch (err: any) {
@@ -92,11 +104,26 @@ const AddressSelectionModal: React.FC<AddressSelectionModalProps> = ({
 
         {/* Content */}
         <div className="p-6">
+          {/* Error Display */}
+          {error && !showAddAddressForm && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {showAddAddressForm ? (
-            <AddressForm
-              onSave={handleAddAddress}
-              onCancel={handleCancelAddAddress}
-            />
+            <>
+              {/* Error Display in Form */}
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+              <AddressForm
+                onSave={handleAddAddress}
+                onCancel={handleCancelAddAddress}
+              />
+            </>
           ) : (
             <>
               {loading ? (

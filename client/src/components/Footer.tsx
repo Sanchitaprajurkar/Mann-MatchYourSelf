@@ -100,8 +100,8 @@ const Footer = () => {
           <span>&copy; 2026 MANN MATCH YOUR SELF</span>
           
           <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 md:gap-8">
-            <Link to="#" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Privacy Policy</Link>
-            <Link to="#" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Terms of Use</Link>
+            <Link to="/privacy" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors underline decoration-[#C5A059]/40 underline-offset-4">Terms of Use</Link>
             <Link
               to="/admin/login"
               className="flex items-center gap-2 hover:text-[#C5A059] italic tracking-[0.1em] border-l border-white/10 pl-4 md:pl-8 ml-2 md:ml-4 transition-colors"
