@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- ✅ CRITICAL PERFORMANCE OPTIMIZATIONS -->
+    
+    <!-- ✅ PRELOAD CRITICAL HERO IMAGE -->
+    <link rel="preload" as="image" href="/images/hero/hero1.webp" type="image/webp" />
+    <link rel="preload" as="image" href="/images/hero/hero1.jpg" />
+    
+    <!-- ✅ PRELOAD CRITICAL FONTS -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
+    
+    <!-- ✅ PRECONNECT TO EXTERNAL DOMAINS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+    
+    <!-- ✅ DNS PREFETCH -->
+    <link rel="dns-prefetch" href="//api.cloudinary.com" />
+    <link rel="dns-prefetch" href="//images.unsplash.com" />
+    
+    <!-- ✅ PERFORMANCE HINTS -->
+    <meta name="theme-color" content="#1A1A1A" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- ✅ SEO META TAGS -->
+    <title>Mann Match Your Self - Exquisite Ethnic Wear & Contemporary Fashion</title>
+    <meta name="description" content="Discover exquisite ethnic wear and contemporary fashion at Mann Match Yourself. Shop our curated collection of sarees, lehengas, and designer apparel." />
+    <meta name="keywords" content="Mann Match Yourself, ethnic wear, sarees, lehengas, designer clothing, fashion, indian wear, contemporary fashion" />
+    <meta name="author" content="Mann Match Your Self" />
+    
+    <!-- ✅ OPEN GRAPH -->
+    <meta property="og:title" content="Mann Match Your Self - Exquisite Ethnic Wear & Contemporary Fashion" />
+    <meta property="og:description" content="Discover exquisite ethnic wear and contemporary fashion at Mann Match Yourself." />
+    <meta property="og:image" content="/images/hero/hero1.webp" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mannmatchyourself.com" />
+    
+    <!-- ✅ TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mann Match Your Self - Exquisite Ethnic Wear & Contemporary Fashion" />
+    <meta name="twitter:description" content="Discover exquisite ethnic wear and contemporary fashion at Mann Match Yourself." />
+    <meta name="twitter:image" content="/images/hero/hero1.webp" />
+    
+    <!-- ✅ CANONICAL URL -->
+    <link rel="canonical" href="https://mannmatchyourself.com" />
+    
+    <!-- ✅ STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FashionStore",
+      "name": "Mann Match Your Self",
+      "description": "Exquisite ethnic wear and contemporary fashion",
+      "url": "https://mannmatchyourself.com",
+      "logo": "https://mannmatchyourself.com/Logo.svg",
+      "image": "https://mannmatchyourself.com/images/hero/hero1.webp",
+      "@type": "ClothingStore",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Fashion Street",
+        "addressLocality": "Mumbai",
+        "addressRegion": "Maharashtra",
+        "postalCode": "400001",
+        "addressCountry": "IN"
+      },
+      "telephone": "+91-9876543210",
+      "email": "info@mannmatchyourself.com"
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- ✅ PERFORMANCE MONITORING -->
+    <script>
+      // ✅ WEB VITALS MONITORING
+      if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.entryType === 'largest-contentful-paint') {
+              console.log('LCP:', entry.startTime);
+            }
+            if (entry.entryType === 'first-input') {
+              console.log('FID:', entry.processingStart - entry.startTime);
+            }
+            if (entry.entryType === 'layout-shift') {
+              if (!entry.hadRecentInput) {
+                console.log('CLS:', entry.value);
+              }
+            }
+          }
+        });
+        observer.observe({entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift']});
+      }
+    </script>
+  </body>
+</html>
