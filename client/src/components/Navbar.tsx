@@ -181,39 +181,18 @@ const Navbar = () => {
 
             {/* DESKTOP NAVIGATION - Enhanced luxury styling */}
             <nav className="hidden xl:flex items-center gap-10">
-              {["Home", "Shop", "New Arrivals", "Blogs", "Our Story"].map(
+              {["Home", "Shop", "Blogs", "Our Story"].map(
                 (item) => (
                   <div key={item} className="relative group">
-                    {item === "Shop" ? (
-                      <div
-                        className="relative"
-                        onMouseEnter={() => setActiveMenu("shop")}
-                      >
-                        <Link
-                          to="/shop"
-                          className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
-                          style={{ color: navTextColor }}
-                        >
-                          {item}
-                        </Link>
-                        {/* Gold underline animation */}
-                        <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#C5A059] transition-all duration-300 group-hover:w-full" />
-                      </div>
-                    ) : (
-                      <Link
-                        to={
-                          item === "New Arrivals"
-                            ? "/new"
-                            : `/${item.toLowerCase().replace(" ", "-")}`
-                        }
-                        className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
-                        style={{ color: navTextColor }}
-                      >
-                        {item}
-                        {/* Gold underline animation */}
-                        <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#C5A059] transition-all duration-300 group-hover:w-full" />
-                      </Link>
-                    )}
+                    <Link
+                      to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "-")}`}
+                      className="text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-500"
+                      style={{ color: navTextColor }}
+                    >
+                      {item}
+                      {/* Gold underline animation */}
+                      <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#C5A059] transition-all duration-300 group-hover:w-full" />
+                    </Link>
                   </div>
                 ),
               )}
@@ -420,86 +399,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* MEGA MENU - Smooth transitions */}
-        <AnimatePresence>
-          {activeMenu && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute left-0 w-full"
-              style={{ top: "100%" }}
-            >
-              {activeMenu === "shop" && (
-                <div
-                  className="bg-white shadow-2xl border-t border-gray-100"
-                  style={{
-                    borderTop: "1px solid #E5E5E5",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <div className="max-w-[1440px] mx-auto px-8 md:px-12 py-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                      {/* Categories Column */}
-                      <div>
-                        <h3 className="text-sm font-medium tracking-wider uppercase text-gray-500 mb-4">
-                          Categories
-                        </h3>
-                        <ul className="space-y-3">
-                          {menuData.shop[0]?.items?.map((item, index) => (
-                            <li key={`shop-category-${item}-${index}`}>
-                              <Link
-                                to="#"
-                                className="text-gray-700 hover:text-[#C5A059] transition-colors duration-200 py-1 block"
-                                onClick={() => setActiveMenu(null)}
-                              >
-                                {item}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Collections Column */}
-                      <div>
-                        <h3 className="text-sm font-medium tracking-wider uppercase text-gray-500 mb-4">
-                          Collections
-                        </h3>
-                        <ul className="space-y-3">
-                          {menuData.shop[1]?.items?.map((item, index) => (
-                            <li key={`shop-collection-${item}-${index}`}>
-                              <Link
-                                to="#"
-                                className="text-gray-700 hover:text-[#C5A059] transition-colors duration-200 py-1 block"
-                                onClick={() => setActiveMenu(null)}
-                              >
-                                {item}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* The Vibe Column */}
-                      <div>
-                        <h3 className="text-sm font-medium tracking-wider uppercase text-gray-500 mb-4">
-                          The Vibe
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                          {menuData.shop[2]?.content}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {menuData.shop[2]?.subtext}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* OLD FULL-WIDTH MEGA MENU REMOVED - NOW A CLEAN DROPDOWN ATTACHED DIRECTLY TO NAV ITEM */}
       </header>
 
       {/* SEARCH OVERLAY */}
@@ -544,7 +444,6 @@ const Navbar = () => {
                   {[
                     "Home",
                     "Shop",
-                    "New Arrivals",
                     "The Journal",
                     "Our Story",
                   ].map((item, i) => (
@@ -558,9 +457,7 @@ const Navbar = () => {
                         to={
                           item === "The Journal"
                             ? "/blogs"
-                            : item === "New Arrivals"
-                              ? "/new"
-                              : `/${item.toLowerCase().replace(" ", "-")}`
+                            : `/${item.toLowerCase().replace(" ", "-")}`
                         }
                         className="font-seasons text-3xl text-[#1A1A1A] hover:text-[#C5A059] transition-colors block"
                         onClick={() => setIsMobileMenuOpen(false)}
