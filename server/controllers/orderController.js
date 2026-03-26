@@ -217,6 +217,7 @@ const getAllOrders = async (req, res) => {
     });
   }
 };
+const updateOrderStatus = async (req, res) => {
   try {
     const { status, orderStatus } = req.body;
     const order = await Order.findById(req.params.id);
