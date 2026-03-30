@@ -15,17 +15,21 @@ const COLORS = {
 
 interface Props {
   products: Product[];
+  loading?: boolean;
 }
 
-const FeaturedSlider = ({ products }: Props) => {
+const FeaturedSlider = ({ products, loading = false }: Props) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const { isMobile, width } = useWindowSize();
+  const hasProducts = products.length > 0;
 
   const goToNext = () => {
+    if (!hasProducts || products.length < 2) return;
     setActiveIdx((prev) => (prev + 1) % products.length);
   };
 
   const goToPrev = () => {
+    if (!hasProducts || products.length < 2) return;
     setActiveIdx((prev) => (prev - 1 + products.length) % products.length);
   };
 
@@ -89,6 +93,26 @@ const FeaturedSlider = ({ products }: Props) => {
     };
   };
 
+  if (!hasProducts || !products.length || loading) {
+    return (
+      <section className="bg-white py-12 md:py-24">
+        <div className="max-w-[1440px] mx-auto px-6">
+          <div className="text-center mb-10 md:mb-16">
+            <h2 className="section-heading text-[#1A1A1A]">Our Collections</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((key) => (
+              <div
+                key={key}
+                className="h-[340px] md:h-[420px] w-full bg-gradient-to-br from-[#F2EFEA] to-[#E8E2D9] rounded-xl animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-white py-12 md:py-24 relative overflow-hidden">
       {/* Heading with Brand Color */}
@@ -103,12 +127,14 @@ const FeaturedSlider = ({ products }: Props) => {
         <button
           onClick={goToPrev}
           className="pointer-events-auto w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center hover:bg-[#1A1A1A] group transition-all"
+          disabled={products.length < 2}
         >
           <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-[#1A1A1A] group-hover:text-white" />
         </button>
         <button
           onClick={goToNext}
           className="pointer-events-auto w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center hover:bg-[#1A1A1A] group transition-all"
+          disabled={products.length < 2}
         >
           <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-[#1A1A1A] group-hover:text-white" />
         </button>

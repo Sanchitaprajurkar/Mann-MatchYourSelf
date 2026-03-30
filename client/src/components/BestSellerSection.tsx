@@ -3,6 +3,7 @@ import { Product } from "../data/mockData";
 
 interface Props {
   products: Product[];
+  loading?: boolean;
 }
 
 const COLORS = {
@@ -13,11 +14,31 @@ const COLORS = {
   border: "#E5E5E5", // Subtle border
 };
 
-const BestSellerSection = ({ products }: Props) => {
+const BestSellerSection = ({ products, loading }: Props) => {
   // Filter for best sellers if the flag exists, otherwise just take the first few
   const bestSellers = products.filter(p => p.isBestSeller).length > 0 
     ? products.filter(p => p.isBestSeller).slice(0, 4)
     : products.slice(0, 4);
+
+  if (loading && bestSellers.length === 0) {
+    return (
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+          <div className="text-center mb-16 px-6">
+            <h2 className="section-heading text-[#1A1A1A]">Best Sellers</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+            {[1, 2, 3, 4].map((item) => (
+              <div
+                key={item}
+                className="aspect-[3/4] w-full bg-gradient-to-br from-[#F2EFEA] to-[#E8E2D9] rounded-xl animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white py-16 md:py-24">

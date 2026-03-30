@@ -1,63 +1,61 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import SplashScreen from "./components/SplashScreen";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import MainLayout from "./layouts/MainLayout";
-import AccountLayout from "./layouts/AccountLayout";
+const MainLayout = lazy(() => import("./layouts/MainLayout"));
+const AccountLayout = lazy(() => import("./layouts/AccountLayout"));
+const AdminLayout = lazy(() => import("./admin/AdminLayout"));
+const BackgroundMusic = lazy(() => import("./components/BackgroundMusic"));
 
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
-import Cart from "./pages/Cart";
-import ProductDetail from "./pages/ProductDetail";
-import Checkout from "./pages/Checkout";
-import OrderConfirmation from "./pages/OrderConfirmation";
-import Payment from "./pages/Payment";
-import OrderSuccess from "./pages/OrderSuccess";
-import MyOrders from "./pages/MyOrders";
-import Orders from "./pages/Orders";
-import LookBook from "./components/LookBook";
-import Wishlist from "./pages/Wishlist";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import AdminLogin from "./pages/admin/AdminLogin";
-import ReviewPage from "./pages/ReviewPage";
-import Blogs from "./pages/Blogs";
-import BlogDetail from "./pages/BlogDetail";
-import Unauthorized from "./pages/Unauthorized";
+const Home = lazy(() => import("./pages/Home"));
+const Shop = lazy(() => import("./pages/Shop"));
+const Cart = lazy(() => import("./pages/Cart"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
+const Payment = lazy(() => import("./pages/Payment"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const MyOrders = lazy(() => import("./pages/MyOrders"));
+const Orders = lazy(() => import("./pages/Orders"));
+const LookBook = lazy(() => import("./components/LookBook"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const ReviewPage = lazy(() => import("./pages/ReviewPage"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 
-// Account pages
-import AccountOverview from "./pages/account/AccountOverview";
-import AccountProfile from "./pages/account/AccountProfile";
-import AccountOrders from "./pages/account/AccountOrders";
-import AccountAddresses from "./pages/account/AccountAddresses";
-import AccountDelete from "./pages/account/AccountDelete";
-import AccountTerms from "./pages/account/AccountTerms";
-import AccountPrivacy from "./pages/account/AccountPrivacy";
+const AccountOverview = lazy(() => import("./pages/account/AccountOverview"));
+const AccountProfile = lazy(() => import("./pages/account/AccountProfile"));
+const AccountOrders = lazy(() => import("./pages/account/AccountOrders"));
+const AccountAddresses = lazy(() => import("./pages/account/AccountAddresses"));
+const AccountDelete = lazy(() => import("./pages/account/AccountDelete"));
+const AccountTerms = lazy(() => import("./pages/account/AccountTerms"));
+const AccountPrivacy = lazy(() => import("./pages/account/AccountPrivacy"));
 
-// Standalone policy pages
-import TermsOfUse from "./pages/TermsOfUse";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import OurStory from "./pages/OurStory";
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const OurStory = lazy(() => import("./pages/OurStory"));
 
-import AdminLayout from "./admin/AdminLayout";
-import AdminDashboard from "./admin/AdminDashboard";
-import AdminProducts from "./admin/AdminProducts";
-import AdminAddProduct from "./admin/AdminAddProduct";
-import AdminEditProduct from "./admin/AdminEditProduct";
-import AdminOrders from "./admin/AdminOrders";
-import AdminOrderDetails from "./admin/AdminOrderDetails";
-import AdminHero from "./admin/AdminHero";
-import AdminHeroVideo from "./admin/AdminHeroVideo";
-import AdminCategories from "./admin/AdminCategories";
-import AdminReviews from "./admin/AdminReviews";
-import AdminBlogs from "./admin/AdminBlogs";
-import AdminOffers from "./admin/AdminOffers";
-import AdminCoupons from "./admin/AdminCoupons";
-import BackgroundMusic from "./components/BackgroundMusic";
+const AdminDashboard = lazy(() => import("./admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("./admin/AdminProducts"));
+const AdminAddProduct = lazy(() => import("./admin/AdminAddProduct"));
+const AdminEditProduct = lazy(() => import("./admin/AdminEditProduct"));
+const AdminOrders = lazy(() => import("./admin/AdminOrders"));
+const AdminOrderDetails = lazy(() => import("./admin/AdminOrderDetails"));
+const AdminHero = lazy(() => import("./admin/AdminHero"));
+const AdminHeroVideo = lazy(() => import("./admin/AdminHeroVideo"));
+const AdminCategories = lazy(() => import("./admin/AdminCategories"));
+const AdminReviews = lazy(() => import("./admin/AdminReviews"));
+const AdminBlogs = lazy(() => import("./admin/AdminBlogs"));
+const AdminOffers = lazy(() => import("./admin/AdminOffers"));
+const AdminCoupons = lazy(() => import("./admin/AdminCoupons"));
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -110,272 +108,273 @@ function App() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {/* GLOBAL BACKGROUND MUSIC */}
-          <BackgroundMusic />
+          <Suspense fallback={null}>
+            <BackgroundMusic />
+          </Suspense>
 
-          <Routes>
-            {/* USER ROUTES */}
-            <Route
-              path="/"
-              element={
-                <MainLayout>
-                  <Home />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/new"
-              element={
-                <MainLayout>
-                  <Shop />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/shop"
-              element={
-                <MainLayout>
-                  <Shop />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/our-story"
-              element={
-                <MainLayout>
-                  <OurStory />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/lookbook"
-              element={
-                <MainLayout>
-                  <LookBook />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/blogs"
-              element={
-                <MainLayout>
-                  <Blogs />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/blogs/:slug"
-              element={
-                <MainLayout>
-                  <BlogDetail />
-                </MainLayout>
-              }
-            />
-
-            {/* POLICY PAGES */}
-            <Route
-              path="/privacy"
-              element={
-                <MainLayout>
-                  <PrivacyPolicy />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/terms"
-              element={
-                <MainLayout>
-                  <TermsOfUse />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/wishlist"
-              element={
-                <MainLayout>
-                  <Wishlist />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/cart"
-              element={
-                <MainLayout>
-                  <Cart />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/product/:id"
-              element={
-                <MainLayout>
-                  <ProductDetail />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/review"
-              element={
-                <MainLayout>
-                  <ReviewPage />
-                </MainLayout>
-              }
-            />
-
-            {/* PROTECTED ROUTES - Require Authentication */}
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <Checkout />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/payment"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <Payment />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/order-confirmation"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <OrderConfirmation />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/order-success/:id"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <OrderSuccess />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/my-orders"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <MyOrders />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* AUTH ROUTES */}
-            <Route
-              path="/login"
-              element={
-                <MainLayout>
-                  <Login />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/signup"
-              element={
-                <MainLayout>
-                  <Signup />
-                </MainLayout>
-              }
-            />
-
-            {/* ACCOUNT ROUTES - Require Authentication */}
-            <Route
-              path="/account"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <AccountLayout />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<AccountOverview />} />
-              <Route path="profile" element={<AccountProfile />} />
-              <Route path="orders" element={<AccountOrders />} />
-              <Route path="addresses" element={<AccountAddresses />} />
-              <Route path="delete" element={<AccountDelete />} />
-              <Route path="terms" element={<AccountTerms />} />
-              <Route path="privacy" element={<AccountPrivacy />} />
-            </Route>
-
-            {/* STANDALONE ACCOUNT ROUTES for direct navigation */}
-            <Route
-              path="/account/orders"
-              element={
-                <ProtectedRoute requireAuth>
-                  <MainLayout>
-                    <AccountOrders />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ADMIN LOGIN (PUBLIC - No User Auth Required) */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-
-            {/* ADMIN PROTECTED ROUTES */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
               <Route
-                index
-                element={<Navigate to="/admin/dashboard" replace />}
+                path="/"
+                element={
+                  <MainLayout>
+                    <Home />
+                  </MainLayout>
+                }
               />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="products/:id/edit" element={<AdminEditProduct />} />
-              <Route path="add-product" element={<AdminAddProduct />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="orders/:id" element={<AdminOrderDetails />} />
-              <Route path="reviews" element={<AdminReviews />} />
-              <Route path="blogs" element={<AdminBlogs />} />
-              <Route path="hero" element={<AdminHero />} />
-              <Route path="hero-video" element={<AdminHeroVideo />} />
-              <Route path="offers" element={<AdminOffers />} />
-              <Route path="coupons" element={<AdminCoupons />} />
-            </Route>
 
-            {/* UNAUTHORIZED PAGE */}
-            <Route path="/unauthorized" element={<MainLayout><Unauthorized /></MainLayout>} />
+              <Route
+                path="/new"
+                element={
+                  <MainLayout>
+                    <Shop />
+                  </MainLayout>
+                }
+              />
 
-            {/* CATCH-ALL ROUTE - Redirect to home for undefined routes */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              <Route
+                path="/shop"
+                element={
+                  <MainLayout>
+                    <Shop />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/our-story"
+                element={
+                  <MainLayout>
+                    <OurStory />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/lookbook"
+                element={
+                  <MainLayout>
+                    <LookBook />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/blogs"
+                element={
+                  <MainLayout>
+                    <Blogs />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/blogs/:slug"
+                element={
+                  <MainLayout>
+                    <BlogDetail />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/privacy"
+                element={
+                  <MainLayout>
+                    <PrivacyPolicy />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/terms"
+                element={
+                  <MainLayout>
+                    <TermsOfUse />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/wishlist"
+                element={
+                  <MainLayout>
+                    <Wishlist />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/cart"
+                element={
+                  <MainLayout>
+                    <Cart />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/product/:id"
+                element={
+                  <MainLayout>
+                    <ProductDetail />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/review"
+                element={
+                  <MainLayout>
+                    <ReviewPage />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <Checkout />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/payment"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <Payment />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/order-confirmation"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <OrderConfirmation />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/order-success/:id"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <OrderSuccess />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/my-orders"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <MyOrders />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/login"
+                element={
+                  <MainLayout>
+                    <Login />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/signup"
+                element={
+                  <MainLayout>
+                    <Signup />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <AccountLayout />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AccountOverview />} />
+                <Route path="profile" element={<AccountProfile />} />
+                <Route path="orders" element={<AccountOrders />} />
+                <Route path="addresses" element={<AccountAddresses />} />
+                <Route path="delete" element={<AccountDelete />} />
+                <Route path="terms" element={<AccountTerms />} />
+                <Route path="privacy" element={<AccountPrivacy />} />
+              </Route>
+
+              <Route
+                path="/account/orders"
+                element={
+                  <ProtectedRoute requireAuth>
+                    <MainLayout>
+                      <AccountOrders />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route path="/admin/login" element={<AdminLogin />} />
+
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route
+                  index
+                  element={<Navigate to="/admin/dashboard" replace />}
+                />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="products/:id/edit" element={<AdminEditProduct />} />
+                <Route path="add-product" element={<AdminAddProduct />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="orders/:id" element={<AdminOrderDetails />} />
+                <Route path="reviews" element={<AdminReviews />} />
+                <Route path="blogs" element={<AdminBlogs />} />
+                <Route path="hero" element={<AdminHero />} />
+                <Route path="hero-video" element={<AdminHeroVideo />} />
+                <Route path="offers" element={<AdminOffers />} />
+                <Route path="coupons" element={<AdminCoupons />} />
+              </Route>
+
+              <Route
+                path="/unauthorized"
+                element={
+                  <MainLayout>
+                    <Unauthorized />
+                  </MainLayout>
+                }
+              />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </motion.div>
       )}
     </>

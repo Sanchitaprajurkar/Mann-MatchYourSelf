@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import API from "../utils/api";
 import { Loader2, ArrowLeft } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
+
+const ReactMarkdown = lazy(() => import("react-markdown"));
 
 interface Blog {
   _id: string;
@@ -135,7 +136,13 @@ const BlogDetail = () => {
             <div className="prose prose-stone max-w-none">
               <div className="font-serif text-lg md:text-xl text-gray-700 leading-relaxed space-y-8 
                 first-letter:text-7xl first-letter:font-['Great_Vibes'] first-letter:mr-4 first-letter:float-left first-letter:text-[#1A1A1A] first-letter:leading-none">
-                <ReactMarkdown>{blog.content}</ReactMarkdown>
+                <Suspense
+                  fallback={
+                    <div className="animate-pulse h-40 w-full bg-[#F3F0EA] rounded-lg" />
+                  }
+                >
+                  <ReactMarkdown>{blog.content}</ReactMarkdown>
+                </Suspense>
               </div>
             </div>
 

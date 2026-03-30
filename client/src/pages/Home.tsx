@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../utils/api";
-import { Product } from "../data/mockData";
+import { Product, mockProducts } from "../data/mockData";
 import SEO from "../components/SEO";
 
 import HeroSlider from "../components/HeroSlider";
@@ -15,33 +15,28 @@ import CommunitySection from "../components/CommunitySection";
 import FloatingActions from "../pages/FloatingActions";
 
 function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(
+    () => mockProducts.slice(0, 8),
+  );
+  const [isFetchingProducts, setIsFetchingProducts] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsFetchingProducts(true);
       try {
         const response = await API.get("/api/products");
-        if (response.data.success) {
+        if (response.data?.success && Array.isArray(response.data.data)) {
           setProducts(response.data.data.slice(0, 8));
         }
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
-        setLoading(false);
+        setIsFetchingProducts(false);
       }
     };
 
     fetchProducts();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--mann-gold)]"></div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -53,8 +48,8 @@ function Home() {
       />
       <HeroSlider />
       <CategorySlider />
-      <FeaturedSlider products={products} />
-      <BestSellerSection products={products} />
+      <FeaturedSlider products={products} loading={isFetchingProducts} />
+      <BestSellerSection products={products} loading={isFetchingProducts} />
       <WhyMannVideo />
       <BlogSection />
       <MannConfidenceBanner />
