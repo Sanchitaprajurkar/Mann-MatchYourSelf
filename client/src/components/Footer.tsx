@@ -1,6 +1,7 @@
 import { Instagram, Settings, MessageCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import FooterLeadForm from "./FooterLeadForm";
+import { openWhatsAppWithPreloader } from "../utils/whatsapp";
 
 const Footer = () => {
   return (
@@ -62,17 +63,16 @@ const Footer = () => {
               </h4>
               <div className="space-y-4">
                 <p className="text-[10px] uppercase tracking-[0.1em] text-[#C5A059] font-bold leading-relaxed">Available 24/7 Assistance</p>
-                <a
-                  href="https://wa.me/918484082315"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => openWhatsAppWithPreloader()}
                   className="flex items-center gap-3 text-base font-light text-white hover:text-[#C5A059] transition-all duration-500 group"
                 >
                   <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-all">
                     <MessageCircle size={14} />
                   </div>
                   +91 84840 82315
-                </a>
+                </button>
               </div>
             </div>
 

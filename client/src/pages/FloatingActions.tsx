@@ -1,5 +1,6 @@
 import { ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { openWhatsAppWithPreloader } from "../utils/whatsapp";
 
 const FloatingActions = () => {
   const [showTop, setShowTop] = useState(false);
@@ -38,10 +39,9 @@ const FloatingActions = () => {
       )}
 
       {/* WhatsApp */}
-      <a
-        href="https://wa.me/918484082315"
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        type="button"
+        onClick={() => openWhatsAppWithPreloader()}
         className="w-12 h-12 rounded-full border border-[#C5A059]
                    bg-black/70 backdrop-blur
                    flex items-center justify-center
@@ -54,7 +54,7 @@ const FloatingActions = () => {
           alt="WhatsApp" 
           className="w-5 h-5 transition-all group-hover:invert group-hover:brightness-0" 
         />
-      </a>
+      </button>
     </div>
   );
 };

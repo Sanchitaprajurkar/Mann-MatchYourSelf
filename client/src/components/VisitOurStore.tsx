@@ -6,6 +6,7 @@ import {
   ArrowRight,
   MessageCircle,
 } from "lucide-react";
+import { openWhatsAppWithPreloader } from "../utils/whatsapp";
 
 const VisitOurStore = () => {
   return (
@@ -61,14 +62,13 @@ const VisitOurStore = () => {
                     <h4 className="text-[10px] tracking-[0.2em] uppercase font-bold text-[#8C8273] mb-1">
                       WhatsApp
                     </h4>
-                    <a
-                      href="https://wa.me/918484082315"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => openWhatsAppWithPreloader()}
                       className="text-xs md:text-sm text-[#2B2B2B] hover:text-[#C5A059] transition-colors"
                     >
                       +91 84840 82315
-                    </a>
+                    </button>
                   </div>
                 </div>
 

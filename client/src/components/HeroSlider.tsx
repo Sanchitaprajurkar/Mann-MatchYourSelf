@@ -144,6 +144,7 @@ const HeroSlider = () => {
               ...slide,
               image: resolveImageUrl(slide.image),
               optimizedImage,
+              link: "/shop",
             };
           });
           setSlides(slidesWithFullUrls);
@@ -299,7 +300,7 @@ const HeroSlider = () => {
               )}
 
               {slides[current] && (
-                <Link to={slides[current].link}>
+                <Link to="/shop">
                   <motion.button
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
