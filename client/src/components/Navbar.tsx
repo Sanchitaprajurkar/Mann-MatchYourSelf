@@ -11,6 +11,7 @@ import {
   Package,
   ShoppingBag as ShoppingBagIcon,
   Heart as HeartIcon,
+  ArrowRight,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -148,7 +149,7 @@ const Navbar = () => {
       >
         <div className="h-full max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between relative">
           {/* LEFT GROUP: BRAND + NAV (Desktop Only for Brand) */}
-          <div className="flex items-center gap-16 relative z-10">
+          <div className="flex items-center gap-8 2xl:gap-12 relative z-10 min-w-0">
             {/* Mobile Menu Button - Increased touch target */}
             <button
               className="xl:hidden p-3 -ml-3 hover:scale-110 transition-transform duration-200"
@@ -165,16 +166,15 @@ const Navbar = () => {
             {/* BRAND LOGO - DESKTOP ONLY */}
             <Link
               to="/"
-              className="hidden xl:flex items-center transition-transform duration-300 hover:scale-105"
+              className="hidden xl:flex flex-none items-center self-stretch transition-transform duration-300 hover:scale-105"
             >
-              <div
-                className="flex items-center justify-center"
-                style={{ width: "200px", height: "80px" }}
-              >
+              <div className="flex h-full w-[164px] 2xl:w-[184px] items-center justify-start overflow-hidden">
                 <img
                   src="/Mann.svg"
-                  alt="MANN"
-                  className="w-full h-full object-contain transition-all duration-500"
+                  alt="Mann Match Your Self"
+                  className={`w-full object-contain object-left transition-all duration-500 ${
+                    scrolled || !isHeroPage ? "h-[38px]" : "h-[44px]"
+                  }`}
                 />
               </div>
             </Link>
@@ -204,14 +204,11 @@ const Navbar = () => {
             to="/"
             className="xl:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center h-full z-0"
           >
-            <div
-              className="flex items-center justify-center"
-              style={{ width: "140px", height: "50px" }}
-            >
+            <div className="flex w-[136px] items-center justify-center overflow-hidden">
               <img
                 src="/Mann.svg"
-                alt="MANN"
-                className="w-full h-full object-contain transition-all duration-500"
+                alt="Mann Match Your Self"
+                className="h-[34px] w-full object-contain transition-all duration-500"
               />
             </div>
           </Link>
@@ -394,8 +391,8 @@ const Navbar = () => {
                     Need Help? Contact Support
                   </p>
                 </div>
-              </div>
             </div>
+          </div>
           </div>
         </div>
 
@@ -412,17 +409,21 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#FDFDFD] flex flex-col xl:hidden"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[60] flex flex-col xl:hidden"
+            style={{
+              background:
+                "linear-gradient(to bottom, #ffffff 0%, #faf9f6 58%, #f3eee6 100%)",
+            }}
           >
-            {/* 1. Header: Scaled down for balance */}
-            <div className="flex items-center justify-between px-8 py-6 border-b border-[#C5A059]/10">
+            <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 bg-white/55 backdrop-blur-xl">
               <div className="flex items-center">
                 <div
                   className="flex items-center justify-center"
-                  style={{ width: "80px", height: "30px" }}
+                  style={{ width: "96px", height: "34px" }}
                 >
                   <img
                     src="/Mann.svg"
@@ -431,16 +432,23 @@ const Navbar = () => {
                   />
                 </div>
               </div>
-              <button onClick={() => setIsMobileMenuOpen(false)}>
-                <X size={22} strokeWidth={1.5} className="text-[#1A1A1A]" />
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/70 text-[#1A1A1A] transition-all duration-300 hover:border-[#C5A059]/40 hover:text-[#C5A059]"
+                aria-label="Close menu"
+              >
+                <X size={20} strokeWidth={1.5} />
               </button>
             </div>
 
             {/* 2. Content Area */}
-            <div className="flex-1 overflow-y-auto px-8 py-10 flex flex-col justify-between">
-              <div>
-                {/* Main Editorial Nav: text-3xl for better presence but space-y-8 for air */}
-                <nav className="flex flex-col space-y-8">
+            <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-8 sm:py-10">
+              <div className="mx-auto flex min-h-full w-full max-w-xl flex-col justify-between gap-10">
+                <section className="space-y-5">
+                  <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#8E8A83]">
+                    Main
+                  </p>
+                  <nav className="flex flex-col">
                   {[
                     "Home",
                     "Shop",
@@ -452,14 +460,17 @@ const Navbar = () => {
                       initial={{ x: -10, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: 0.1 + i * 0.1 }}
+                      className="border-b border-black/6"
                     >
                       <Link
                         to={
-                          item === "The Journal"
+                          item === "Home"
+                            ? "/"
+                            : item === "The Journal"
                             ? "/blogs"
                             : `/${item.toLowerCase().replace(" ", "-")}`
                         }
-                        className="font-seasons text-3xl text-[#1A1A1A] hover:text-[#C5A059] transition-colors block"
+                        className="block py-4 text-[28px] font-medium tracking-[0.01em] text-[#1A1A1A] transition-all duration-300 hover:translate-x-2 hover:text-[#C5A059] hover:opacity-75"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item}
@@ -467,75 +478,116 @@ const Navbar = () => {
                     </motion.div>
                   ))}
                 </nav>
+                </section>
 
-                {/* Subtle Divider */}
-                <div className="h-px bg-gradient-to-r from-transparent via-[#C5A059]/30 to-transparent my-10" />
+                <section className="space-y-5">
+                  <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#8E8A83]">
+                    Account
+                  </p>
 
-                {/* 3. Utility / Member Grid */}
-                <div className="grid grid-cols-2 gap-y-6">
-                  {/* Account / Auth */}
+                  <div className="space-y-3">
                   <Link
                     to={user ? "/account" : "/login"}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
+                    className="group flex items-center justify-between rounded-[1.5rem] border border-black/6 bg-white/60 px-4 py-4 backdrop-blur-md transition-all duration-300 hover:border-[#C5A059]/40 hover:bg-white/80 hover:translate-x-1"
                   >
-                    {user ? "My Account" : "Sign In"}
+                    <span className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] transition-colors duration-300 group-hover:text-[#C5A059]">
+                      <UserIcon size={16} strokeWidth={1.7} />
+                      {user ? "My Account" : "Sign In"}
+                    </span>
+                    <ArrowRight
+                      size={16}
+                      strokeWidth={1.5}
+                      className="text-[#C5A059] opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                    />
                   </Link>
 
-                  {/* Wishlist */}
                   <Link
                     to="/wishlist"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
+                    className="group flex items-center justify-between rounded-[1.5rem] border border-black/6 bg-white/60 px-4 py-4 backdrop-blur-md transition-all duration-300 hover:border-[#C5A059]/40 hover:bg-white/80 hover:translate-x-1"
                   >
-                    Wishlist{" "}
-                    {wishlistCount > 0 && (
-                      <span className="text-[#C5A059]">({wishlistCount})</span>
-                    )}
+                    <span className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] transition-colors duration-300 group-hover:text-[#C5A059]">
+                      <HeartIcon size={16} strokeWidth={1.7} />
+                      Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                    </span>
+                    <ArrowRight
+                      size={16}
+                      strokeWidth={1.5}
+                      className="text-[#C5A059] opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                    />
                   </Link>
 
-                  {/* Cart */}
-                  <Link
-                    to="/cart"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium flex items-center gap-2"
-                  >
-                    My Bag{" "}
-                    {cartCount > 0 && (
-                      <span className="text-[#C5A059]">({cartCount})</span>
-                    )}
-                  </Link>
-
-                  {/* Orders */}
                   <Link
                     to="/account/orders"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[12px] uppercase tracking-[0.2em] text-[#1A1A1A] hover:text-[#C5A059] transition-colors font-medium"
+                    className="group flex items-center justify-between rounded-[1.5rem] border border-black/6 bg-white/60 px-4 py-4 backdrop-blur-md transition-all duration-300 hover:border-[#C5A059]/40 hover:bg-white/80 hover:translate-x-1"
                   >
-                    Orders
+                    <span className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] transition-colors duration-300 group-hover:text-[#C5A059]">
+                      <Package size={16} strokeWidth={1.7} />
+                      Orders
+                    </span>
+                    <ArrowRight
+                      size={16}
+                      strokeWidth={1.5}
+                      className="text-[#C5A059] opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                    />
                   </Link>
 
-                  {/* Logout (if active) */}
+                  <Link
+                    to="/cart"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="group flex items-center justify-between rounded-[1.5rem] border border-black/6 bg-white/60 px-4 py-4 backdrop-blur-md transition-all duration-300 hover:border-[#C5A059]/40 hover:bg-white/80 hover:translate-x-1"
+                  >
+                    <span className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A1A1A] transition-colors duration-300 group-hover:text-[#C5A059]">
+                      <ShoppingBagIcon size={16} strokeWidth={1.7} />
+                      My Bag {cartCount > 0 && `(${cartCount})`}
+                    </span>
+                    <ArrowRight
+                      size={16}
+                      strokeWidth={1.5}
+                      className="text-[#C5A059] opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                    />
+                  </Link>
+
                   {user && (
                     <button
                       onClick={() => {
                         handleLogout();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="text-[10px] uppercase tracking-[0.3em] text-red-500 hover:text-red-600 transition-colors font-medium text-left col-span-2 mt-2"
+                      className="w-full rounded-[1.5rem] border border-red-200/80 bg-red-50/60 px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-[0.22em] text-red-500 transition-all duration-300 hover:bg-red-100/70 hover:text-red-600"
                     >
                       Logout
                     </button>
                   )}
                 </div>
-              </div>
+                </section>
 
-              {/* 4. Muted Footer Anchor */}
-              <div className="pt-12 pb-4 text-center opacity-40">
-                <p className="text-[9px] uppercase tracking-[0.4em] text-[#1A1A1A]">
+                <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="rounded-[2rem] border border-[#C5A059]/20 bg-white/55 px-6 py-7 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)]"
+              >
+                <p className="hidden text-[12px] font-medium uppercase tracking-[0.2em] text-[#8E8A83]">
                   Your Vibe • Your Style
                 </p>
-              </div>
+                <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#8E8A83]">
+                  Featured
+                </p>
+                <p className="mt-4 font-serif text-[24px] leading-[1.35] text-[#1A1A1A]">
+                  Match your inner self with your outer style.
+                </p>
+                <Link
+                  to="/shop"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mt-6 inline-flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#C5A059] transition-all duration-300 hover:gap-4"
+                >
+                  Shop Now <ArrowRight size={15} strokeWidth={1.7} />
+                </Link>
+              </motion.div>
+            </div>
             </div>
           </motion.div>
         )}

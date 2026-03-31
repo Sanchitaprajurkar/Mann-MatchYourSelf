@@ -27,10 +27,10 @@ export default function FooterLeadForm() {
 
   return (
     <div className="w-full">
-      <h3 className="font-serif text-2xl font-bold text-[#C5A059] mb-3">
+      <h3 className="font-serif text-2xl font-bold text-[#C5A059] mb-3 text-center sm:text-left">
         Heritage Updates
       </h3>
-      <p className="text-xs text-white/80 mb-8 leading-relaxed">
+      <p className="text-xs text-white/80 mb-8 leading-relaxed text-center sm:text-left">
         Join for early access to private collections and digital journals.
       </p>
 
@@ -63,7 +63,7 @@ export default function FooterLeadForm() {
         </div>
 
         {/* Preferences */}
-        <div className="flex justify-center gap-8 pt-2">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-x-8 gap-y-4 pt-2">
           {["EMAIL", "WHATSAPP", "BOTH"].map((pref) => (
             <label
               key={pref}
