@@ -44,7 +44,7 @@ const AdminReviews = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      await API.put(`/api/reviews/approve/${id}`);
+      await API.put(`/api/reviews/approve/${id}`, {});
       setReviews(reviews.map(r => 
         r._id === id ? { ...r, status: "approved" } : r
       ));

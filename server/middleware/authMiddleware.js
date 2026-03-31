@@ -49,7 +49,45 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+const optionalAuthenticateToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      next();
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId || decoded.id;
+    const userRole = decoded.role;
+
+    if (!userId) {
+      next();
+      return;
+    }
+
+    let account = null;
+    if (userRole === "admin") {
+      account = await Admin.findById(userId).select("-password");
+    } else {
+      account = await User.findById(userId).select("-password");
+    }
+
+    if (account) {
+      req.user = account;
+      req.user.id = userId;
+      req.role = userRole;
+    }
+
+    next();
+  } catch (error) {
+    next();
+  }
+};
+
 // Legacy alias
 const protect = authenticateToken;
 
-module.exports = { protect, authenticateToken };
+module.exports = { protect, authenticateToken, optionalAuthenticateToken };

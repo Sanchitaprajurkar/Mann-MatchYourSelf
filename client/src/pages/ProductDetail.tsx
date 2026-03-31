@@ -18,7 +18,7 @@ import {
   Star,
 } from "lucide-react";
 import API from "../utils/api";
-import CommunitySection from "../components/CommunitySection";
+import ReviewList from "../components/reviews/ReviewList";
 import { Product } from "../data/mockData";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -616,7 +616,7 @@ function ProductDetail() {
 
       {/* Reviews Section */}
       <div className="border-t border-gray-100">
-        <CommunitySection productId={id} />
+        {id ? <ReviewList productId={id} /> : null}
       </div>
 
       {/* YOU MAY ALSO LIKE Section */}

@@ -24,7 +24,11 @@
   /* Theme aliases for shared UI utilities */
   --color-primary: var(--mann-black);
   --color-accent: var(--mann-gold);
-  --color-text: var(--mann-white);
+  --color-text: var(--mann-black);
+  --color-background: var(--mann-bg);
+  --color-surface: var(--mann-white);
+  --color-border: var(--mann-border-grey);
+  --color-muted: var(--mann-muted-text);
 
   /* Spacing System - 8px Grid */
   --space-1: 0.5rem; /* 8px */

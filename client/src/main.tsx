@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "./context/CartContext";
@@ -16,23 +17,27 @@ import "./App.css";
 
 logConsoleBranding();
 
+const queryClient = new QueryClient();
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HelmetProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <UIProvider>
-          <AuthProvider>
-            <CheckoutProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <App />
-                </WishlistProvider>
-              </CartProvider>
-            </CheckoutProvider>
-          </AuthProvider>
-        </UIProvider>
-      </BrowserRouter>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <UIProvider>
+            <AuthProvider>
+              <CheckoutProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <App />
+                  </WishlistProvider>
+                </CartProvider>
+              </CheckoutProvider>
+            </AuthProvider>
+          </UIProvider>
+        </BrowserRouter>
+      </HelmetProvider>
+    </QueryClientProvider>
   </React.StrictMode>,
 );
