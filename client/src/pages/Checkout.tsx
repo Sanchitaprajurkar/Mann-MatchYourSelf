@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
 import { useCart } from "../context/CartContext";
 import { addressService, Address } from "../services/addressService";
+import { calculatePricingSummary } from "../utils/pricing";
 
 const COLORS = {
   gold: "#C5A059",
@@ -37,6 +38,7 @@ const Checkout: React.FC = () => {
     postalCode: "",
     country: "India",
   });
+  const pricingSummary = calculatePricingSummary(cart);
 
   // 🛡️ EMPTY CART CHECK - Show debug info instead of redirect
   useEffect(() => {
@@ -242,15 +244,21 @@ const Checkout: React.FC = () => {
                 </div>
               ))}
               <div className="border-t pt-4">
+                <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                  <span>Subtotal</span>
+                  <span>Rs {pricingSummary.subtotal.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                  <span>GST</span>
+                  <span>Rs {pricingSummary.gstAmount.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                  <span>Shipping</span>
+                  <span>{pricingSummary.shippingFee === 0 ? "Complimentary" : `Rs ${pricingSummary.shippingFee}`}</span>
+                </div>
                 <div className="flex justify-between items-center text-xl font-bold">
                   <span>Total:</span>
-                  <span style={{ color: COLORS.gold }}>
-                    ₹
-                    {cart.reduce(
-                      (total, item) => total + item.price * item.quantity,
-                      0,
-                    )}
-                  </span>
+                  <span style={{ color: COLORS.gold }}>Rs {pricingSummary.totalAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
             </div>
@@ -489,7 +497,7 @@ const Checkout: React.FC = () => {
               state: {
                 address: selectedAddress,
                 items: cart,
-                total: cart.reduce((total, item) => total + item.price * item.quantity, 0)
+                total: pricingSummary.subtotal
               }
             });
           }}
@@ -508,3 +516,4 @@ const Checkout: React.FC = () => {
 };
 
 export default Checkout;
+

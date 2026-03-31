@@ -133,6 +133,7 @@ const orderSchema = new mongoose.Schema(
       subtotal: { type: Number, default: 0 },
       productDiscount: { type: Number, default: 0 },
       couponDiscount: { type: Number, default: 0 },
+      gstAmount: { type: Number, default: 0 },
       shippingFee: { type: Number, default: 0 },
       platformFee: { type: Number, default: 0 },
       totalAmount: { type: Number, default: 0 },

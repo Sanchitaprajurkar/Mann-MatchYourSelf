@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Order = require("../models/Order");
+const User = require("../models/User");
 const { upload } = require("../config/cloudinary");
 const cloudinary = require("cloudinary").v2;
 
@@ -253,31 +254,72 @@ const deleteProduct = async (req, res) => {
 // Get dashboard stats (admin only)
 const getDashboardStats = async (req, res) => {
   try {
-    const totalProducts = await Product.countDocuments();
-    const totalStock = await Product.aggregate([
-      { $group: { _id: null, total: { $sum: "$stock" } } },
+    const [
+      totalProducts,
+      totalCategories,
+      totalUsers,
+      totalOrders,
+      totalStock,
+      totalRevenue,
+      openOrders,
+      lowStockProducts,
+      recentOrders,
+      productsByCategory,
+    ] = await Promise.all([
+      Product.countDocuments(),
+      Category.countDocuments(),
+      User.countDocuments({ role: "user" }),
+      Order.countDocuments(),
+      Product.aggregate([{ $group: { _id: null, total: { $sum: "$stock" } } }]),
+      Order.aggregate([
+        { $match: { orderStatus: { $ne: "Cancelled" } } },
+        { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+      ]),
+      Order.countDocuments({
+        $or: [
+          { orderStatus: { $in: ["Placed", "Shipped"] } },
+          { status: { $in: ["PLACED", "PROCESSING", "SHIPPED"] } },
+        ],
+      }),
+      Product.find({ stock: { $lt: 10 } }).select("name stock").limit(10),
+      Order.find()
+        .populate("user", "name")
+        .sort({ createdAt: -1 })
+        .limit(5),
+      Product.aggregate([
+        {
+          $lookup: {
+            from: "categories",
+            localField: "category",
+            foreignField: "_id",
+            as: "categoryData",
+          },
+        },
+        { $unwind: { path: "$categoryData", preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: "$category",
+            name: { $first: "$categoryData.name" },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, name: 1 } },
+      ]),
     ]);
-
-    const lowStockProducts = await Product.find({
-      stock: { $lt: 10 },
-    })
-      .select("name stock")
-      .limit(10);
-
-    const totalCategories = await Category.countDocuments();
-    const recentOrders = await Order.find()
-      .populate("user", "name")
-      .sort({ createdAt: -1 })
-      .limit(5);
 
     res.status(200).json({
       success: true,
       data: {
         totalProducts,
         totalStock: totalStock[0]?.total || 0,
+        totalOrders,
+        totalRevenue: totalRevenue[0]?.total || 0,
+        totalUsers,
+        openOrders,
         lowStockProducts,
         totalCategories,
-        recentOrders
+        recentOrders,
+        productsByCategory,
       },
     });
   } catch (error) {

@@ -323,14 +323,18 @@ exports.createReview = async (req, res) => {
       cons: normalizeList(req.body.cons),
       images: finalImages,
       isVerifiedPurchase: eligibility.hasVerifiedPurchase,
-      isApproved: false,
-      status: "pending",
+      isApproved: eligibility.hasVerifiedPurchase,
+      status: eligibility.hasVerifiedPurchase ? "approved" : "pending",
     });
+
+    if (eligibility.hasVerifiedPurchase) {
+      await updateProductRatingStats(productId);
+    }
 
     return res.status(201).json({
       success: true,
       message: eligibility.hasVerifiedPurchase
-        ? "Review submitted and queued for approval. Verified purchase detected."
+        ? "Review submitted successfully."
         : "Review submitted and queued for approval.",
       data: serializeReview(review),
     });
@@ -760,10 +764,11 @@ exports.submitReview = async (req, res) => {
         pros: normalizeList(pros),
         cons: normalizeList(cons),
         isVerifiedPurchase: true,
-        isApproved: false,
-        status: "pending",
+        isApproved: true,
+        status: "approved",
       });
 
+      await updateProductRatingStats(productId);
       createdReviews.push(serializeReview(review));
     }
 

@@ -35,11 +35,17 @@ const OrderConfirmation: React.FC = () => {
   // Recompute pricing whenever subtotal or coupon changes
   useEffect(() => {
     const couponDiscount = appliedCoupon?.discountAmount ?? 0;
-    setPricing(computePricing(subtotal, couponDiscount));
-  }, [subtotal, appliedCoupon, setPricing, computePricing]);
+    setPricing(computePricing(items, couponDiscount));
+  }, [items, appliedCoupon, setPricing, computePricing]);
 
-  const displayPricing = pricing ?? computePricing(subtotal, appliedCoupon?.discountAmount ?? 0);
-  const { couponDiscount, shippingFee: shipping, platformFee, totalAmount: grandTotal } = displayPricing;
+  const displayPricing = pricing ?? computePricing(items, appliedCoupon?.discountAmount ?? 0);
+  const {
+    couponDiscount,
+    gstAmount,
+    shippingFee: shipping,
+    platformFee,
+    totalAmount: grandTotal,
+  } = displayPricing;
 
   const fetchAddresses = async () => {
     try {
@@ -209,8 +215,8 @@ const OrderConfirmation: React.FC = () => {
                   <span className="font-medium text-[#1A1A1A]">{shipping === 0 ? "Complimentary" : `₹${shipping}`}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-light text-gray-600">
-                  <span>Handling</span>
-                  <span className="font-medium text-[#1A1A1A]">₹{platformFee}</span>
+                  <span>GST</span>
+                  <span className="font-medium text-[#1A1A1A]">Rs {gstAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 

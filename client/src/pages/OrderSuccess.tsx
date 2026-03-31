@@ -174,10 +174,12 @@ const OrderConfirmationPage: React.FC = () => {
                       <span>Shipping</span>
                       <span>{order.pricingSnapshot.shippingFee === 0 ? "Complimentary" : `₹${order.pricingSnapshot.shippingFee}`}</span>
                     </div>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>Handling</span>
-                      <span>₹{order.pricingSnapshot.platformFee}</span>
-                    </div>
+                    {typeof order.pricingSnapshot.gstAmount === "number" && (
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>GST</span>
+                        <span>Rs {order.pricingSnapshot.gstAmount.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-end pt-3 border-t border-gray-200">
                       <span className="text-xs tracking-widest uppercase text-gray-400 font-bold">Total Paid</span>
                       <span className="text-2xl font-serif text-[#1A1A1A] font-bold">

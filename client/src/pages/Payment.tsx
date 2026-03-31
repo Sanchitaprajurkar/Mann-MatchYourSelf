@@ -36,8 +36,7 @@ const PaymentPage: React.FC = () => {
   }, [isAuthenticated, address, items, navigate]);
 
   // Use persistent context pricing, fallback to computing from location total
-  const subtotal = typeof total === "number" ? total : 0;
-  const displayPricing = pricing ?? computePricing(subtotal, appliedCoupon?.discountAmount ?? 0);
+  const displayPricing = pricing ?? computePricing(items, appliedCoupon?.discountAmount ?? 0);
 
   // Razorpay integration
   const handleRazorpayPayment = async (orderId: string, amount: number) => {
@@ -295,8 +294,8 @@ const PaymentPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-light text-gray-600">
-                  <span>Handling</span>
-                  <span className="font-medium text-[#1A1A1A]">₹{displayPricing.platformFee}</span>
+                  <span>GST</span>
+                  <span className="font-medium text-[#1A1A1A]">Rs {displayPricing.gstAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 

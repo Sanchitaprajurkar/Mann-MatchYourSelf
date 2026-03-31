@@ -3,6 +3,21 @@ const User = require("../models/User");
 const Coupon = require("../models/Coupon");
 const Product = require("../models/Product");
 
+const GST_THRESHOLD_PER_PIECE = 2500;
+const GST_LOWER_RATE = 0.05;
+const GST_HIGHER_RATE = 0.18;
+
+const getGstRateForPiece = (piecePrice) =>
+  piecePrice <= GST_THRESHOLD_PER_PIECE ? GST_LOWER_RATE : GST_HIGHER_RATE;
+
+const calculateGstAmount = (orderItems) =>
+  Math.round(
+    orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity * getGstRateForPiece(item.price),
+      0,
+    ),
+  );
+
 // Valid order status constants
 const ORDER_STATUS = {
   PLACED: "Placed",
@@ -56,8 +71,9 @@ const createOrder = async (req, res) => {
     }
 
     const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const gstAmount = calculateGstAmount(orderItems);
     const shippingFee = subtotal > 500 ? 0 : 50;
-    const platformFee = 10;
+    const platformFee = 0;
 
     let couponDiscount = 0;
     let couponSnapshot = null;
@@ -94,12 +110,16 @@ const createOrder = async (req, res) => {
       }
     }
 
-    const totalAmount = Math.max(0, subtotal - couponDiscount + shippingFee + platformFee);
+    const totalAmount = Math.max(
+      0,
+      subtotal + gstAmount - couponDiscount + shippingFee + platformFee,
+    );
 
     const pricingSnapshot = {
       subtotal,
       productDiscount: 0,
       couponDiscount: Math.round(couponDiscount),
+      gstAmount,
       shippingFee,
       platformFee,
       totalAmount: Math.round(totalAmount),

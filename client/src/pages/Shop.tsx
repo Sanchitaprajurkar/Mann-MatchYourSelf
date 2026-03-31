@@ -552,8 +552,8 @@ function Shop() {
           {/* Enhanced Heading with Better Hierarchy */}
           <div className="text-center mb-12">
             <h2
-              className="text-4xl md:text-6xl text-[#1A1A1A] leading-none tracking-[0.02em] mb-4"
-              style={{ fontFamily: "'Great Vibes', cursive" }}
+              className="text-4xl md:text-6xl text-[#1A1A1A] leading-none tracking-[0.02em] mb-4 font-normal"
+              style={{ fontFamily: "'Great Vibes', cursive", fontWeight: 400 }}
             >
               Explore Categories
             </h2>

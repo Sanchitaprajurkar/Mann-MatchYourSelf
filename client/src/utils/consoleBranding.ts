@@ -21,20 +21,20 @@ export function logConsoleBranding() {
   ].join(";");
 
   const styleSecondary = [
-    "color: #9CA3AF",
+    "color: #000000",
     "font-size: 12px",
     "letter-spacing: 0.2px",
   ].join(";");
 
   const styleAccent = [
-    "color: #F5D76E",
+    "color: #000000",
     "font-size: 12px",
     "font-weight: 600",
     "letter-spacing: 0.2px",
   ].join(";");
 
   const styleEmail = [
-    "color: #E5E5E5",
+    "color: #000000",
     "font-size: 12px",
     "letter-spacing: 0.2px",
   ].join(";");

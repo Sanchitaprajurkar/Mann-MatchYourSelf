@@ -24,8 +24,8 @@ const CartPage: React.FC = () => {
   // Recompute pricing whenever cart or coupon changes
   useEffect(() => {
     const couponDiscount = appliedCoupon?.discountAmount ?? 0;
-    setPricing(computePricing(subtotal, couponDiscount));
-  }, [subtotal, appliedCoupon, setPricing, computePricing]);
+    setPricing(computePricing(items, couponDiscount));
+  }, [items, appliedCoupon, setPricing, computePricing]);
 
   const handleCouponApply = (coupon: any) => {
     setAppliedCoupon(coupon);
@@ -65,8 +65,14 @@ const CartPage: React.FC = () => {
   };
 
   // Use context pricing (computed with coupon), with fallback
-  const displayPricing = pricing ?? computePricing(subtotal, 0);
-  const { couponDiscount, shippingFee: shipping, platformFee, totalAmount: grandTotal } = displayPricing;
+  const displayPricing = pricing ?? computePricing(items, 0);
+  const {
+    couponDiscount,
+    gstAmount,
+    shippingFee: shipping,
+    platformFee,
+    totalAmount: grandTotal,
+  } = displayPricing;
 
   if (items.length === 0) {
     return (
@@ -252,8 +258,8 @@ const CartPage: React.FC = () => {
                   <span className="font-medium text-[#1A1A1A]">{shipping === 0 ? "Complimentary" : `₹${shipping}`}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-light text-gray-600">
-                  <span>Handling</span>
-                  <span className="font-medium text-[#1A1A1A]">₹{platformFee}</span>
+                  <span>GST</span>
+                  <span className="font-medium text-[#1A1A1A]">Rs {gstAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
@@ -271,7 +277,7 @@ const CartPage: React.FC = () => {
               <div className="flex justify-between items-end mb-8 pt-6 border-t border-gray-200">
                 <div>
                   <span className="text-sm tracking-widest uppercase text-gray-400">Total</span>
-                  <p className="text-xs text-gray-400 font-light mt-1">Including GST</p>
+                  <p className="text-xs text-gray-400 font-light mt-1">GST added as per garment price slab</p>
                 </div>
                 <span className="text-2xl font-serif text-[#1A1A1A]">
                   ₹{grandTotal.toLocaleString("en-IN")}
@@ -313,3 +319,4 @@ const CartPage: React.FC = () => {
 };
 
 export default CartPage;
+

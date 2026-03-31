@@ -5,6 +5,11 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
+import {
+  calculatePricingSummary,
+  PricingLineItem,
+  PricingSummary,
+} from "../utils/pricing";
 
 // ── Types ─────────────────────────────────────────────────────────
 export interface AppliedCoupon {
@@ -16,22 +21,16 @@ export interface AppliedCoupon {
   discountAmount: number;
 }
 
-export interface PricingSummary {
-  subtotal: number;
-  productDiscount: number;
-  couponDiscount: number;
-  shippingFee: number;
-  platformFee: number;
-  totalAmount: number;
-}
-
 interface CheckoutContextType {
   appliedCoupon: AppliedCoupon | null;
   pricing: PricingSummary | null;
   setAppliedCoupon: (coupon: AppliedCoupon | null) => void;
   setPricing: (pricing: PricingSummary) => void;
   clearCheckout: () => void;
-  computePricing: (subtotal: number, couponDiscount?: number) => PricingSummary;
+  computePricing: (
+    items: PricingLineItem[],
+    couponDiscount?: number,
+  ) => PricingSummary;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
@@ -41,21 +40,9 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
   const [pricing, setPricingState] = useState<PricingSummary | null>(null);
 
   const computePricing = useCallback((
-    subtotal: number,
+    items: PricingLineItem[],
     couponDiscount: number = 0,
-  ): PricingSummary => {
-    const shippingFee = subtotal > 500 ? 0 : 50;
-    const platformFee = 10;
-    const totalAmount = Math.max(0, subtotal - couponDiscount + shippingFee + platformFee);
-    return {
-      subtotal,
-      productDiscount: 0,
-      couponDiscount,
-      shippingFee,
-      platformFee,
-      totalAmount,
-    };
-  }, []);
+  ): PricingSummary => calculatePricingSummary(items, couponDiscount), []);
 
   const setAppliedCoupon = useCallback((coupon: AppliedCoupon | null) => {
     setAppliedCouponState(coupon);
