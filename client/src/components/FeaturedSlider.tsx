@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../data/mockData";
 import useWindowSize from "../hooks/useWindowSize";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 // Brand colors for consistency
 const COLORS = {
@@ -163,10 +164,12 @@ const FeaturedSlider = ({ products, loading = false }: Props) => {
                 {/* Image Container - Aspect ratio focus */}
                 <div className="h-[320px] md:h-[450px] relative group overflow-hidden">
                   <img
-                    src={product.images[0]}
+                    src={CLOUDINARY_PRESETS.card(product.images[0], 500)}
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     loading={index === activeIdx ? "eager" : "lazy"}
+                    width={500}
+                    height={667}
                   />
 
                   {/* Overlay text - Gold & Black style */}

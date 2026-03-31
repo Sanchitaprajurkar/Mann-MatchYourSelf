@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import OffersSection from "../components/OffersSection";
 import CouponBox from "../components/CouponBox";
 import WishlistPreview from "../components/WishlistPreview";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const CartPage: React.FC = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal } = useCart();
@@ -136,9 +137,15 @@ const CartPage: React.FC = () => {
                     {/* Item Image */}
                     <Link to={`/product/${item.productId}`} className="w-full sm:w-32 h-40 overflow-hidden rounded-lg flex-shrink-0 relative">
                       <img
-                        src={item.image || (item as any).images?.[0] || "/placeholder-product.jpg"}
+                        src={CLOUDINARY_PRESETS.mini(
+                          item.image || (item as any).images?.[0] || "/placeholder-product.jpg",
+                          256
+                        )}
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                        loading="lazy"
+                        width={128}
+                        height={160}
                       />
                     </Link>
 

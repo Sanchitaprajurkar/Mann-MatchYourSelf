@@ -3,6 +3,7 @@ import { X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import API from "../utils/api";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const COLORS = {
   gold: "#C5A059",
@@ -142,9 +143,12 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
                       >
                         {/* IMAGE */}
                         <img
-                          src={product.images?.[0]}
+                          src={CLOUDINARY_PRESETS.mini(product.images?.[0] || "/placeholder-product.jpg", 112)}
                           alt={product.name}
                           className="w-14 h-16 object-cover rounded-md border"
+                          loading="lazy"
+                          width={56}
+                          height={64}
                         />
 
                         {/* INFO */}

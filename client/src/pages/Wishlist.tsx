@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { ShoppingBag, X, ArrowRight, Heart, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const COLORS = {
   gold: "#C5A059",
@@ -118,9 +119,12 @@ const Wishlist = () => {
                   <div className="relative overflow-hidden aspect-[3/4] mb-6 bg-[#FAF8F5] rounded-xl border border-gray-50 group-hover:shadow-xl transition-all duration-700">
                     <Link to={`/product/${product._id}`} className="block h-full">
                       <img
-                        src={product.images?.[0] || "/api/placeholder/800/1066"}
+                        src={CLOUDINARY_PRESETS.card(product.images?.[0] || "/api/placeholder/800/1066", 400)}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                        loading="lazy"
+                        width={400}
+                        height={533}
                       />
                     </Link>
 

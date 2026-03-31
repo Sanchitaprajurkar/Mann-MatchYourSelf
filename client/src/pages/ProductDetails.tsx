@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { mockApi, Product } from "../data/mockData";
 import { useCart } from "../context/CartContext";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 function ProductDetails() {
   const { id } = useParams<{ id: string }>();
@@ -93,9 +94,12 @@ function ProductDetails() {
                 {/* Main Image */}
                 <div className="h-96 bg-gray-100 rounded-lg overflow-hidden">
                   <img
-                    src={product.images[selectedImage]}
+                    src={CLOUDINARY_PRESETS.gallery(product.images[selectedImage], 900)}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    width={900}
+                    height={1200}
                   />
                 </div>
 
@@ -113,9 +117,12 @@ function ProductDetails() {
                         }`}
                       >
                         <img
-                          src={image}
+                          src={CLOUDINARY_PRESETS.thumbnail(image, 160)}
                           alt={`${product.name} ${index + 1}`}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          width={80}
+                          height={80}
                         />
                       </button>
                     ))}

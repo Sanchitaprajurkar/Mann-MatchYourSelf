@@ -123,6 +123,20 @@ export const CLOUDINARY_PRESETS = {
     crop: 'fill'
   }),
 
+  card: (url: string, width: number = 400) => optimizeCloudinaryUrl(url, {
+    width,
+    quality: 'auto',
+    format: 'auto',
+    crop: 'fill'
+  }),
+
+  mini: (url: string, width: number = 160) => optimizeCloudinaryUrl(url, {
+    width,
+    quality: 'auto',
+    format: 'auto',
+    crop: 'fill'
+  }),
+
   // Product gallery images - high quality for detail view
   gallery: (url: string, width: number = 800) => optimizeCloudinaryUrl(url, {
     width,

@@ -15,45 +15,58 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
 
-          // 🔴 ALL React-related (catch every entry/runtime)
           if (
-            id.includes("node_modules/react") ||
-            id.includes("node_modules/react-dom") ||
-            id.includes("node_modules/scheduler")
+            id.includes("react-dom") ||
+            id.includes("/react/") ||
+            id.includes("node_modules/scheduler/")
           ) {
-            return "vendor-react";
+            return "vendor-react-core";
           }
 
-          // 🟠 Router (strict)
-          if (
-            id.includes("node_modules/react-router") ||
-            id.includes("node_modules/react-router-dom")
-          ) {
-            return "vendor-router";
+          if (id.includes("react-router")) {
+            return "vendor-react-router";
           }
 
-          // 🟡 Motion
-          if (id.includes("node_modules/framer-motion")) {
+          if (id.includes("framer-motion")) {
             return "vendor-motion";
           }
 
-          // 🔵 Axios
-          if (id.includes("node_modules/axios")) {
+          if (id.includes("axios")) {
             return "vendor-axios";
           }
 
-          // 🟣 Helmet
-          if (id.includes("node_modules/react-helmet")) {
-            return "vendor-helmet";
+          if (id.includes("react-helmet-async")) {
+            return "vendor-react-core";
           }
 
-          // 🟢 Icons
-          if (id.includes("node_modules/lucide-react")) {
+          if (
+            id.includes("react-markdown") ||
+            id.includes("hast-util-to-jsx-runtime")
+          ) {
+            return "vendor-react-core";
+          }
+
+          if (
+            id.includes("remark-") ||
+            id.includes("rehype-") ||
+            id.includes("micromark") ||
+            id.includes("mdast-") ||
+            id.includes("hast-") ||
+            id.includes("unist-") ||
+            id.includes("property-information") ||
+            id.includes("space-separated-tokens") ||
+            id.includes("comma-separated-tokens") ||
+            id.includes("decode-named-character-reference") ||
+            id.includes("character-entities")
+          ) {
+            return "vendor-markdown";
+          }
+
+          if (id.includes("react-icons") || id.includes("lucide")) {
             return "vendor-icons";
           }
 
-          // ⚪ Catch‑all (must be last)
-          return "vendor";
+          return undefined;
         },
       },
     },

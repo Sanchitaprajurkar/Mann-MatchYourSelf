@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Product } from "../data/mockData";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 interface Props {
   products: Product[];
@@ -60,10 +61,12 @@ const BestSellerSection = ({ products, loading }: Props) => {
             >
               <div className="relative overflow-hidden aspect-[3/4] mb-6 bg-[#F9F9F9]">
                 <img
-                  src={product.images[0]}
+                  src={CLOUDINARY_PRESETS.card(product.images[0], 400)}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
+                  width={400}
+                  height={533}
                 />
                 
                 {/* Product Badge */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../utils/api";
 import { Link } from "react-router-dom";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 interface Order {
   _id: string;
@@ -211,9 +212,12 @@ function Orders() {
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
                               <img
-                                src={item.product.images[0] || "/placeholder-product.jpg"}
+                                src={CLOUDINARY_PRESETS.mini(item.product.images[0] || "/placeholder-product.jpg", 96)}
                                 alt={item.product.name}
                                 className="w-full h-full object-cover"
+                                loading="lazy"
+                                width={48}
+                                height={48}
                               />
                             </div>
                             <div>

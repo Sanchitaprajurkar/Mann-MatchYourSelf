@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../utils/api";
 import { Copy } from "lucide-react";
+import { CLOUDINARY_PRESETS } from "../../utils/cloudinary";
 
 const COLORS = {
   gold: "#C5A059",
@@ -425,9 +426,15 @@ const AccountOrders = () => {
                 <div key={i} className="flex flex-wrap sm:flex-nowrap gap-4 sm:gap-6 items-center border-b sm:border-none border-gray-100 pb-4 sm:pb-0">
                   <div className="w-20 h-20 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0">
                     <img
-                      src={item.product?.images?.[0] || item.image || "/placeholder-product.jpg"}
+                      src={CLOUDINARY_PRESETS.mini(
+                        item.product?.images?.[0] || item.image || "/placeholder-product.jpg",
+                        160
+                      )}
                       alt={item.product?.name || item.name}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      width={80}
+                      height={80}
                     />
                   </div>
                   <div className="flex-1">

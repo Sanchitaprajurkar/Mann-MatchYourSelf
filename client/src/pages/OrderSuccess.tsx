@@ -4,6 +4,7 @@ import API from "../utils/api";
 import { useCheckout } from "../context/CheckoutContext";
 import { Check, Truck, MapPin, ArrowRight, Package, Box, ShieldCheck, Tag } from "lucide-react";
 import { motion } from "framer-motion";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const OrderConfirmationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -127,9 +128,15 @@ const OrderConfirmationPage: React.FC = () => {
                   <div key={idx} className="flex gap-4">
                     <div className="w-20 h-24 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                       <img 
-                        src={item.image || item.product?.images?.[0] || item.images?.[0] || "/placeholder-product.jpg"} 
+                        src={CLOUDINARY_PRESETS.mini(
+                          item.image || item.product?.images?.[0] || item.images?.[0] || "/placeholder-product.jpg",
+                          160
+                        )} 
                         alt={item.name} 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        width={80}
+                        height={96}
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-center">

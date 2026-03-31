@@ -7,6 +7,7 @@ import { useCheckout } from "../context/CheckoutContext";
 import AddressSelectionModal from "../components/AddressSelectionModal";
 import { Shield, MapPin, ChevronRight, ArrowLeft, Box, Tag } from "lucide-react";
 import { motion } from "framer-motion";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const OrderConfirmation: React.FC = () => {
   const navigate = useNavigate();
@@ -159,7 +160,14 @@ const OrderConfirmation: React.FC = () => {
                 {items.map((item, idx) => (
                   <div key={idx} className="flex gap-6">
                     <div className="w-20 h-28 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <img
+                        src={CLOUDINARY_PRESETS.mini(item.image, 160)}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        width={80}
+                        height={112}
+                      />
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
                       <h4 className="font-serif text-[#1A1A1A] text-lg mb-1">{item.name}</h4>

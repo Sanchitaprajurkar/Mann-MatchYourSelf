@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Heart, ArrowRight, Plus } from "lucide-react";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 interface WishlistPreviewProps {
   className?: string;
@@ -98,9 +99,12 @@ const WishlistPreview: React.FC<WishlistPreviewProps> = ({
             <div key={product._id} className="group">
               <div className="relative overflow-hidden rounded-lg bg-gray-50">
                 <img
-                  src={product.images?.[0] || "/placeholder-product.jpg"}
+                  src={CLOUDINARY_PRESETS.mini(product.images?.[0] || "/placeholder-product.jpg", 240)}
                   alt={product.name}
                   className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  width={240}
+                  height={160}
                 />
 
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import API from "../utils/api";
+import { CLOUDINARY_PRESETS } from "../utils/cloudinary";
 
 const COLORS = {
   gold: "#C5A059",
@@ -174,9 +175,12 @@ const MyOrders: React.FC = () => {
                       <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                         {item.image && (
                           <img
-                            src={item.image}
+                            src={CLOUDINARY_PRESETS.mini(item.image, 96)}
                             alt={item.name}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            width={48}
+                            height={48}
                           />
                         )}
                       </div>
