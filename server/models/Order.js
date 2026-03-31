@@ -68,9 +68,17 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      state: {
+        type: String,
+        default: "",
+      },
       postalCode: {
         type: String,
         required: true,
+      },
+      pincode: {
+        type: String,
+        default: "",
       },
       country: {
         type: String,

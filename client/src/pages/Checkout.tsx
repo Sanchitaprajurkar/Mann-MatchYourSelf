@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
 import { useCart } from "../context/CartContext";
-import { addressService, Address } from "../services/addressService";
+import {
+  addressService,
+  Address,
+  PostalLookupResult,
+} from "../services/addressService";
 import { calculatePricingSummary } from "../utils/pricing";
 
 const COLORS = {
@@ -17,6 +21,7 @@ interface ShippingAddress {
   phone: string;
   address: string;
   city: string;
+  state: string;
   postalCode: string;
   country: string;
 }
@@ -35,9 +40,12 @@ const Checkout: React.FC = () => {
     phone: "",
     address: "",
     city: "",
+    state: "",
     postalCode: "",
     country: "India",
   });
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [isLookupLoading, setIsLookupLoading] = useState(false);
   const pricingSummary = calculatePricingSummary(cart);
 
   // 🛡️ EMPTY CART CHECK - Show debug info instead of redirect
@@ -82,9 +90,11 @@ const Checkout: React.FC = () => {
       phone: address.mobile,
       address: `${address.house}, ${address.addressLine}, ${address.locality}`,
       city: address.city,
+      state: address.state,
       postalCode: address.pincode,
       country: "India",
     });
+    setLookupMessage("");
   };
 
   const handleAddressSelect = (addressId: string) => {
@@ -105,9 +115,11 @@ const Checkout: React.FC = () => {
         phone: "",
         address: "",
         city: "",
+        state: "",
         postalCode: "",
         country: "India",
       });
+      setLookupMessage("");
     }
   };
 
@@ -115,8 +127,62 @@ const Checkout: React.FC = () => {
     const { name, value } = e.target;
     setShippingAddress((prev) => ({
       ...prev,
-      [name]: value,
+      [name]:
+        name === "postalCode"
+          ? value.replace(/\D/g, "").slice(0, 6)
+          : value,
     }));
+
+    if (name === "city" || name === "postalCode" || name === "state") {
+      setLookupMessage("");
+    }
+  };
+
+  const applyLookupResult = (
+    lookup: PostalLookupResult,
+    source: "postalCode" | "city",
+  ) => {
+    setShippingAddress((prev) => ({
+      ...prev,
+      city: lookup.city || prev.city,
+      state: lookup.state || prev.state,
+      postalCode: lookup.pincode || prev.postalCode,
+    }));
+    setLookupMessage(
+      source === "postalCode"
+        ? "City and state auto-filled from pincode."
+        : "Pincode and state auto-filled from city.",
+    );
+  };
+
+  const handlePostalCodeBlur = async () => {
+    if (shippingAddress.postalCode.trim().length !== 6) return;
+
+    setIsLookupLoading(true);
+    const lookup = await addressService.lookupByPincode(
+      shippingAddress.postalCode,
+    );
+    setIsLookupLoading(false);
+
+    if (lookup) {
+      applyLookupResult(lookup, "postalCode");
+    } else {
+      setLookupMessage("Could not auto-fill location from this pincode.");
+    }
+  };
+
+  const handleCityBlur = async () => {
+    if (shippingAddress.city.trim().length < 3) return;
+
+    setIsLookupLoading(true);
+    const lookup = await addressService.lookupByCity(shippingAddress.city);
+    setIsLookupLoading(false);
+
+    if (lookup) {
+      applyLookupResult(lookup, "city");
+    } else {
+      setLookupMessage("Could not auto-fill pincode from this city.");
+    }
   };
 
   const validateForm = (): boolean => {
@@ -125,6 +191,7 @@ const Checkout: React.FC = () => {
       "phone",
       "address",
       "city",
+      "state",
       "postalCode",
     ];
     const missingFields = requiredFields.filter(
@@ -424,25 +491,48 @@ const Checkout: React.FC = () => {
                     name="city"
                     value={shippingAddress.city}
                     onChange={handleInputChange}
+                    onBlur={handleCityBlur}
                     className="w-full border-b border-gray-200 py-2 focus:border-[#C5A059] outline-none text-sm bg-transparent"
                     placeholder="City"
+                    required
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Enter city to auto-fill pincode and state
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-widest text-gray-400">
+                    State *
+                  </label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={shippingAddress.state}
+                    onChange={handleInputChange}
+                    className="w-full border-b border-gray-200 py-2 focus:border-[#C5A059] outline-none text-sm bg-transparent"
+                    placeholder="State"
                     required
                   />
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-xs uppercase tracking-widest text-gray-400">
-                    Postal Code *
+                    Pincode *
                   </label>
                   <input
                     type="text"
                     name="postalCode"
                     value={shippingAddress.postalCode}
                     onChange={handleInputChange}
+                    onBlur={handlePostalCodeBlur}
                     className="w-full border-b border-gray-200 py-2 focus:border-[#C5A059] outline-none text-sm bg-transparent"
                     placeholder="400001"
                     required
                   />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Enter pincode to auto-fill city and state
+                  </p>
                 </div>
 
                 <div className="md:col-span-2 space-y-1">
@@ -458,6 +548,12 @@ const Checkout: React.FC = () => {
                     placeholder="India"
                   />
                 </div>
+
+                {(lookupMessage || isLookupLoading) && (
+                  <div className="md:col-span-2 text-[11px] text-gray-500">
+                    {isLookupLoading ? "Looking up location..." : lookupMessage}
+                  </div>
+                )}
               </div>
             </div>
           ) : null}
@@ -488,17 +584,36 @@ const Checkout: React.FC = () => {
 
         <button
           onClick={() => {
-            const selectedAddress = addresses.find((addr) => addr._id === selectedAddressId);
-            if (!selectedAddress) {
+            const selectedAddress = addresses.find(
+              (addr) => addr._id === selectedAddressId,
+            );
+
+            if (!useNewAddress && selectedAddress) {
+              navigate("/payment", {
+                state: {
+                  address: selectedAddress,
+                  items: cart,
+                  total: pricingSummary.subtotal,
+                },
+              });
+              return;
+            }
+
+            if (!useNewAddress && addresses.length > 0) {
               setError("Please select a shipping address");
               return;
             }
+
+            if (!validateForm()) {
+              return;
+            }
+
             navigate("/payment", {
               state: {
-                address: selectedAddress,
+                address: shippingAddress,
                 items: cart,
-                total: pricingSummary.subtotal
-              }
+                total: pricingSummary.subtotal,
+              },
             });
           }}
           disabled={loading || cart.length === 0}

@@ -94,8 +94,8 @@ const PaymentPage: React.FC = () => {
           }
         },
         prefill: {
-          name: address.fullName || "",
-          contact: address.phone || "",
+          name: address.fullName || address.name || "",
+          contact: address.phone || address.mobile || "",
         },
         theme: {
           color: "#C5A059",
@@ -125,7 +125,9 @@ const PaymentPage: React.FC = () => {
       phone: address.phone || address.mobile || "",
       address: address.address || `${address.house || ""}, ${address.addressLine || ""}, ${address.locality || ""}`.trim().replace(/^[,\s]+|[,\s]+$/g, ''),
       city: address.city || "",
+      state: address.state || "",
       postalCode: address.postalCode || address.pincode || "",
+      pincode: address.pincode || address.postalCode || "",
       country: address.country || "India",
     };
 

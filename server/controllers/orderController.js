@@ -54,6 +54,15 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Shipping address is required" });
     }
 
+    const normalizedShippingAddress = {
+      ...shippingAddress,
+      city: shippingAddress.city || "",
+      state: shippingAddress.state || "",
+      postalCode: shippingAddress.postalCode || shippingAddress.pincode || "",
+      pincode: shippingAddress.pincode || shippingAddress.postalCode || "",
+      country: shippingAddress.country || "India",
+    };
+
     const orderItems = user.cart
       .filter((ci) => ci.product)
       .map((ci) => ({
@@ -130,7 +139,7 @@ const createOrder = async (req, res) => {
     const order = new Order({
       user: req.user.id,
       items: orderItems,
-      shippingAddress,
+      shippingAddress: normalizedShippingAddress,
       paymentMethod: isOnline ? "ONLINE" : "COD",
       paymentStatus: "Pending",
       totalAmount: Math.round(totalAmount),

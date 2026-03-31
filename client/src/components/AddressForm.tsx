@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { CreateAddressData } from "../services/addressService";
+import {
+  addressService,
+  CreateAddressData,
+  PostalLookupResult,
+} from "../services/addressService";
 
 const COLORS = { gold: "#C5A059", black: "#1A1A1A", cream: "#FAF8F5", border: "#E5E5E5" };
 
@@ -26,10 +30,62 @@ const AddressForm: React.FC<AddressFormProps> = ({ onSave, onCancel, initialData
       isDefault: false,
     }
   );
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [isLookupLoading, setIsLookupLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    const nextValue =
+      type === "checkbox"
+        ? checked
+        : name === "pincode"
+          ? value.replace(/\D/g, "").slice(0, 6)
+          : value;
+
+    setForm({ ...form, [name]: nextValue as never });
+  };
+
+  const applyLookupResult = (lookup: PostalLookupResult, source: "pincode" | "city") => {
+    setForm((prev) => ({
+      ...prev,
+      pincode: lookup.pincode || prev.pincode,
+      state: lookup.state || prev.state,
+      city: lookup.city || prev.city,
+      locality: prev.locality || lookup.locality || "",
+    }));
+    setLookupMessage(
+      source === "pincode"
+        ? "City and state auto-filled from pincode."
+        : "Pincode and state auto-filled from city.",
+    );
+  };
+
+  const handlePincodeBlur = async () => {
+    if (form.pincode.trim().length !== 6) return;
+
+    setIsLookupLoading(true);
+    const lookup = await addressService.lookupByPincode(form.pincode);
+    setIsLookupLoading(false);
+
+    if (lookup) {
+      applyLookupResult(lookup, "pincode");
+    } else {
+      setLookupMessage("Could not auto-fill location from this pincode.");
+    }
+  };
+
+  const handleCityBlur = async () => {
+    if (form.city.trim().length < 3) return;
+
+    setIsLookupLoading(true);
+    const lookup = await addressService.lookupByCity(form.city);
+    setIsLookupLoading(false);
+
+    if (lookup) {
+      applyLookupResult(lookup, "city");
+    } else {
+      setLookupMessage("Could not auto-fill pincode from this city.");
+    }
   };
 
   const handleSubmit = () => {
@@ -98,8 +154,12 @@ const AddressForm: React.FC<AddressFormProps> = ({ onSave, onCancel, initialData
             placeholder="400001"
             value={form.pincode} 
             onChange={handleChange} 
+            onBlur={handlePincodeBlur}
             className="w-full border-b border-gray-200 py-2 focus:border-[#C5A059] outline-none text-sm bg-transparent" 
           />
+          <p className="text-[10px] text-gray-400 mt-1">
+            Enter pincode to auto-fill city and state
+          </p>
         </div>
         <div className="space-y-1">
           <label className="text-[9px] uppercase tracking-widest text-gray-400">State *</label>
@@ -153,9 +213,19 @@ const AddressForm: React.FC<AddressFormProps> = ({ onSave, onCancel, initialData
           placeholder="Nashik"
           value={form.city} 
           onChange={handleChange} 
+          onBlur={handleCityBlur}
           className="w-full border-b border-gray-200 py-2 focus:border-[#C5A059] outline-none text-sm bg-transparent" 
         />
+        <p className="text-[10px] text-gray-400 mt-1">
+          Enter city to auto-fill pincode and state
+        </p>
       </div>
+
+      {(lookupMessage || isLookupLoading) && (
+        <div className="mt-4 text-[11px] text-gray-500">
+          {isLookupLoading ? "Looking up location..." : lookupMessage}
+        </div>
+      )}
 
       {/* Address Type */}
       <div className="mt-8">

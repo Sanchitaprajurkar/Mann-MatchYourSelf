@@ -36,7 +36,122 @@ export interface CreateAddressData {
   isDefault: boolean;
 }
 
+export interface PostalLookupResult {
+  city: string;
+  state: string;
+  pincode: string;
+  locality?: string;
+}
+
 class AddressService {
+  private pickBestPostOffice(postOffices: any[] = [], searchText?: string) {
+    if (!postOffices.length) return null;
+
+    const normalizedSearch = searchText?.trim().toLowerCase() || "";
+    const deliveryOffice =
+      postOffices.find((office) => office?.DeliveryStatus === "Delivery") ||
+      postOffices[0];
+
+    if (!normalizedSearch) {
+      return deliveryOffice;
+    }
+
+    return (
+      postOffices.find((office) => {
+        const fields = [
+          office?.Name,
+          office?.District,
+          office?.Block,
+          office?.State,
+        ]
+          .filter(Boolean)
+          .map((value: string) => value.toLowerCase());
+
+        return fields.some(
+          (field) =>
+            field === normalizedSearch || field.includes(normalizedSearch),
+        );
+      }) || deliveryOffice
+    );
+  }
+
+  private mapPostalOfficeToLookup(office: any): PostalLookupResult {
+    const cityCandidate =
+      office?.Block && office.Block !== "NA"
+        ? office.Block
+        : office?.District || office?.Name || "";
+
+    return {
+      city: cityCandidate,
+      state: office?.State || "",
+      pincode: office?.Pincode || "",
+      locality: office?.Name || "",
+    };
+  }
+
+  async lookupByPincode(pincode: string): Promise<PostalLookupResult | null> {
+    const sanitizedPincode = pincode.trim().replace(/\D/g, "").slice(0, 6);
+    if (sanitizedPincode.length !== 6) return null;
+
+    try {
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${sanitizedPincode}`,
+      );
+      const data = await response.json();
+      const payload = Array.isArray(data) ? data[0] : data;
+
+      if (
+        !payload ||
+        String(payload.Status).toLowerCase() !== "success" ||
+        !Array.isArray(payload.PostOffice) ||
+        payload.PostOffice.length === 0
+      ) {
+        return null;
+      }
+
+      const office = this.pickBestPostOffice(payload.PostOffice);
+      if (!office) return null;
+
+      return this.mapPostalOfficeToLookup({
+        ...office,
+        Pincode: sanitizedPincode,
+      });
+    } catch (error) {
+      console.error("Error looking up pincode:", error);
+      return null;
+    }
+  }
+
+  async lookupByCity(city: string): Promise<PostalLookupResult | null> {
+    const sanitizedCity = city.trim();
+    if (sanitizedCity.length < 3) return null;
+
+    try {
+      const response = await fetch(
+        `https://api.postalpincode.in/postoffice/${encodeURIComponent(sanitizedCity)}`,
+      );
+      const data = await response.json();
+      const payload = Array.isArray(data) ? data[0] : data;
+
+      if (
+        !payload ||
+        String(payload.Status).toLowerCase() !== "success" ||
+        !Array.isArray(payload.PostOffice) ||
+        payload.PostOffice.length === 0
+      ) {
+        return null;
+      }
+
+      const office = this.pickBestPostOffice(payload.PostOffice, sanitizedCity);
+      if (!office) return null;
+
+      return this.mapPostalOfficeToLookup(office);
+    } catch (error) {
+      console.error("Error looking up city:", error);
+      return null;
+    }
+  }
+
   // Get all addresses for the authenticated user
   async getAddresses(): Promise<Address[]> {
     try {
