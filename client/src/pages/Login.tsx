@@ -132,6 +132,8 @@ export default function Login() {
                   Email Address
                 </label>
                 <input
+                  id="login-email"
+                  name="email"
                   type="email"
                   placeholder=""
                   value={email}
@@ -146,6 +148,8 @@ export default function Login() {
                   Password
                 </label>
                 <input
+                  id="login-password"
+                  name="password"
                   type="password"
                   placeholder=""
                   value={password}
@@ -174,6 +178,8 @@ export default function Login() {
             {/* Privacy Checkbox */}
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
+                id="login-policy"
+                name="policyAccepted"
                 type="checkbox"
                 required
                 className="mt-1 accent-[#C5A059]"

@@ -152,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    window.dispatchEvent(new CustomEvent("user-logout"));
     setToken(null);
     setUser(null);
     // Check if current route is admin, redirect to admin login

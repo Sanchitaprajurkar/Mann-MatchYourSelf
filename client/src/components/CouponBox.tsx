@@ -103,6 +103,8 @@ const CouponBox: React.FC<CouponBoxProps> = ({
 
       <div className="flex gap-2">
         <input
+          id="coupon-code"
+          name="couponCode"
           type="text"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}

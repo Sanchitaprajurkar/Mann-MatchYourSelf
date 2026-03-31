@@ -28,6 +28,11 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+app.use("/api", (req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  next();
+});
+
 // 🔍 REQUEST LOGGING MIDDLEWARE
 
 app.use((req, res, next) => {
@@ -119,6 +124,13 @@ app.use("/api/offers", offerRoutes);
 
 const couponRoutes = require("./routes/couponRoutes");
 app.use("/api/coupons", couponRoutes);
+
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.originalUrl}`,
+  });
+});
 
 // Sitemap route
 const { generateSitemap } = require("./controllers/sitemapController");

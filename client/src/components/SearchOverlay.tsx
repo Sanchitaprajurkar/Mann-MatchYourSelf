@@ -77,6 +77,8 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
             <div className="flex items-center gap-3 px-6 py-5 border-b bg-[#FAF8F5]">
               <Search size={22} color={COLORS.gold} />
               <input
+                id="site-search"
+                name="search"
                 ref={inputRef}
                 type="text"
                 placeholder="Search lehengas, sarees, kurta sets..."

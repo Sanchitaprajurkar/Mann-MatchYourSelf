@@ -38,6 +38,8 @@ export default function FooterLeadForm() {
         {/* Email */}
         <div className="relative">
           <input
+            id="footer-lead-email"
+            name="email"
             type="email"
             required
             placeholder="Email Address"
@@ -50,6 +52,8 @@ export default function FooterLeadForm() {
         {/* Phone */}
         <div className="relative">
           <input
+            id="footer-lead-phone"
+            name="phone"
             type="tel"
             placeholder="WhatsApp (Optional)"
             value={phone}
@@ -66,9 +70,12 @@ export default function FooterLeadForm() {
               className="flex items-center gap-3 cursor-pointer group"
             >
               <input
+                id={`footer-pref-${pref.toLowerCase()}`}
+                name="preference"
                 type="radio"
                 className="sr-only"
                 checked={preference === pref}
+                value={pref}
                 onChange={() => setPreference(pref)}
               />
               <div

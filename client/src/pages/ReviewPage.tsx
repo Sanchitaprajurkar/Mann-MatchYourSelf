@@ -131,6 +131,8 @@ const ReviewPage = () => {
                 Your Comments
               </label>
               <textarea
+                id="review-comment"
+                name="comment"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Tell us about the fit, fabric, and overall experience..."

@@ -47,27 +47,51 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  // Initialize from localStorage — but only keep items that have valid product data
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("cart");
-      if (!saved) return [];
-      const parsed: CartItem[] = JSON.parse(saved);
-      // Filter out corrupted/stale items that are missing name or price
-      const valid = parsed.filter(
-        (item) => item.productId && item.name && item.name !== "Unknown Product" && item.price > 0
-      );
-      return valid;
-    } catch {
+const getInitialCartItems = (): CartItem[] => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.removeItem("cart");
       return [];
     }
-  });
+
+    const saved = localStorage.getItem("cart");
+    if (!saved) return [];
+
+    const parsed: CartItem[] = JSON.parse(saved);
+    return parsed.filter(
+      (item) =>
+        item.productId &&
+        item.name &&
+        item.name !== "Unknown Product" &&
+        item.price > 0,
+    );
+  } catch {
+    localStorage.removeItem("cart");
+    return [];
+  }
+};
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  // Initialize from localStorage — but only keep items that have valid product data
+  const [items, setItems] = useState<CartItem[]>(getInitialCartItems);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedItems, setLastSyncedItems] = useState<string>("");
 
+  const resetCartState = () => {
+    setItems([]);
+    setLastSyncedItems("");
+    localStorage.removeItem("cart");
+  };
+
   // Persist to localStorage whenever items change
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token || items.length === 0) {
+      localStorage.removeItem("cart");
+      return;
+    }
+
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
@@ -77,6 +101,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (token) {
       // Immediately fetch real populated cart, overriding any stale localStorage data
       fetchCartFromBackend();
+    } else {
+      resetCartState();
     }
 
     // Also listen for cart hydration events dispatched by AuthContext on login/refresh
@@ -86,9 +112,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    const handleUserLogout = () => {
+      resetCartState();
+    };
+
     window.addEventListener("cart-hydrate" as any, handleCartHydrate);
+    window.addEventListener("user-logout", handleUserLogout);
     return () => {
       window.removeEventListener("cart-hydrate" as any, handleCartHydrate);
+      window.removeEventListener("user-logout", handleUserLogout);
     };
   }, []);
 
@@ -358,8 +390,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
-    setItems([]);
-    localStorage.removeItem("cart");
+    resetCartState();
     // Note: Backend cart is cleared automatically after successful order
   };
 

@@ -173,6 +173,7 @@ export default function Signup() {
                   {field.icon}
                 </div>
                 <input
+                  id={`signup-${field.name}`}
                   name={field.name}
                   type={field.type}
                   placeholder={field.placeholder}
@@ -187,7 +188,13 @@ export default function Signup() {
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer py-2">
-            <input type="checkbox" required className="accent-[#C5A059]" />
+            <input
+              id="signup-terms"
+              name="termsAccepted"
+              type="checkbox"
+              required
+              className="accent-[#C5A059]"
+            />
             <span className="text-[10px] text-gray-500 uppercase tracking-widest">
               I agree to the{" "}
               <Link
