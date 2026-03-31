@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useWishlist } from "../../context/WishlistContext";
+import API from "../../utils/api";
+import { addressService } from "../../services/addressService";
 import { Package, Heart, MapPin, ArrowRight, User, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -13,22 +16,85 @@ const COLORS = {
 };
 
 const AccountOverview = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const { items: wishlist } = useWishlist();
+  const [orderCount, setOrderCount] = useState(0);
+  const [addressCount, setAddressCount] = useState(0);
 
-  // Human-centric stats (Visual rather than just numbers)
-  const quickStats = [
-    { label: "My Orders", value: "0", icon: Package, link: "/account/orders" },
-    { label: "My Favorites", value: "0", icon: Heart, link: "/wishlist" }, // Connecting the Wishlist
-    {
-      label: "Saved Spots",
-      value: "2",
-      icon: MapPin,
-      link: "/account/addresses",
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadOverviewStats = async () => {
+      try {
+        const [ordersResponse, addresses] = await Promise.all([
+          API.get("/api/orders/my", {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }),
+          addressService.getAddresses(),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const orders = Array.isArray(ordersResponse.data?.data)
+          ? ordersResponse.data.data
+          : [];
+
+        setOrderCount(orders.length);
+        setAddressCount(addresses.length);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        console.error("Error loading account overview stats:", error);
+        setOrderCount(0);
+        setAddressCount(0);
+      }
+    };
+
+    if (user?._id) {
+      loadOverviewStats();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token, user?._id]);
+
+  const quickStats = useMemo(
+    () => [
+      {
+        label: "My Orders",
+        value: String(orderCount),
+        icon: Package,
+        link: "/account/orders",
+      },
+      {
+        label: "My Favorites",
+        value: String(wishlist.length),
+        icon: Heart,
+        link: "/wishlist",
+      },
+      {
+        label: "Saved Spots",
+        value: String(addressCount),
+        icon: MapPin,
+        link: "/account/addresses",
+      },
+    ],
+    [addressCount, orderCount, wishlist.length],
+  );
 
   // Profile completion check
   const isProfileComplete = user?.name && user?.email;
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-IN", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   if (!user) {
     return (
@@ -126,10 +192,10 @@ const AccountOverview = () => {
               { label: "Digital Address", val: user.email || "Add your email" },
               {
                 label: "Journey Started",
-                val: isProfileComplete
-                  ? "Autumn 2024"
+                val: memberSince
+                  ? memberSince
                   : "Complete your profile to unlock the full experience",
-                italic: !isProfileComplete,
+                italic: !memberSince,
               },
             ].map((field) => (
               <div key={field.label}>

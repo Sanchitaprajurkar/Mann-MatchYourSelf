@@ -70,6 +70,8 @@ export interface ProductReviewsResponse {
 }
 
 export interface ReviewEligibility {
+  canReview: boolean;
+  reason: "NOT_PURCHASED" | "NOT_DELIVERED" | "ALREADY_REVIEWED" | null;
   hasVerifiedPurchase: boolean;
   hasReviewed: boolean;
   reviewStatus: Review["status"] | null;

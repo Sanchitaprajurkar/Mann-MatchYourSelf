@@ -25,6 +25,8 @@ const LookBook = lazy(() => import("./components/LookBook"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 const Blogs = lazy(() => import("./pages/Blogs"));
@@ -300,6 +302,24 @@ function App() {
                 element={
                   <MainLayout>
                     <Signup />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/forgot-password"
+                element={
+                  <MainLayout>
+                    <ForgotPassword />
+                  </MainLayout>
+                }
+              />
+
+              <Route
+                path="/reset-password/:token"
+                element={
+                  <MainLayout>
+                    <ResetPassword />
                   </MainLayout>
                 }
               />

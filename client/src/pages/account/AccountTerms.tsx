@@ -1,83 +1,82 @@
 import React from "react";
-import { FileText } from "lucide-react";
+import { FileText, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AccountTerms = () => {
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Terms of Use</h2>
-        <p className="text-gray-600 mt-1">Last updated: January 23, 2024</p>
+    <div className="space-y-6">
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-full bg-[#FAF8F5] flex items-center justify-center">
+          <FileText className="w-6 h-6 text-[#C5A059]" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Terms of Use</h2>
+          <p className="text-gray-600 mt-1">Last updated: March 31, 2026</p>
+        </div>
       </div>
 
-      <div className="prose max-w-none">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            1. Acceptance of Terms
-          </h3>
-          <p className="text-gray-600 mb-6">
-            By accessing and using MANN Match Your Self, you accept and agree to
-            be bound by the terms and provision of this agreement.
-          </p>
+      <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8 space-y-6">
+        <p className="text-gray-700 leading-relaxed">
+          These Terms govern your access to and use of Mann Match Yourself,
+          including account creation, shopping, checkout, reviews, and all
+          related services. By continuing to use the site, you agree to follow
+          these terms and our store policies.
+        </p>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            2. Use License
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Using the site
           </h3>
-          <p className="text-gray-600 mb-6">
-            Permission is granted to temporarily download one copy of the
-            materials on MANN Match Your Self for personal, non-commercial
-            transitory viewing only.
+          <p className="text-gray-600 leading-relaxed">
+            You agree to provide accurate account, contact, and delivery
+            details, keep your login credentials secure, and use the site only
+            for lawful personal shopping purposes.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            3. Disclaimer
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Orders, pricing, and availability
           </h3>
-          <p className="text-gray-600 mb-6">
-            The materials on MANN Match Your Self are provided on an 'as is'
-            basis. MANN Match Your Self makes no warranties, expressed or
-            implied, and hereby disclaims and negates all other warranties
-            including without limitation, implied warranties or conditions of
-            merchantability, fitness for a particular purpose, or
-            non-infringement of intellectual property or other violation of
-            rights.
+          <p className="text-gray-600 leading-relaxed">
+            Prices, offers, and inventory may change without notice. We may
+            cancel or adjust orders if a product is unavailable, a listing
+            contains an error, or a transaction appears fraudulent.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            4. Limitations
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Delivery and returns
           </h3>
-          <p className="text-gray-600 mb-6">
-            In no event shall MANN Match Your Self or its suppliers be liable
-            for any damages (including, without limitation, damages for loss of
-            data or profit, or due to business interruption) arising out of the
-            use or inability to use the materials on MANN Match Your Self.
+          <p className="text-gray-600 leading-relaxed">
+            Delivery timelines are estimates. Returns and exchanges are subject
+            to our product condition rules and approval workflow. Items must be
+            unused and returned with original tags and packaging when eligible.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            5. Privacy Policy
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Content and intellectual property
           </h3>
-          <p className="text-gray-600 mb-6">
-            Your Privacy Policy is incorporated into this Agreement by reference
-            and is also posted on our website. Please review our Privacy Policy,
-            which also governs the Site and informs users of our data collection
-            practices.
+          <p className="text-gray-600 leading-relaxed">
+            All designs, imagery, brand assets, copy, and site content remain
+            the property of Mann Match Yourself unless stated otherwise. They
+            may not be copied, reused, or distributed without permission.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            6. Revisions and Errata
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Need the full legal version?
           </h3>
-          <p className="text-gray-600 mb-6">
-            The materials appearing on MANN Match Your Self could include
-            technical, typographical, or photographic errors. We do not warrant
-            that any of the materials on its website are accurate, complete, or
-            current.
-          </p>
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            7. Contact Information
-          </h3>
-          <p className="text-gray-600">
-            Questions about the Terms of Use should be sent to us at
-            support@mannmatchyourself.com
-          </p>
+          <Link
+            to="/terms"
+            className="inline-flex items-center gap-2 text-[#C5A059] hover:text-[#1A1A1A] transition-colors"
+          >
+            Open full Terms of Use <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </div>

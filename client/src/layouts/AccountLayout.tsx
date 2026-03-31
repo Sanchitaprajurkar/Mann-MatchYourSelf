@@ -7,7 +7,6 @@ import {
   MapPin,
   Trash2,
   FileText,
-  Shield,
   LogOut,
 } from "lucide-react";
 
@@ -31,7 +30,6 @@ const AccountLayout = () => {
     { name: "ORDERS & RETURNS", path: "/account/orders", icon: Package },
     { name: "PROFILE", path: "/account/profile", icon: User },
     { name: "ADDRESSES", path: "/account/addresses", icon: MapPin },
-    { name: "PRIVACY", path: "/account/privacy", icon: Shield },
     { name: "DELETE ACCOUNT", path: "/account/delete", icon: Trash2 },
   ];
 
@@ -141,11 +139,11 @@ const AccountLayout = () => {
                 </Link>
 
                 <Link
-                  to="/account/privacy"
+                  to="/privacy"
                   className="group flex items-center gap-4 transition-all duration-300"
                 >
                   <div className="w-1 h-5 bg-transparent group-hover:bg-gray-200 transition-all duration-300" />
-                  <Shield
+                  <FileText
                     size={16}
                     className="text-gray-400 group-hover:text-gray-600 transition-colors duration-300"
                     strokeWidth={1.5}

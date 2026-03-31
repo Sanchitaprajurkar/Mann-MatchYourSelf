@@ -14,6 +14,12 @@ interface User {
   name: string;
   email: string;
   role: "user" | "admin";
+  gender?: string;
+  dateOfBirth?: string;
+  mobileNumber?: string;
+  createdAt?: string;
+  cart?: unknown[];
+  wishlist?: unknown[];
 }
 
 interface AuthContextType {
@@ -66,6 +72,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userData = userResponse.data;
 
       if (userData.success && userData.data) {
+        const hydratedUser = {
+          _id: userData.data._id,
+          name: userData.data.name,
+          email: userData.data.email,
+          role: userData.data.role,
+          gender: userData.data.gender,
+          dateOfBirth: userData.data.dateOfBirth,
+          mobileNumber: userData.data.mobileNumber,
+          createdAt: userData.data.createdAt,
+          cart: userData.data.cart,
+          wishlist: userData.data.wishlist,
+        };
+
+        setUser(hydratedUser);
+        localStorage.setItem("user", JSON.stringify(hydratedUser));
+
         // Dispatch events to hydrate contexts
         window.dispatchEvent(
           new CustomEvent("cart-hydrate", {
@@ -110,6 +132,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = userResponse.data;
 
           if (userData.success && userData.data) {
+            const hydratedUser = {
+              _id: userData.data._id,
+              name: userData.data.name,
+              email: userData.data.email,
+              role: userData.data.role,
+              gender: userData.data.gender,
+              dateOfBirth: userData.data.dateOfBirth,
+              mobileNumber: userData.data.mobileNumber,
+              createdAt: userData.data.createdAt,
+              cart: userData.data.cart,
+              wishlist: userData.data.wishlist,
+            };
+
+            setUser(hydratedUser);
+            localStorage.setItem("user", JSON.stringify(hydratedUser));
+
             // Dispatch events to hydrate contexts
             window.dispatchEvent(
               new CustomEvent("cart-hydrate", {
@@ -171,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getAuthHeader,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !!token,
         loading,
       }}
     >

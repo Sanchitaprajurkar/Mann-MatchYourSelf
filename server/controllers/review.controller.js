@@ -145,14 +145,61 @@ const updateProductRatingStats = async (productId) => {
   });
 };
 
-const hasVerifiedPurchase = async (userId, productId) => {
-  const matchingOrder = await Order.findOne({
-    user: userId,
-    orderStatus: { $in: ["Placed", "Shipped", "Delivered"] },
-    "items.product": productId,
-  }).lean();
+const isDeliveredOrder = (order) =>
+  order?.orderStatus === "Delivered" || order?.status === "DELIVERED";
 
-  return Boolean(matchingOrder);
+const getReviewEligibilityData = async (userId, productId) => {
+  const existingReview = await Review.findOne({ productId, userId })
+    .select("_id status")
+    .lean();
+
+  const orders = await Order.find({
+    user: userId,
+    "items.product": productId,
+  })
+    .select("orderStatus status")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const deliveredOrder = orders.find(isDeliveredOrder);
+
+  if (existingReview) {
+    return {
+      canReview: false,
+      reason: "ALREADY_REVIEWED",
+      hasReviewed: true,
+      reviewStatus: existingReview.status || null,
+      hasVerifiedPurchase: Boolean(deliveredOrder),
+    };
+  }
+
+  if (orders.length === 0) {
+    return {
+      canReview: false,
+      reason: "NOT_PURCHASED",
+      hasReviewed: false,
+      reviewStatus: null,
+      hasVerifiedPurchase: false,
+    };
+  }
+
+  if (!deliveredOrder) {
+    return {
+      canReview: false,
+      reason: "NOT_DELIVERED",
+      hasReviewed: false,
+      reviewStatus: null,
+      hasVerifiedPurchase: false,
+    };
+  }
+
+  return {
+    canReview: true,
+    reason: null,
+    hasReviewed: false,
+    reviewStatus: null,
+    hasVerifiedPurchase: true,
+  };
 };
 
 const uploadImagesToCloudinary = async (files) => {
@@ -239,20 +286,28 @@ exports.createReview = async (req, res) => {
         .json({ success: false, message: "Product not found." });
     }
 
-    const existingReview = await Review.findOne({ productId, userId });
-    if (existingReview) {
-      return res.status(409).json({
-        success: false,
-        message: "You have already reviewed this product.",
-      });
-    }
-
-    const [verifiedPurchase, uploadedImages] = await Promise.all([
-      hasVerifiedPurchase(userId, productId),
+    const [eligibility, uploadedImages] = await Promise.all([
+      getReviewEligibilityData(userId, productId),
       req.files?.length
         ? uploadImagesToCloudinary(req.files)
         : Promise.resolve([]),
     ]);
+
+    if (!eligibility.canReview) {
+      const statusCode = eligibility.reason === "ALREADY_REVIEWED" ? 400 : 403;
+      const message =
+        eligibility.reason === "ALREADY_REVIEWED"
+          ? "You have already reviewed this product."
+          : eligibility.reason === "NOT_DELIVERED"
+            ? "Your order is on the way. You can review after delivery."
+            : "Please purchase this product to leave a review.";
+
+      return res.status(statusCode).json({
+        success: false,
+        message,
+        reason: eligibility.reason,
+      });
+    }
 
     const imagesFromBody = parseImagesPayload(req.body.images);
     const finalImages = uploadedImages.length ? uploadedImages : imagesFromBody;
@@ -267,14 +322,14 @@ exports.createReview = async (req, res) => {
       pros: normalizeList(req.body.pros),
       cons: normalizeList(req.body.cons),
       images: finalImages,
-      isVerifiedPurchase: verifiedPurchase,
+      isVerifiedPurchase: eligibility.hasVerifiedPurchase,
       isApproved: false,
       status: "pending",
     });
 
     return res.status(201).json({
       success: true,
-      message: verifiedPurchase
+      message: eligibility.hasVerifiedPurchase
         ? "Review submitted and queued for approval. Verified purchase detected."
         : "Review submitted and queued for approval.",
       data: serializeReview(review),
@@ -300,23 +355,36 @@ exports.getReviewEligibility = async (req, res) => {
     const userId = req.user?.id;
     const { productId } = req.params;
 
-    const [verifiedPurchase, existingReview] = await Promise.all([
-      hasVerifiedPurchase(userId, productId),
-      Review.findOne({ productId, userId }).select("_id status").lean(),
-    ]);
+    const eligibility = await getReviewEligibilityData(userId, productId);
 
     return res.json({
       success: true,
-      data: {
-        hasVerifiedPurchase: verifiedPurchase,
-        hasReviewed: Boolean(existingReview),
-        reviewStatus: existingReview?.status || null,
-      },
+      data: eligibility,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Failed to load review eligibility.",
+      error: error.message,
+    });
+  }
+};
+
+exports.canReview = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { productId } = req.params;
+
+    const eligibility = await getReviewEligibilityData(userId, productId);
+
+    return res.json({
+      success: true,
+      data: eligibility,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check review eligibility.",
       error: error.message,
     });
   }
@@ -393,6 +461,31 @@ exports.getAllReviews = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch reviews.",
+      error: error.message,
+    });
+  }
+};
+
+exports.getLatestReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({
+      status: "approved",
+      isApproved: true,
+      isHidden: false,
+    })
+      .populate("userId", "name")
+      .populate("productId", "name images")
+      .sort({ createdAt: -1 })
+      .limit(3);
+
+    return res.json({
+      success: true,
+      data: reviews.map(serializeReview),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch latest reviews.",
       error: error.message,
     });
   }

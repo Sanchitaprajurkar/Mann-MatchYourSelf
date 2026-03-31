@@ -196,6 +196,7 @@ export function useReviews(productId: string) {
     eligibility: eligibilityQuery.data,
     isLoading: reviewsQuery.isLoading,
     isFetching: reviewsQuery.isFetching,
+    isEligibilityLoading: eligibilityQuery.isLoading,
     isSubmitting: createReviewMutation.isPending,
     isVoting: voteReviewMutation.isPending,
     isReporting: reportReviewMutation.isPending,

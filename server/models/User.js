@@ -45,6 +45,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       match: [/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"],
     },
+    resetToken: {
+      type: String,
+      select: false,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      select: false,
+    },
     // Cart and Wishlist for e-commerce functionality
     cart: [
       {
@@ -95,6 +103,8 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // Automatically adds createdAt and updatedAt fields
   },
 );
+
+userSchema.index({ resetToken: 1 });
 
 // Password hashing middleware - temporarily disabled
 // userSchema.pre("save", function (next) {

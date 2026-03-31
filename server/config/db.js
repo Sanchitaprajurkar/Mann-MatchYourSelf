@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
-require("dotenv").config(); // Load environment variables exactly once
+const path = require("path");
+require("dotenv").config({
+  path: path.resolve(__dirname, "../../.env"),
+  override: true,
+});
 
 const connectDB = async () => {
   // Strict validation: MONGO_URI must be defined

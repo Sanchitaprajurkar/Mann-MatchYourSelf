@@ -1,3 +1,4 @@
+import axios from "axios";
 import API from "../utils/api";
 import type {
   ProductReviewsResponse,
@@ -14,6 +15,30 @@ interface ApiResponse<T> {
   data: T;
 }
 
+type LegacyReviewEligibility = Pick<
+  ReviewEligibility,
+  "hasVerifiedPurchase" | "hasReviewed" | "reviewStatus"
+>;
+
+const normalizeReviewEligibility = (
+  data: ReviewEligibility | LegacyReviewEligibility,
+): ReviewEligibility => {
+  if ("canReview" in data) {
+    return data;
+  }
+
+  const hasReviewed = Boolean(data.hasReviewed);
+  const hasVerifiedPurchase = Boolean(data.hasVerifiedPurchase);
+
+  return {
+    canReview: hasVerifiedPurchase && !hasReviewed,
+    reason: hasReviewed ? "ALREADY_REVIEWED" : hasVerifiedPurchase ? null : "NOT_PURCHASED",
+    hasVerifiedPurchase,
+    hasReviewed,
+    reviewStatus: data.reviewStatus || null,
+  };
+};
+
 export const reviewApi = {
   async getProductReviews(productId: string): Promise<ProductReviewsResponse> {
     const response = await API.get<ApiResponse<ProductReviewsResponse>>(
@@ -23,9 +48,25 @@ export const reviewApi = {
   },
 
   async getReviewEligibility(productId: string): Promise<ReviewEligibility> {
-    const response = await API.get<ApiResponse<ReviewEligibility>>(
-      `/api/reviews/product/${productId}/eligibility`,
-    );
+    try {
+      const response = await API.get<ApiResponse<ReviewEligibility | LegacyReviewEligibility>>(
+        `/api/reviews/product/${productId}/eligibility`,
+      );
+      return normalizeReviewEligibility(response.data.data);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        const fallbackResponse = await API.get<ApiResponse<ReviewEligibility>>(
+          `/api/reviews/can-review/${productId}`,
+        );
+        return normalizeReviewEligibility(fallbackResponse.data.data);
+      }
+
+      throw error;
+    }
+  },
+
+  async getLatestReviews(): Promise<Review[]> {
+    const response = await API.get<ApiResponse<Review[]>>("/api/reviews/latest");
     return response.data.data;
   },
 

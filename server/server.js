@@ -1,13 +1,17 @@
 require("dotenv").config(); // ✅ Load .env FIRST before anything else
 
+const path = require("path");
+require("dotenv").config({
+  path: path.resolve(__dirname, "../.env"),
+  override: true,
+});
+
 const express = require("express");
 
 const cors = require("cors");
 
 const connectDB = require("./config/db");
 const createDefaultAdmin = require("./utils/createDefaultAdmin");
-
-const path = require("path");
 
 // Connect to MongoDB Atlas (dotenv is loaded in db.js)
 connectDB().then(() => {

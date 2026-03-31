@@ -27,6 +27,7 @@ type ReviewFormSchema = z.infer<typeof reviewSchema>;
 interface ReviewFormProps {
   productId: string;
   eligibility?: ReviewEligibility;
+  isEligibilityLoading?: boolean;
   onSubmitReview: (payload: ReviewCreatePayload) => Promise<unknown>;
   onSuccess: () => void;
 }
@@ -34,6 +35,7 @@ interface ReviewFormProps {
 export default function ReviewForm({
   productId,
   eligibility,
+  isEligibilityLoading = false,
   onSubmitReview,
   onSuccess,
 }: ReviewFormProps) {
@@ -116,6 +118,16 @@ export default function ReviewForm({
     );
   }
 
+  if (isEligibilityLoading) {
+    return (
+      <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-md">
+        <p className="text-sm text-[var(--color-muted)]">
+          Checking whether this order is eligible for review...
+        </p>
+      </div>
+    );
+  }
+
   if (eligibility?.hasReviewed) {
     return (
       <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-md">
@@ -131,6 +143,46 @@ export default function ReviewForm({
         </p>
       </div>
     );
+  }
+
+  if (eligibility && !eligibility.canReview) {
+    if (eligibility.reason === "NOT_PURCHASED") {
+      return (
+        <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-md">
+          <h3 className="text-xl font-semibold text-[var(--color-text)]">
+            Purchase required
+          </h3>
+          <p className="mt-2 text-sm text-[var(--color-muted)]">
+            Please purchase this product to leave a review.
+          </p>
+          <Link
+            to="/shop"
+            className="mt-4 inline-flex rounded-2xl bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+          >
+            Buy this product
+          </Link>
+        </div>
+      );
+    }
+
+    if (eligibility.reason === "NOT_DELIVERED") {
+      return (
+        <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6 shadow-md dark:border-yellow-500/30 dark:bg-yellow-500/10">
+          <h3 className="text-xl font-semibold text-[var(--color-text)]">
+            Review available after delivery
+          </h3>
+          <p className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+            Your order is on the way. You can review after delivery.
+          </p>
+          <Link
+            to="/my-orders"
+            className="mt-4 inline-flex rounded-2xl border border-yellow-300 px-4 py-3 text-sm font-semibold text-yellow-800 transition hover:bg-yellow-100 dark:border-yellow-500/30 dark:text-yellow-200 dark:hover:bg-yellow-500/10"
+          >
+            View my orders
+          </Link>
+        </div>
+      );
+    }
   }
 
   return (

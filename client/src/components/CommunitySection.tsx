@@ -78,10 +78,10 @@ const CommunitySection = ({ productId }: CommunitySectionProps) => {
         // If productId is provided, fetch product specific reviews, otherwise generic or all
         const endpoint = productId
           ? `/api/reviews/product/${productId}`
-          : `/api/reviews`;
+          : `/api/reviews/latest`;
         const res = await API.get(endpoint);
         if (res.data.success) {
-          setReviews(res.data.data || []);
+          setReviews(productId ? res.data.data?.reviews || [] : res.data.data || []);
         }
       } catch (err) {
         console.error("Error fetching reviews:", err);

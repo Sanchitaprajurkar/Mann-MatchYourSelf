@@ -32,3 +32,27 @@ export const signupUser = async (
     throw error;
   }
 };
+
+export const requestPasswordReset = async (email: string) => {
+  try {
+    const res = await API.post("/api/auth/forgot-password", { email });
+    return res.data;
+  } catch (error: any) {
+    console.error("Forgot password service error:", error);
+    console.error("Error response:", error.response?.data);
+    throw error;
+  }
+};
+
+export const resetPassword = async (token: string, password: string) => {
+  try {
+    const res = await API.post(`/api/auth/reset-password/${token}`, {
+      password,
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error("Reset password service error:", error);
+    console.error("Error response:", error.response?.data);
+    throw error;
+  }
+};

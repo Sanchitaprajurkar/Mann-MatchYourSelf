@@ -1,92 +1,70 @@
 import React from "react";
-import { Shield } from "lucide-react";
+import { Shield, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AccountPrivacy = () => {
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Privacy Policy</h2>
-        <p className="text-gray-600 mt-1">Last updated: January 23, 2024</p>
+    <div className="space-y-6">
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-full bg-[#FAF8F5] flex items-center justify-center">
+          <Shield className="w-6 h-6 text-[#C5A059]" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Privacy Policy</h2>
+          <p className="text-gray-600 mt-1">Last updated: March 31, 2026</p>
+        </div>
       </div>
 
-      <div className="prose max-w-none">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            1. Information We Collect
-          </h3>
-          <p className="text-gray-600 mb-6">
-            We collect information you provide directly to us, such as when you
-            create an account, make a purchase, or contact us for support.
-          </p>
+      <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8 space-y-6">
+        <p className="text-gray-700 leading-relaxed">
+          We collect only the information needed to run your account, process
+          orders, arrange delivery, support payments, and improve the shopping
+          experience. We do not sell your personal data.
+        </p>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            2. How We Use Your Information
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            What we collect
           </h3>
-          <p className="text-gray-600 mb-6">
-            We use the information we collect to provide, maintain, and improve
-            our services, process transactions, and communicate with you.
+          <p className="text-gray-600 leading-relaxed">
+            This may include your name, email, phone number, saved addresses,
+            order history, product preferences, and limited technical data such
+            as browser and device information.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            3. Information Sharing
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            How we use it
           </h3>
-          <p className="text-gray-600 mb-6">
-            We do not sell, trade, or otherwise transfer your personal
-            information to third parties without your consent, except as
-            described in this Privacy Policy.
+          <p className="text-gray-600 leading-relaxed">
+            We use your data to fulfil orders, handle support, send order
+            updates, prevent fraud, and improve site performance and product
+            recommendations.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            4. Data Security
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Your control
           </h3>
-          <p className="text-gray-600 mb-6">
-            We implement appropriate technical and organizational measures to
-            protect your personal information against unauthorized access,
-            alteration, disclosure, or destruction.
+          <p className="text-gray-600 leading-relaxed">
+            You can request corrections or deletion of account data, subject to
+            legal and transaction-record obligations. Marketing communication
+            preferences can be changed at any time.
           </p>
+        </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            5. Cookies and Tracking
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Need the full legal version?
           </h3>
-          <p className="text-gray-600 mb-6">
-            We use cookies and similar tracking technologies to track activity
-            on our service and hold certain information to improve your
-            experience.
-          </p>
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            6. Your Rights
-          </h3>
-          <p className="text-gray-600 mb-6">
-            You have the right to access, update, or delete your personal
-            information. You can do this by logging into your account or
-            contacting us directly.
-          </p>
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            7. Children's Privacy
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Our service does not address anyone under the age of 18. We do not
-            knowingly collect personally identifiable information from anyone
-            under the age of 18.
-          </p>
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            8. Changes to This Policy
-          </h3>
-          <p className="text-gray-600 mb-6">
-            We may update our Privacy Policy from time to time. We will notify
-            you of any changes by posting the new Privacy Policy on this page.
-          </p>
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            9. Contact Information
-          </h3>
-          <p className="text-gray-600">
-            If you have any questions about this Privacy Policy, please contact
-            us at privacy@mannmatchyourself.com
-          </p>
+          <Link
+            to="/privacy"
+            className="inline-flex items-center gap-2 text-[#C5A059] hover:text-[#1A1A1A] transition-colors"
+          >
+            Open full Privacy Policy <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </div>

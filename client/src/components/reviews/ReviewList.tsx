@@ -38,6 +38,7 @@ export default function ReviewList({ productId }: ReviewListProps) {
     eligibility,
     isLoading,
     isFetching,
+    isEligibilityLoading,
     sortBy,
     filters,
     search,
@@ -97,6 +98,7 @@ export default function ReviewList({ productId }: ReviewListProps) {
             <ReviewForm
               productId={productId}
               eligibility={eligibility}
+              isEligibilityLoading={isEligibilityLoading}
               onSubmitReview={async (payload) => {
                 try {
                   return await submitReview(payload);

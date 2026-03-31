@@ -10,6 +10,8 @@ const { reviewImageUpload } = require("../middleware/upload.middleware");
 const router = express.Router();
 
 router.get("/admin", protect, adminOnly, reviewController.getAdminReviews);
+router.get("/latest", optionalAuthenticateToken, reviewController.getLatestReviews);
+router.get("/can-review/:productId", protect, reviewController.canReview);
 router.get("/product/:productId/eligibility", protect, reviewController.getReviewEligibility);
 router.get("/product/:productId", optionalAuthenticateToken, reviewController.getProductReviews);
 router.get("/", optionalAuthenticateToken, reviewController.getAllReviews);
