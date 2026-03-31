@@ -9,9 +9,12 @@ import { UIProvider } from "./context/UIContext";
 import { CheckoutProvider } from "./context/CheckoutContext";
 import ScrollToTop from "./components/ScrollToTop";
 import App from "./App.tsx";
+import { logConsoleBranding } from "./utils/consoleBranding";
 import "./index.css";
 import "./styles/theme.css";
 import "./App.css";
+
+logConsoleBranding();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

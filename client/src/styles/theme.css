@@ -21,6 +21,11 @@
   --mann-border: #e6e1d8;
   --mann-text: #555555;
 
+  /* Theme aliases for shared UI utilities */
+  --color-primary: var(--mann-black);
+  --color-accent: var(--mann-gold);
+  --color-text: var(--mann-white);
+
   /* Spacing System - 8px Grid */
   --space-1: 0.5rem; /* 8px */
   --space-2: 1rem; /* 16px */
