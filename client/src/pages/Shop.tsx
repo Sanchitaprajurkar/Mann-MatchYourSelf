@@ -547,11 +547,14 @@ function Shop() {
       />
 
       {/* 1. LUXURY CATEGORY SECTION - Editorial Boutique Experience */}
-      <section className="relative bg-gradient-to-r from-[#FAF8F5] via-[#F9F7F3] to-[#FAF8F5] py-16 border-b border-[#F0EDE8]">
+      <section className="relative bg-gradient-to-r from-[#FAF8F5] via-[#F9F7F3] to-[#FAF8F5] border-b border-[#F0EDE8] pt-28 pb-16 md:pt-32 md:pb-20">
         <div className="max-w-[1600px] mx-auto px-6">
           {/* Enhanced Heading with Better Hierarchy */}
           <div className="text-center mb-12">
-            <h2 className="text-base md:text-lg font-serif tracking-[0.25em] uppercase text-[#C5A059] mb-3">
+            <h2
+              className="text-4xl md:text-6xl text-[#1A1A1A] leading-none tracking-[0.02em] mb-4"
+              style={{ fontFamily: "'Great Vibes', cursive" }}
+            >
               Explore Categories
             </h2>
             <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto opacity-60"></div>
