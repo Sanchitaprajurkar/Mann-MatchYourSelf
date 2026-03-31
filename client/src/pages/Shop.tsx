@@ -33,6 +33,33 @@ const COLORS = {
   lightGray: "#F0EDE8",
 };
 
+const COLOR_SWATCH_MAP: Record<string, string> = {
+  black: "#1A1A1A",
+  blue: "#4A6FA5",
+  emerald: "#0F8B6D",
+  gold: "#C5A059",
+  ivory: "#F6F1E6",
+  maroon: "#6E1F34",
+  navy: "#1F2A44",
+  pink: "#D88FA0",
+  red: "#B42318",
+  green: "#2E8B57",
+  yellow: "#D4A017",
+  purple: "#6B4C9A",
+  white: "#F8F8F8",
+  beige: "#D8C3A5",
+  brown: "#7A5230",
+  grey: "#9CA3AF",
+  gray: "#9CA3AF",
+  orange: "#D97706",
+};
+
+const getColorSwatch = (color: { name?: string; hex?: string }) => {
+  if (color.hex) return color.hex;
+  const normalizedName = color.name?.trim().toLowerCase() || "";
+  return COLOR_SWATCH_MAP[normalizedName] || "#CCCCCC";
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -855,7 +882,7 @@ function Shop() {
                         <div className="flex items-center gap-2">
                           <div
                             className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: color.hex || "#ccc" }}
+                            style={{ backgroundColor: getColorSwatch(color) }}
                           />
                           <span className="text-[12px] text-gray-600 group-hover:text-black transition-colors capitalize">
                             {color.name}
@@ -1140,7 +1167,7 @@ function Shop() {
                         <div className="flex items-center gap-2">
                           <div
                             className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: color.hex || "#ccc" }}
+                            style={{ backgroundColor: getColorSwatch(color) }}
                           />
                           <span className="text-sm text-gray-600 capitalize">
                             {color.name}

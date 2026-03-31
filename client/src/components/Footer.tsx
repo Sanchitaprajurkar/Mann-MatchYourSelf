@@ -23,7 +23,10 @@ const Footer = () => {
             
             {/* THE HOUSE */}
             <div className="space-y-6">
-              <h4 className="text-[11px] font-bold tracking-[0.4em] uppercase text-[#C5A059]">
+              <h4
+                className="text-[11px] font-bold tracking-[0.4em] uppercase"
+                style={{ color: "#FFFFFF" }}
+              >
                 The House
               </h4>
               <ul className="space-y-4">
@@ -42,7 +45,10 @@ const Footer = () => {
 
             {/* CONCIERGE */}
             <div className="space-y-6">
-              <h4 className="text-[11px] font-bold tracking-[0.4em] uppercase text-[#C5A059]">
+              <h4
+                className="text-[11px] font-bold tracking-[0.4em] uppercase"
+                style={{ color: "#FFFFFF" }}
+              >
                 Concierge
               </h4>
               <div className="space-y-4">
@@ -62,7 +68,10 @@ const Footer = () => {
 
             {/* FOLLOW */}
             <div className="space-y-6">
-              <h4 className="text-[11px] font-bold tracking-[0.4em] uppercase text-[#C5A059]">
+              <h4
+                className="text-[11px] font-bold tracking-[0.4em] uppercase"
+                style={{ color: "#FFFFFF" }}
+              >
                 Follow Us
               </h4>
               <div className="flex justify-center sm:justify-start gap-4">

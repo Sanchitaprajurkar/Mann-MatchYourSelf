@@ -1,9 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
-import SplashScreen from "./components/SplashScreen";
-import LoadingSpinner from "./components/LoadingSpinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const MainLayout = lazy(() => import("./layouts/MainLayout"));
@@ -65,33 +63,18 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    // Only show splash screen on homepage (/) and when first loading
-    const isHomepage = location.pathname === "/" || location.pathname === "";
-    const hasSeenSplash = sessionStorage.getItem("mannSplashSeen");
-
-    if (isHomepage && !hasSeenSplash) {
-      setShowSplash(true);
-      sessionStorage.setItem("mannSplashSeen", "true");
-
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-        setShowSplash(false);
-      }, 2600);
-
-      return () => clearTimeout(timer);
-    } else {
-      setIsLoading(false);
-      setShowSplash(false);
-    }
+    // Splash/loader temporarily disabled.
+    setIsLoading(false);
+    setShowSplash(false);
   }, [location.pathname]);
 
   return (
     <>
-      {/* GENERAL LOADING SPINNER - Shows during initial app load */}
-      {isLoading && !showSplash && <LoadingSpinner />}
+      {/* GENERAL LOADING SPINNER - Temporarily disabled */}
+      {/* {isLoading && !showSplash && <LoadingSpinner />} */}
 
-      {/* SPLASH SCREEN - Only on homepage first visit */}
-      <AnimatePresence mode="wait">
+      {/* SPLASH SCREEN - Temporarily disabled */}
+      {/* <AnimatePresence mode="wait">
         {showSplash && (
           <SplashScreen
             finishLoading={() => {
@@ -100,7 +83,7 @@ function App() {
             }}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
       {/* MAIN APP */}
       {!showSplash && (
@@ -114,7 +97,7 @@ function App() {
             <BackgroundMusic />
           </Suspense>
 
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={null}>
             <Routes>
               <Route
                 path="/"

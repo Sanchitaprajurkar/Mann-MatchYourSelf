@@ -27,7 +27,10 @@ export default function FooterLeadForm() {
 
   return (
     <div className="w-full">
-      <h3 className="font-serif text-2xl font-bold text-[#C5A059] mb-3 text-center sm:text-left">
+      <h3
+        className="font-serif text-2xl font-bold mb-3 text-center sm:text-left"
+        style={{ color: "#FFFFFF" }}
+      >
         Heritage Updates
       </h3>
       <p className="text-xs text-white/80 mb-8 leading-relaxed text-center sm:text-left">
