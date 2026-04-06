@@ -45,6 +45,7 @@ const authenticateToken = async (req, res, next) => {
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({ success: false, message: "Invalid token" });
     }
+    console.error("🔥 AUTH MIDDLEWARE ERROR:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

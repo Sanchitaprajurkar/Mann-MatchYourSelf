@@ -1,0 +1,153 @@
+﻿[dotenv@17.2.4] injecting env (12) from .env -- tip: ΓÜÖ∩╕Å  write to custom object with { processEnv: myObject }
+node : ≡ƒöÑ AUTH 
+MIDDLEWARE ERROR: 
+CastError: Cast to 
+ObjectId failed for value 
+"65f1a2b3c4d5e6f7g8h9i0j1"
+ (type string) at path 
+"_id" for model "User"
+At line:1 char:1
++ node test-auth.js > 
+test-auth-out.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (≡  
+  ƒöÑ AUTH MIDDL...or m   
+ odel "User":String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+    at 
+SchemaObjectId.cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schema\objectId.js:253
+:11)
+    at 
+SchemaType.applySetters 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schemaType.js:1280:12)
+    at 
+SchemaType.castForQuery 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schemaType.js:1706:17)
+    at cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\cast.js:386:32)
+    at Query.cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:5040:12)
+    at 
+Query._castConditions 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:2374:10)
+    at 
+model.Query._findOne 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:2704:8)
+    at model.Query.exec 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:4652:80)
+    at process.processTick
+sAndRejections (node:inter
+nal/process/task_queues:10
+5:5)
+    at async 
+authenticateToken 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\middleware\authMiddlew
+are.js:29:17) {
+  stringValue: '"65f1a2b3c
+4d5e6f7g8h9i0j1"',
+  messageFormat: 
+undefined,
+  kind: 'ObjectId',
+  value: '65f1a2b3c4d5e6f7
+g8h9i0j1',
+  path: '_id',
+  reason: BSONError: 
+input must be a 24 
+character hex string, 12 
+byte Uint8Array, or an 
+integer
+      at new ObjectId 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\bson\lib\
+bson.cjs:2565:23)
+      at castObjectId 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\cast\objectid.js:25:12
+)
+      at 
+SchemaObjectId.cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schema\objectId.js:251
+:12)
+      at 
+SchemaType.applySetters 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schemaType.js:1280:12)
+      at 
+SchemaType.castForQuery 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\schemaType.js:1706:17)
+      at cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\cast.js:386:32)
+      at Query.cast 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:5040:12)
+      at 
+Query._castConditions 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:2374:10)
+      at 
+model.Query._findOne 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:2704:8)
+      at model.Query.exec 
+(C:\Users\Sanchita Rajurka
+r\Mann-Match-Your-Self\ser
+ver\node_modules\mongoose\
+lib\query.js:4652:80),
+  valueType: 'string'
+}
+Called res.status: 500
+Called res.json: { success: false, message: 'Server error' }
+Auth test complete.
