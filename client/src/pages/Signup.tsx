@@ -201,7 +201,7 @@ export default function Signup() {
                 to="/terms"
                 className="text-[#1A1A1A] underline decoration-[#C5A059]"
               >
-                Membership Terms
+                Terms of Use and Privacy Policy
               </Link>
             </span>
           </label>
