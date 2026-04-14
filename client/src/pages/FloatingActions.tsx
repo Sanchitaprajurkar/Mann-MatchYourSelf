@@ -1,6 +1,7 @@
 import { ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { openWhatsAppWithPreloader } from "../utils/whatsapp";
+import Chatbot from "../components/Chatbot";
 
 const FloatingActions = () => {
   const [showTop, setShowTop] = useState(false);
@@ -38,6 +39,9 @@ const FloatingActions = () => {
         </button>
       )}
 
+      {/* Chatbot */}
+      <Chatbot />
+      
       {/* WhatsApp */}
       <button
         type="button"

@@ -82,6 +82,7 @@ const configRoutes = require("./routes/configRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 
 const leadRoutes = require("./routes/leadRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 const settingsRoutes = require("./routes/settingsRoutes");
 
@@ -114,6 +115,7 @@ app.use("/api/config", configRoutes);
 app.use("/api/addresses", addressRoutes);
 
 app.use("/api/leads", leadRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.use("/api/settings", settingsRoutes);
 
