@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import API from "../utils/api";
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{type: "user" | "bot", text: string, products?: any[]}[]>([
@@ -28,16 +28,8 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      // Use full URL if there's an issue with proxy, but vite proxy /api should work
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: userMessage }),
-      });
-
-      const data = await res.json();
+      const res = await API.post("/api/chat", { message: userMessage });
+      const data = res.data;
 
       setMessages(prev => [
         ...prev,

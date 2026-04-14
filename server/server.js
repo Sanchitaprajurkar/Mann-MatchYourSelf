@@ -24,7 +24,22 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: ["http://localhost:5173", "https://mannmatchyourself.com", "https://www.mannmatchyourself.com"],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://mannmatchyourself.com",
+      "https://www.mannmatchyourself.com",
+      "https://mann-matchyourself.onrender.com", // ✅ Render frontend
+    ];
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow any *.onrender.com subdomain (covers all Render preview deployments)
+    if (/\.onrender\.com$/.test(origin) || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true
 }));
 
