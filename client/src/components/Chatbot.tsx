@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import API from "../utils/api";
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,7 +91,9 @@ export default function Chatbot() {
                       : "bg-white text-black border border-gray-100 rounded-2xl rounded-bl-sm"
                   }`}
                 >
-                  <p className="leading-relaxed whitespace-pre-wrap font-sans">{msg.text}</p>
+                  <div className="leading-relaxed whitespace-pre-wrap font-sans markdown-content">
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* Product Cards */}
@@ -153,6 +156,22 @@ export default function Chatbot() {
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        .markdown-content strong {
+          font-weight: 700;
+        }
+        .markdown-content p {
+          margin-bottom: 0.5rem;
+        }
+        .markdown-content p:last-child {
+          margin-bottom: 0;
+        }
+        .markdown-content ul, .markdown-content ol {
+          padding-left: 1.25rem;
+          margin-bottom: 0.5rem;
+        }
+        .markdown-content li {
+          margin-bottom: 0.25rem;
         }
       `}} />
     </div>
